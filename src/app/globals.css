@@ -1,0 +1,168 @@
+/* 霞鹜字体引入 - 必须在最前面 */
+@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@300;400;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111827;
+    --foreground: #f9fafb;
+  }
+}
+
+html.dark {
+  --background: #111827;
+  --foreground: #f9fafb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "LXGW WenKai", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Menlo, Consolas, "Courier New", monospace;
+}
+
+
+/* tw93 风格的全局样式优化 */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "LXGW WenKai", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+  letter-spacing: 0.02em;
+  line-height: 1.7;
+  font-weight: 400;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 深色模式全局样式 */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #111827 !important;
+  color: #f9fafb !important;
+}
+
+/* 强制深色模式全局覆盖 */
+html.dark * {
+  border-color: rgb(55 65 81);
+}
+
+html.dark main {
+  background-color: #111827 !important;
+  color: #f9fafb !important;
+}
+
+/* 确保所有容器都应用深色模式 */
+html.dark {
+  background-color: #111827 !important;
+}
+
+html.dark div,
+html.dark article,
+html.dark section {
+  background-color: inherit;
+  color: inherit;
+}
+
+/* 优化链接过渡效果 */
+a {
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+/* 优化文章内容排版 */
+article {
+  line-height: 1.8;
+  letter-spacing: 0.03em;
+}
+
+article p {
+  margin: 1.5em 0;
+}
+
+article h1, article h2, article h3 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+}
+
+/* 优化代码块样式 */
+code {
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Menlo, Consolas, "Courier New", monospace;
+  font-size: 0.9em;
+}
+
+/* 霞鹜字体特殊优化 */
+.lxgw-wenkai {
+  font-family: "LXGW WenKai", serif;
+}
+
+/* 标题使用稍重的字重 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "LXGW WenKai", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+}
+
+/* 时间数字保持等宽字体 */
+time {
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Menlo, Consolas, "Courier New", monospace !important;
+}
+
+/* 优化选中文本样式 */
+::selection {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: inherit;
+}
+
+html.dark ::selection {
+  background-color: rgba(147, 197, 253, 0.3);
+  color: inherit;
+}
+
+/* 优化滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 深色模式滚动条 */
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 优化焦点样式 */
+:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}

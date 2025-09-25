@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import BlogCard from '@/components/BlogCard';
 import Link from 'next/link';
-import { getPosts } from '@/lib/notion';
+import { getPostsOnly } from '@/lib/notion';
 import type { NotionPost } from '@/lib/notion';
 
 export default function SearchPage() {
@@ -16,7 +16,7 @@ export default function SearchPage() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const fetchedPosts = await getPosts();
+        const fetchedPosts = await getPostsOnly();
         setPosts(fetchedPosts);
       } catch (error) {
         console.error('Error fetching posts:', error);

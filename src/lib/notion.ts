@@ -48,24 +48,68 @@ const mockPosts: NotionPost[] = [
   {
     id: '1',
     title: '📷 图文随笔：四季更替',
-    excerpt: '记录四季的变化，感受时间的流逝，每一个季节都有它独特的美...',
+    excerpt: '记录四季的变化，感受时间的流逝，每一个季节都有它独特的美。从春的新绿到冬的纯白，每一帧都值得珍藏。',
     publishedAt: '2024-12-25',
     slug: 'seasons-notes',
-    tags: ['随笔', '生活', '摄影'],
+    tags: ['随笔', '生活', '摄影', '四季'],
     published: true,
     cover: null,
-    content: '# 四季更替\n\n记录四季的变化，感受时间的流逝...'
+    content: '# 四季更替\n\n记录四季的变化，感受时间的流逝，每一个季节都有它独特的美。\n\n## 春天的故事\n\n万物复苏的季节...\n\n## 夏日时光\n\n热烈而充满活力...'
   },
   {
     id: '2',
     title: '🚀 架构笔记：我的博客技术栈',
-    excerpt: '分享这个博客的技术选型和架构设计，以及为什么选择这些技术...',
+    excerpt: '分享这个博客的技术选型和架构设计，以及为什么选择这些技术。从 Next.js 到 Notion CMS，每个选择都有它的理由。',
     publishedAt: '2024-12-20',
     slug: 'blog-stack-notes',
-    tags: ['技术', '架构', 'Next.js'],
+    tags: ['技术', '架构', 'Next.js', 'Notion'],
     published: true,
     cover: null,
-    content: '# 博客技术栈\n\n这个博客使用了现代化的技术栈...'
+    content: '# 博客技术栈\n\n这个博客使用了现代化的技术栈，追求简洁和高效。\n\n## 前端架构\n\n- **Framework**: Next.js 15\n- **Styling**: Tailwind CSS\n- **Font**: LXGW WenKai\n\n## 内容管理\n\n- **CMS**: Notion\n- **Markdown**: react-markdown'
+  },
+  {
+    id: '3',
+    title: '💡 效率工具：打造完美的开发环境',
+    excerpt: '分享我的开发工具和工作流，包括编辑器配置、命令行工具、以及各种提升效率的小技巧。',
+    publishedAt: '2024-12-15',
+    slug: 'dev-tools-setup',
+    tags: ['工具', '效率', '开发', 'VSCode'],
+    published: true,
+    cover: null,
+    content: '# 开发环境配置\n\n一个好的开发环境能够大大提升工作效率。\n\n## 编辑器\n\n使用 VSCode 作为主力编辑器...\n\n## 终端工具\n\n- iTerm2\n- Oh My Zsh\n- 各种有用的命令行工具'
+  },
+  {
+    id: '4',
+    title: '🎨 设计思考：极简主义的魅力',
+    excerpt: '探讨极简主义在设计中的应用，从用户界面到用户体验，少即是多的设计哲学如何改变我们的思考方式。',
+    publishedAt: '2024-12-10',
+    slug: 'minimalism-design',
+    tags: ['设计', '极简', 'UI/UX', '哲学'],
+    published: true,
+    cover: null,
+    content: '# 极简主义设计\n\n少即是多，这是极简主义设计的核心理念。\n\n## 设计原则\n\n1. **简洁性** - 去除不必要的元素\n2. **功能性** - 专注于核心功能\n3. **可读性** - 确保信息清晰传达'
+  },
+  {
+    id: '5',
+    title: '📚 读书笔记：《深度工作》',
+    excerpt: 'Cal Newport 的《深度工作》读后感，分享如何在分心的时代培养专注力，提升工作质量和效率。',
+    publishedAt: '2024-12-05',
+    slug: 'deep-work-notes',
+    tags: ['读书', '效率', '专注', '成长'],
+    published: true,
+    cover: null,
+    content: '# 深度工作读后感\n\n在这个信息爆炸的时代，如何保持专注成为了一种稀缺的能力。\n\n## 核心观点\n\n深度工作是在无干扰的状态下专注进行职业活动的能力...\n\n## 实践方法\n\n1. 设定专门的工作时间\n2. 创造无干扰的环境\n3. 培养专注的习惯'
+  },
+  {
+    id: '6',
+    title: '🌱 生活感悟：慢下来的艺术',
+    excerpt: '在快节奏的现代生活中，我们是否忘记了慢下来的重要性？分享一些关于慢生活的思考和体验。',
+    publishedAt: '2024-11-28',
+    slug: 'slow-living-art',
+    tags: ['生活', '感悟', '慢生活', '哲学'],
+    published: true,
+    cover: null,
+    content: '# 慢下来的艺术\n\n在这个快节奏的时代，慢下来成为了一种奢侈。\n\n## 慢的意义\n\n慢不是懒惰，而是一种生活态度...\n\n## 实践方式\n\n- 每天留出思考的时间\n- 专注于当下的体验\n- 减少不必要的忙碌'
   }
 ];
 

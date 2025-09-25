@@ -75,7 +75,29 @@ export default function BlogCard({ post, publishedAtStr }: BlogCardProps) {
           <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
             {post.excerpt}
           </p>
-          <ReadingTime content={post.content} />
+
+          {/* 标签和阅读时间 */}
+          <div className="flex items-center justify-between">
+            {/* 标签 */}
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {post.tags.slice(0, 3).map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-block bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs"
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {post.tags.length > 3 && (
+                  <span className="text-gray-400 text-xs">+{post.tags.length - 3}</span>
+                )}
+              </div>
+            )}
+
+            {/* 阅读时间 */}
+            <ReadingTime content={post.content} />
+          </div>
         </div>
       )}
     </article>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Metadata } from 'next';
 import BlogCard from '@/components/BlogCard';
 import Link from 'next/link';
 import { getPosts } from '@/lib/notion';

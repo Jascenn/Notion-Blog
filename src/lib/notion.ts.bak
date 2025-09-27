@@ -1,6 +1,4 @@
 import { logger } from './logger';
-import { Client } from '@notionhq/client';
-import { NotionToMarkdown } from 'notion-to-md';
 
 export interface NotionPost {
   id: string;
@@ -19,7 +17,6 @@ export interface NotionPost {
 // Notion API 响应类型
 interface NotionRichText {
   plain_text: string;
-  href?: string | null;
   annotations?: {
     bold: boolean;
     italic: boolean;
@@ -27,11 +24,6 @@ interface NotionRichText {
     underline: boolean;
     code: boolean;
     color: string;
-  };
-  text?: {
-    link?: {
-      url?: string | null;
-    };
   };
 }
 
@@ -149,36 +141,10 @@ const getFetchOptions = () => ({
   cache: 'force-cache' as RequestCache, // 启用缓存
 });
 
-// Notion 客户端与 Markdown 转换器缓存，避免重复初始化
-let notionClient: Client | null = null;
-let notionMarkdown: NotionToMarkdown | null = null;
-
-function ensureNotionMarkdown(): NotionToMarkdown | null {
-  if (notionMarkdown) {
-    return notionMarkdown;
-  }
-
-  const notionToken = process.env.NOTION_TOKEN || process.env.NOTION_SECRET;
-  if (!notionToken) {
-    return null;
-  }
-
-  try {
-    notionClient = new Client({ auth: notionToken });
-    notionMarkdown = new NotionToMarkdown({ notionClient });
-    return notionMarkdown;
-  } catch (error) {
-    logger.error('初始化 Notion Markdown 转换器失败', error);
-    notionClient = null;
-    notionMarkdown = null;
-    return null;
-  }
-}
-
 // 请求缓存和限流
 const childrenCache = new Map<string, { data: NotionBlock[]; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存
-const requestQueue: Array<() => Promise<void>> = [];
+let requestQueue: Array<() => Promise<void>> = [];
 let isProcessingQueue = false;
 const MAX_CONCURRENT_REQUESTS = 3; // 最多3个并发请求
 
@@ -271,7 +237,17 @@ export async function getPosts(): Promise<NotionPost[]> {
     const posts = await Promise.all(
       data.results.map(async (page: NotionPage) => {
         try {
-          const content = await getPageMarkdown(page.id);
+          // 获取页面内容
+          const contentResponse = await fetchWithTimeout(`https://api.notion.com/v1/blocks/${page.id}/children`, {
+            headers: getHeaders(),
+            ...getFetchOptions(),
+          }, 3000); // 3秒超时
+
+          let content = '';
+          if (contentResponse.ok) {
+            const contentData = await contentResponse.json();
+            content = await blocksToMarkdown(contentData.results);
+          }
 
           return {
             id: page.id,
@@ -375,7 +351,16 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
 
     // 获取页面内容
     try {
-      const content = await getPageMarkdown(page.id);
+      const contentResponse = await fetchWithTimeout(`https://api.notion.com/v1/blocks/${page.id}/children`, {
+        headers: getHeaders(),
+        ...getFetchOptions(),
+      }, 3000);
+
+      let content = '';
+      if (contentResponse.ok) {
+        const contentData = await contentResponse.json();
+        content = await blocksToMarkdown(contentData.results);
+      }
 
       return {
         id: page.id,
@@ -430,11 +415,10 @@ function getPlainText(richText: NotionRichText[]): string {
 function getRichTextMarkdown(richText: NotionRichText[]): string {
   return richText.map((text) => {
     let content = text.plain_text;
-    const linkUrl = text.href || text.text?.link?.url || null;
 
     // 如果没有注释或格式，直接返回文本
     if (!text.annotations) {
-      return linkUrl ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${content}</a>` : content;
+      return content;
     }
 
     const annotations = text.annotations;
@@ -474,10 +458,6 @@ function getRichTextMarkdown(richText: NotionRichText[]): string {
         // 文字颜色
         content = `<span class="text-${annotations.color}">${content}</span>`;
       }
-    }
-
-    if (linkUrl) {
-      return `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${content}</a>`;
     }
 
     return content;
@@ -526,7 +506,6 @@ async function getChildrenBlocks(blockId: string): Promise<NotionBlock[]> {
 
         resolve(children);
       } catch (error) {
-        logger.debug(`获取子块失败: ${blockId}`, error);
         // 网络错误时直接返回空数组
         resolve([]);
       }
@@ -536,34 +515,6 @@ async function getChildrenBlocks(blockId: string): Promise<NotionBlock[]> {
     requestQueue.push(fetchChildren);
     processQueue(); // 启动队列处理
   });
-}
-
-async function getPageMarkdown(pageId: string): Promise<string> {
-  // 优先尝试使用 notion-to-md，确保格式尽量贴合 Notion
-  try {
-    const converter = ensureNotionMarkdown();
-    if (converter) {
-      const mdBlocks = await converter.pageToMarkdown(pageId);
-      const { parent } = converter.toMarkdownString(mdBlocks);
-      if (parent.trim()) {
-        return parent;
-      }
-    }
-  } catch (error) {
-    logger.warn(`NotionToMarkdown 转换失败，fallback 至自定义解析: ${pageId}`, error);
-  }
-
-  // Fallback：使用自定义 blocksToMarkdown 保证至少有内容展示
-  try {
-    const blocks = await getChildrenBlocks(pageId);
-    if (blocks.length > 0) {
-      return await blocksToMarkdown(blocks);
-    }
-  } catch (error) {
-    logger.error(`Fallback 获取页面内容失败: ${pageId}`, error);
-  }
-
-  return '';
 }
 
 async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<string> {
@@ -878,7 +829,16 @@ export async function getAboutPage(): Promise<NotionPost | null> {
 
     // 获取页面内容
     try {
-      const content = await getPageMarkdown(page.id);
+      const contentResponse = await fetchWithTimeout(`https://api.notion.com/v1/blocks/${page.id}/children`, {
+        headers: getHeaders(),
+        ...getFetchOptions(),
+      }, 3000);
+
+      let content = '';
+      if (contentResponse.ok) {
+        const contentData = await contentResponse.json();
+        content = await blocksToMarkdown(contentData.results);
+      }
 
       return {
         id: page.id,
@@ -941,7 +901,16 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
     const announcements = await Promise.all(
       data.results.map(async (page: NotionPage) => {
         try {
-          const content = await getPageMarkdown(page.id);
+          const contentResponse = await fetchWithTimeout(`https://api.notion.com/v1/blocks/${page.id}/children`, {
+            headers: getHeaders(),
+            ...getFetchOptions(),
+          }, 3000);
+
+          let content = '';
+          if (contentResponse.ok) {
+            const contentData = await contentResponse.json();
+            content = await blocksToMarkdown(contentData.results);
+          }
 
           return {
             id: page.id,

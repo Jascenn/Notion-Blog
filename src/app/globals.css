@@ -166,3 +166,98 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   outline: 2px solid rgba(59, 130, 246, 0.5);
   outline-offset: 2px;
 }
+
+/* KaTeX 数学公式样式 */
+.math-formula {
+  position: relative;
+}
+
+.math-display {
+  display: block;
+  text-align: center;
+  margin: 1.5rem 0;
+  padding: 0.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.math-inline {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0.2em;
+}
+
+/* KaTeX 样式覆盖 */
+.katex {
+  font-size: 1.1em;
+  color: rgb(17 24 39);
+}
+
+.katex-display {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem;
+}
+
+/* 深色模式适配 */
+html.dark .katex {
+  color: #e2e8f0 !important;
+}
+
+html.dark .katex-html {
+  color: #e2e8f0 !important;
+}
+
+html.dark .katex .mord {
+  color: #e2e8f0 !important;
+}
+
+html.dark .katex .mop {
+  color: #e2e8f0 !important;
+}
+
+html.dark .katex .mrel {
+  color: #e2e8f0 !important;
+}
+
+html.dark .katex .mbin {
+  color: #e2e8f0 !important;
+}
+
+html.dark .katex .mpunct {
+  color: #e2e8f0 !important;
+}
+
+/* 错误样式 */
+.math-error {
+  color: #ef4444;
+  font-family: monospace;
+  background: #fee2e2;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+  border: 1px solid #fecaca;
+}
+
+html.dark .math-error {
+  background: #451a1a;
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+  .katex-display {
+    font-size: 0.9em;
+  }
+
+  .math-display {
+    padding: 0.25rem;
+    margin: 1rem 0;
+  }
+
+  .katex {
+    font-size: 1em;
+  }
+}

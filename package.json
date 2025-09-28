@@ -11,14 +11,21 @@
   "dependencies": {
     "@notionhq/client": "^5.1.0",
     "dotenv": "^17.2.2",
+    "hast": "^0.0.2",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
+    "katex": "^0.16.22",
     "next": "15.5.4",
     "notion-to-md": "^3.1.9",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-markdown": "^10.1.0",
     "rehype-highlight": "^7.0.2",
+    "rehype-katex": "^6.0.2",
     "rehype-raw": "^7.0.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^5.1.1",
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

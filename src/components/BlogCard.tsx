@@ -2,24 +2,13 @@
 
 import LinkPrefetch from './LinkPrefetch';
 import ReadingTime from './ReadingTime';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  publishedAt: string;
-  slug: string;
-  tags: string[];
-  cover: string | null;
-  content: string;
-}
+import { NotionPost } from '@/lib/notion';
 
 interface BlogCardProps {
-  post: BlogPost;
-  publishedAtStr: string;
+  post: NotionPost;
 }
 
-export default function BlogCard({ post, publishedAtStr }: BlogCardProps) {
+export default function BlogCard({ post }: BlogCardProps) {
   // 检测用户的语言偏好
   const getUserLanguage = () => {
     if (typeof window !== 'undefined') {
@@ -82,12 +71,13 @@ export default function BlogCard({ post, publishedAtStr }: BlogCardProps) {
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {post.tags.slice(0, 3).map((tag) => (
-                  <span
+                  <a
                     key={tag}
-                    className="inline-block bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs"
+                    href={`/search?tags=${encodeURIComponent(tag)}`}
+                    className="inline-block bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                   >
                     {tag}
-                  </span>
+                  </a>
                 ))}
                 {post.tags.length > 3 && (
                   <span className="text-gray-400 text-xs">+{post.tags.length - 3}</span>

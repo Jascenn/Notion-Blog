@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import MarkdownContent from '@/components/MarkdownContent';
 import { getAboutPage } from '@/lib/notion';
+import { logger } from '@/lib/logger';
 
 export const metadata: Metadata = {
   title: '关于',
@@ -13,7 +14,7 @@ export default async function AboutPage() {
   try {
     aboutContent = await getAboutPage();
   } catch (error) {
-    console.error('Error loading about page from Notion:', error);
+    logger.error('Error loading about page from Notion', error);
   }
   // 如果有 Notion 内容，使用 Notion 内容
   if (aboutContent) {

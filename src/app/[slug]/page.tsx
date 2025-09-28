@@ -4,7 +4,9 @@ import MarkdownContent from '@/components/MarkdownContent';
 import TableOfContents from '@/components/TableOfContents';
 import RelatedPosts from '@/components/RelatedPosts';
 import ReadingTime from '@/components/ReadingTime';
+import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
 import { getPostBySlug, getPosts } from '@/lib/notion';
+import { logger } from '@/lib/logger';
 
 // 生成静态路径（可选：用于构建时的静态生成）
 export async function generateStaticParams() {
@@ -14,7 +16,7 @@ export async function generateStaticParams() {
       slug: post.slug,
     }));
   } catch (error) {
-    console.error('Error generating static params:', error);
+    logger.error('Error generating static params', error);
     return [];
   }
 }
@@ -41,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       },
     };
   } catch (error) {
-    console.error('Error generating metadata:', error);
+    logger.error('Error generating metadata', error);
     return {
       title: '文章未找到',
     };
@@ -81,27 +83,42 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               {post.title}
             </h1>
-            <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-              <time>{formatDate(post.publishedAt)}</time>
-              <span>•</span>
-              <ReadingTime content={post.content} />
-              {post.tags.length > 0 && (
-                <>
-                  <span>•</span>
-                  <div className="flex space-x-2">
-                    {post.tags.map((tag) => (
-                      <span key={tag} className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </>
-              )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                <time>{formatDate(post.publishedAt)}</time>
+                <span>•</span>
+                <ReadingTime content={post.content} />
+                {post.tags.length > 0 && (
+                  <>
+                    <span>•</span>
+                    <div className="flex space-x-2">
+                      {post.tags.map((tag) => (
+                        <Link
+                          key={tag}
+                          href={`/search?tags=${encodeURIComponent(tag)}`}
+                          className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          {tag}
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+              <ExportPDFAdvanced
+                title={post.title}
+                date={formatDate(post.publishedAt)}
+                tags={post.tags}
+                filename={post.slug}
+                contentId="article-content"
+              />
             </div>
           </header>
 
           {/* 文章内容 */}
-          <MarkdownContent content={post.content} />
+          <div id="article-content">
+            <MarkdownContent content={post.content} />
+          </div>
         </article>
 
         {/* 目录 */}
@@ -116,13 +133,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             href="/"
             className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
           >
-            ← Back to home
+            ← 返回首页
           </Link>
         </div>
       </div>
     );
   } catch (error) {
-    console.error('Error loading post:', error);
+    logger.error('Error loading post', error);
 
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">

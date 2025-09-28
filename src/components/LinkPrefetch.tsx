@@ -18,7 +18,7 @@ export default function LinkPrefetch({
   prefetchDelay = 100 // 悬停100ms后开始预加载
 }: LinkPrefetchProps) {
   const linkRef = useRef<HTMLAnchorElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const link = linkRef.current;

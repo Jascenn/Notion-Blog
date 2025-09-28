@@ -199,6 +199,19 @@ simple-blog/
 └── README.md           # 项目文档
 ```
 
+## 📚 完整文档
+
+### 📖 核心文档
+- [📋 项目概述](./docs/README.md) - 完整的项目介绍和导航
+- [🏗️ 开发指南](./docs/DEVELOPMENT.md) - 开发环境、架构、工作流
+- [📝 格式支持](./docs/FORMATS.md) - 21种 Notion 块类型详解
+- [🔧 故障排除](./docs/TROUBLESHOOTING.md) - 问题诊断和解决方案
+- [📅 更新日志](./docs/CHANGELOG.md) - 版本历史和改进记录
+
+### 🔧 配置文档
+- [🚀 部署指南](./docs/DEPLOYMENT.md) - 生产环境部署
+- [⚙️ Notion 配置](./docs/NOTION_SETUP.md) - API 密钥和数据库设置
+
 ## 🔧 API 参考
 
 ### Notion 数据库字段

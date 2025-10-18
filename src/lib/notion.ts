@@ -174,8 +174,9 @@ const getHeaders = () => ({
 });
 
 // Fetch 选项，合理的缓存策略
+// 开发环境使用较短的缓存时间，生产环境使用较长的缓存时间
 const getFetchOptions = () => ({
-  next: { revalidate: 300 }, // 5分钟缓存
+  next: { revalidate: process.env.NODE_ENV === 'development' ? 30 : 300 }, // 开发环境30秒，生产环境5分钟
   cache: 'force-cache' as RequestCache, // 启用缓存
 });
 

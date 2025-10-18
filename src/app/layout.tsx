@@ -25,12 +25,12 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" style={{ scrollBehavior: 'smooth' }}>
       <body
-        className="font-sans antialiased"
+        className="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
         suppressHydrationWarning={true}
       >
         <ReadingProgress />
         <Navigation />
-        <main className="min-h-screen">
+        <main className="min-h-screen bg-white dark:bg-gray-900">
           {children}
         </main>
         <Footer />

@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(tree:*)",
+      "Bash(npm run build:*)",
+      "Bash(curl:*)",
+      "WebSearch",
+      "Bash(npm run dev:*)",
+      "Bash(open test-toggle.html)",
+      "WebFetch(domain:developers.notion.com)",
+      "Bash(npm install:*)",
+      "Bash(open \"http://localhost:3003/test-formats\")",
+      "Bash(open \"http://localhost:3003\")",
+      "Read(//Volumes/Mypssd/cursor/100 Tools/**)",
+      "Read(//Volumes/Mypssd/cursor/**)",
+      "Bash(open:*)",
+      "Bash(awk:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -234,7 +234,7 @@ async function processQueue() {
 }
 
 // 带超时和重试的 fetch 函数
-async function fetchWithTimeout(url: string, options: FetchOptions, timeout = 15000, retries = 2) {
+async function fetchWithTimeout(url: string, options: FetchOptions, timeout = 60000, retries = 3) {
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -297,10 +297,10 @@ export async function getPosts(): Promise<NotionPost[]> {
       body: JSON.stringify({
         filter: {
           and: [
-            // 主要条件：Status 必须是 Published
+            // 主要条件：Status 必须是 Published（注意：Notion中可能包含emoji）
             {
               property: 'Status',
-              select: { equals: 'Published' },
+              select: { equals: '✅ Published' },
             },
             // 兼容条件：如果 Status 是 Published，Published 复选框也应该为 true（可选）
             // 注释掉下面的条件，让 Status 字段成为唯一判断标准
@@ -406,7 +406,7 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
           and: [
             {
               or: [
-                { property: 'Status', select: { equals: 'Published' } },
+                { property: 'Status', select: { equals: '✅ Published' } },
                 { property: 'Published', checkbox: { equals: true } },
               ],
             },
@@ -1500,7 +1500,7 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
           and: [
             {
               or: [
-                { property: 'Status', select: { equals: 'Published' } },
+                { property: 'Status', select: { equals: '✅ Published' } },
                 { property: 'Published', checkbox: { equals: true } },
               ],
             },

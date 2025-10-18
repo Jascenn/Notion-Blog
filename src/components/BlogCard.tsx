@@ -44,12 +44,12 @@ export default function BlogCard({ post }: BlogCardProps) {
   const timeDisplay = formatTime();
 
   return (
-    <article className="group py-6">
+    <article className="group py-6 border-b border-gray-200 dark:border-gray-700">
       {/* 标题和时间同一行 */}
       <div className="flex items-center justify-between mb-3">
         <LinkPrefetch
           href={`/${post.slug}`}
-          className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 transition-colors flex-1 pr-4"
+          className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex-1 pr-4"
         >
           {post.title}
         </LinkPrefetch>

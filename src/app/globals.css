@@ -7,13 +7,6 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #111827;
-    --foreground: #f9fafb;
-  }
-}
-
 html.dark {
   --background: #111827;
   --foreground: #f9fafb;
@@ -35,8 +28,6 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: "LXGW WenKai", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   font-feature-settings: "kern" 1;
   font-kerning: normal;
@@ -49,33 +40,6 @@ body {
 /* 深色模式全局样式 */
 html.dark {
   color-scheme: dark;
-}
-
-html.dark body {
-  background-color: #111827 !important;
-  color: #f9fafb !important;
-}
-
-/* 强制深色模式全局覆盖 */
-html.dark * {
-  border-color: rgb(55 65 81);
-}
-
-html.dark main {
-  background-color: #111827 !important;
-  color: #f9fafb !important;
-}
-
-/* 确保所有容器都应用深色模式 */
-html.dark {
-  background-color: #111827 !important;
-}
-
-html.dark div,
-html.dark article,
-html.dark section {
-  background-color: inherit;
-  color: inherit;
 }
 
 /* 优化链接过渡效果 */

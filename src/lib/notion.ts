@@ -641,6 +641,7 @@ function extractFileName(rawUrl: string): string {
 function generateSlug(title: string): string {
   return title
     .toLowerCase()
+    .replace(/\//g, '-') // 首先将斜杠替换为短横线，避免路由问题
     .replace(/[^\w\s\u4e00-\u9fff]/g, '') // 保留中文字符
     .replace(/\s+/g, '-')
     .trim();

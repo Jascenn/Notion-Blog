@@ -1,0 +1,120 @@
+# ============================
+# Git Attributes Configuration
+# ============================
+
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# ============================
+# Source Code
+# ============================
+*.ts        text diff=typescript
+*.tsx       text diff=typescript
+*.js        text diff=javascript
+*.jsx       text diff=javascript
+*.mjs       text diff=javascript
+*.cjs       text diff=javascript
+*.json      text
+*.jsonc     text
+*.json5     text
+
+# ============================
+# Web Assets
+# ============================
+*.html      text diff=html
+*.css       text diff=css
+*.scss      text diff=css
+*.sass      text diff=css
+*.less      text diff=css
+*.svg       text
+
+# ============================
+# Documentation
+# ============================
+*.md        text diff=markdown
+*.mdx       text diff=markdown
+README*     text
+LICENSE*    text
+AUTHORS*    text
+CHANGELOG*  text
+HISTORY*    text
+NOTICE*     text
+
+# ============================
+# Configuration
+# ============================
+.*rc        text
+.*ignore    text
+.*attributes text
+.env*       text
+*.yml       text
+*.yaml      text
+*.toml      text
+*.xml       text
+*.config    text
+tsconfig.*  text
+package*.json text linguist-generated=false
+
+# ============================
+# Scripts
+# ============================
+*.sh        text eol=lf
+*.bash      text eol=lf
+*.zsh       text eol=lf
+*.fish      text eol=lf
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+
+# ============================
+# Binary Files
+# ============================
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.ico       binary
+*.pdf       binary
+*.zip       binary
+*.gz        binary
+*.tar       binary
+*.7z        binary
+*.ttf       binary
+*.eot       binary
+*.woff      binary
+*.woff2     binary
+*.otf       binary
+
+# ============================
+# Git Files
+# ============================
+.gitattributes  text export-ignore
+.gitignore      text export-ignore
+.gitkeep        text export-ignore
+
+# ============================
+# Build Outputs (exclude from diffs)
+# ============================
+*.min.js    binary
+*.min.css   binary
+*.map       binary
+dist/**     binary
+build/**    binary
+.next/**    binary
+
+# ============================
+# Linguist Settings
+# ============================
+# Mark generated files
+package-lock.json   linguist-generated
+yarn.lock          linguist-generated
+pnpm-lock.yaml     linguist-generated
+
+# Mark documentation
+docs/**            linguist-documentation
+*.md               linguist-documentation
+
+# Mark vendored files
+public/vendor/**   linguist-vendored
+node_modules/**    linguist-vendored

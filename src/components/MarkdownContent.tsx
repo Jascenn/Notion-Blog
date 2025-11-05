@@ -37,11 +37,53 @@ interface MarkdownContentProps {
   content: string;
 }
 
+// 判断是否为无意义的文件名(包括常见的默认文件名)
+const isMeaninglessFilename = (text: string): boolean => {
+  if (!text || !text.trim()) return true;
+
+  const trimmed = text.trim().toLowerCase();
+
+  // 常见的无意义文件名
+  const meaninglessNames = [
+    'image', 'img', 'photo', 'picture', 'pic',
+    'file', 'untitled', 'screenshot',
+    '屏幕截图', '截图', '图片', '照片'
+  ];
+
+  // 如果是常见的无意义文件名,返回 true
+  if (meaninglessNames.includes(trimmed)) {
+    return true;
+  }
+
+  // 如果只是纯数字或很短的无意义字符,也过滤
+  if (/^[\d\-_\s]+$/.test(trimmed) || trimmed.length < 2) {
+    return true;
+  }
+
+  return false;
+};
+
+// 移除文件扩展名
+const removeFileExtension = (text: string): string => {
+  if (!text || !text.trim()) return text;
+
+  const trimmed = text.trim();
+
+  // 移除常见的文件扩展名
+  const extensionPattern = /\.(png|jpg|jpeg|gif|webp|svg|bmp|pdf|doc|docx|xls|xlsx|ppt|pptx|zip|rar|mp4|avi|mov|mp3|wav)$/i;
+
+  return trimmed.replace(extensionPattern, '');
+};
+
 // 图片组件，支持错误处理和加载状态
 const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) => {
   const [imageError, setImageError] = React.useState(false);
   const [imageLoading, setImageLoading] = React.useState(true);
   const [isZoomed, setIsZoomed] = React.useState(false);
+
+  // 处理 alt 文本:先移除扩展名,然后判断是否为无意义文件名
+  const displayAlt = alt ? removeFileExtension(alt) : '';
+  const shouldShowAlt = displayAlt && displayAlt.trim() && !isMeaninglessFilename(displayAlt);
 
   // 监听 ESC 键关闭放大模式
   React.useEffect(() => {
@@ -73,8 +115,8 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
         <p className="text-xs text-gray-400 mt-1 break-all">
           {src}
         </p>
-        {alt && alt.trim() && (
-          <p className="text-xs text-gray-400 mt-1 font-medium">{alt}</p>
+        {shouldShowAlt && (
+          <p className="text-xs text-gray-400 mt-1 font-medium">{displayAlt}</p>
         )}
       </div>
     );
@@ -106,7 +148,7 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
               setImageLoading(false);
             }}
             onClick={() => setIsZoomed(true)}
-            title={alt && alt.trim() ? alt : undefined}
+            title={shouldShowAlt ? displayAlt : undefined}
           />
           {!imageLoading && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -116,9 +158,9 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
             </div>
           )}
         </div>
-        {alt && alt.trim() && !imageLoading && (
+        {shouldShowAlt && !imageLoading && (
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2 italic">
-            {alt}
+            {displayAlt}
           </p>
         )}
       </div>
@@ -143,9 +185,9 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
             >
               ✕
             </button>
-            {alt && alt.trim() && (
+            {shouldShowAlt && (
               <div className="absolute bottom-4 left-4 right-4 bg-black/50 text-white p-2 rounded text-center">
-                {alt}
+                {displayAlt}
               </div>
             )}
           </div>

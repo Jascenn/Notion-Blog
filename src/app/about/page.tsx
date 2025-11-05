@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import MarkdownContent from '@/components/MarkdownContent';
+import ChangelogSection from '@/components/ChangelogSection';
 import { getAboutPage } from '@/lib/notion';
 import { logger } from '@/lib/logger';
 
@@ -43,8 +45,22 @@ export default async function AboutPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
-        {/* 页面标题 */}
+        {/* 页面标题 - 添加头像 */}
         <div className="mb-12 text-center">
+          {/* 头像 */}
+          <div className="mb-6 flex justify-center">
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28">
+              <Image
+                src="/凌一-头像.png"
+                alt="凌一头像"
+                width={112}
+                height={112}
+                className="rounded-full object-cover"
+                priority
+              />
+            </div>
+          </div>
+
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             凌一 / LingYi_Stu
           </h1>
@@ -200,6 +216,9 @@ export default async function AboutPage() {
               </a>
             </div>
           </div>
+
+          {/* 更新日志 - 可折叠 */}
+          <ChangelogSection />
         </div>
       </div>
     </div>

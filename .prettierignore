@@ -1,0 +1,70 @@
+# ============================
+# Prettier Ignore Configuration
+# ============================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+coverage/
+
+# Cache
+.cache/
+*.tsbuildinfo
+
+# Environment
+.env*
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+next-env.d.ts
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+
+# Documentation build
+docs/_build/
+
+# Minified files
+*.min.js
+*.min.css
+
+# Source maps
+*.map
+
+# Vendor
+public/vendor/
+
+# Data files
+*.json
+*.csv
+*.tsv
+
+# Archives
+*.zip
+*.tar
+*.gz
+
+# Specific files to preserve formatting
+CHANGELOG.md
+LICENSE

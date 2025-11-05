@@ -1,0 +1,80 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# ============================
+# Default Settings
+# ============================
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# ============================
+# TypeScript/JavaScript
+# ============================
+[*.{ts,tsx,js,jsx,mjs,cjs}]
+indent_size = 2
+quote_type = single
+
+# ============================
+# JSON Files
+# ============================
+[*.{json,jsonc,json5}]
+indent_size = 2
+
+# ============================
+# YAML Files
+# ============================
+[*.{yml,yaml}]
+indent_size = 2
+
+# ============================
+# Markdown Files
+# ============================
+[*.{md,mdx}]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# ============================
+# Configuration Files
+# ============================
+[.*rc]
+indent_size = 2
+
+[*.config.{js,ts}]
+indent_size = 2
+
+# ============================
+# HTML/CSS
+# ============================
+[*.{html,css,scss,sass,less}]
+indent_size = 2
+
+# ============================
+# Shell Scripts
+# ============================
+[*.{sh,bash,zsh}]
+indent_size = 2
+
+# ============================
+# Package Files
+# ============================
+[{package.json,package-lock.json,yarn.lock,pnpm-lock.yaml}]
+indent_size = 2
+
+# ============================
+# Makefiles
+# ============================
+[Makefile]
+indent_style = tab
+
+# ============================
+# Windows Scripts
+# ============================
+[*.{bat,cmd,ps1}]
+end_of_line = crlf

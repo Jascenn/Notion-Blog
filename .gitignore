@@ -1,7 +1,7 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
+# ============================
+# Dependencies
+# ============================
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -9,33 +9,134 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+.pnpm-store/
 
-# testing
-/coverage
+# ============================
+# Testing & Coverage
+# ============================
+coverage/
+*.lcov
+.nyc_output/
 
-# next.js
-/.next/
-/out/
+# ============================
+# Next.js
+# ============================
+.next/
+out/
+dist/
+build/
 
-# production
-/build
+# ============================
+# Environment Variables
+# ============================
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+.env*.local
+!.env.local.example
+!.env.example
 
-# misc
-.DS_Store
-*.pem
-
-# debug
+# ============================
+# Logs
+# ============================
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# ============================
+# IDE & Editor
+# ============================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+.fleet/
+.zed/
 
-# vercel
-.vercel
+# ============================
+# OS Files
+# ============================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
 
-# typescript
+# ============================
+# TypeScript
+# ============================
 *.tsbuildinfo
 next-env.d.ts
+.tsc-cache/
+
+# ============================
+# Deployment
+# ============================
+.vercel
+.netlify
+.serverless/
+.cache/
+
+# ============================
+# Package Manager
+# ============================
+package-lock.json.backup
+yarn.lock.backup
+pnpm-lock.yaml.backup
+
+# ============================
+# Temporary Files
+# ============================
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# ============================
+# Security
+# ============================
+*.pem
+*.key
+*.crt
+*.p12
+certificates/
+
+# ============================
+# Database
+# ============================
+*.sqlite
+*.sqlite3
+*.db
+
+# ============================
+# Documentation Build
+# ============================
+docs/_build/
+docs/.docusaurus/
+
+# ============================
+# Miscellaneous
+# ============================
+.eslintcache
+.stylelintcache
+.prettiercache
+*.pid
+*.seed
+*.pid.lock

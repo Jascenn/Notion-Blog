@@ -69,6 +69,7 @@ interface NotionProperties {
   Published?: NotionCheckbox;
   Status?: { select?: NotionSelect };
   Type?: { select?: NotionSelect };
+  Pinned?: NotionCheckbox;
 }
 
 interface NotionPage {
@@ -347,7 +348,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),
             cover: page.cover?.external?.url || page.cover?.file?.url || null,
-            pinned: false,
+            pinned: page.properties.Pinned?.checkbox || false,
             type: (() => {
               const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
               if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post'|'announcement'|'page';
@@ -374,7 +375,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),
             cover: page.cover?.external?.url || page.cover?.file?.url || null,
-            pinned: false,
+            pinned: page.properties.Pinned?.checkbox || false,
             type: (() => {
               const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
               if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post'|'announcement'|'page';
@@ -1583,8 +1584,9 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
   }
 }
 
-// 获取文章（过滤掉页面和公告）
+// 获取文章（过滤掉页面，包含公告）
 export async function getPostsOnly(): Promise<NotionPost[]> {
   const allPosts = await getPosts();
-  return allPosts.filter(post => post.type === 'post' || post.type === 'announcement' || !post.type);
+  // 包含 post 和 announcement 类型，过滤掉 page 类型
+  return allPosts.filter(post => post.type !== 'page');
 }

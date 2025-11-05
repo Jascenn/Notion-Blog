@@ -113,12 +113,16 @@ Warning: CSS import failed
    npm run start
    ```
 
-## 🌐 自定义域名
+## 🌐 域名配置
 
-### 1. 在 Vercel 中配置
+### 生产域名: lingyi.bio
+
+本项目使用 `lingyi.bio` 作为生产域名，**无需配置重定向**。
+
+### 1. 在 Vercel 中配置域名
 
 1. 进入项目设置 → Domains
-2. 添加你的自定义域名
+2. 添加域名: `lingyi.bio`
 3. 按照提示配置 DNS 记录
 
 ### 2. DNS 配置示例
@@ -130,19 +134,21 @@ Name: @
 Value: 76.76.19.61
 ```
 
-**使用 CNAME 记录**:
+**使用 CNAME 记录** (推荐):
 ```
 Type: CNAME
-Name: www
+Name: @
 Value: cname.vercel-dns.com
 ```
 
 ### 3. 更新环境变量
 
-将 `NEXT_PUBLIC_SITE_URL` 更新为你的自定义域名：
+在 Vercel 环境变量中设置：
 ```
-NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+NEXT_PUBLIC_SITE_URL=https://lingyi.bio
 ```
+
+> ⚠️ **注意**: 本项目域名为 `lingyi.bio`，无需配置 www 重定向或其他子域名重定向
 
 ## 🚀 CI/CD 自动部署
 

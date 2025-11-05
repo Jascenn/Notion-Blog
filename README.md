@@ -81,7 +81,7 @@ npm install
 NOTION_SECRET=your_notion_integration_token
 NOTION_DATABASE_ID=your_database_id
 
-# 其他配置
+# 网站配置 (生产环境使用 https://lingyi.bio)
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
@@ -169,12 +169,14 @@ git push -u origin main
 4. 配置环境变量：
    - `NOTION_SECRET`
    - `NOTION_DATABASE_ID`
-   - `NEXT_PUBLIC_SITE_URL` (设置为你的域名)
+   - `NEXT_PUBLIC_SITE_URL=https://lingyi.bio`
 5. 点击 "Deploy"
 
-### 3. 自定义域名 (可选)
+### 3. 域名配置
 
-在 Vercel 项目设置中添加自定义域名。
+生产域名: **lingyi.bio** (无需重定向)
+
+在 Vercel 项目设置 → Domains 中添加域名 `lingyi.bio`。
 
 ## 📁 项目结构
 

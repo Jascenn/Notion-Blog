@@ -210,7 +210,7 @@ function ensureNotionMarkdown(): NotionToMarkdown | null {
 // 请求缓存和限流
 const childrenCache = new Map<string, { data: NotionBlock[]; timestamp: number }>();
 const pageCache = new Map<string, { data: string; timestamp: number }>();
-const CACHE_TTL = process.env.NODE_ENV === 'development' ? 10 * 1000 : 2 * 60 * 1000; // 开发环境10秒，生产环境2分钟
+const CACHE_TTL = 0; // 临时禁用缓存用于调试 callout 问题
 const requestQueue: Array<() => Promise<void>> = [];
 let isProcessingQueue = false;
 const MAX_CONCURRENT_REQUESTS = 1; // 减少到1个并发请求
@@ -703,31 +703,34 @@ async function getPageMarkdown(pageId: string): Promise<string> {
 
   let result = '';
 
+  // 优先使用 notion-to-md 库,它正确处理了 callout 等复杂块的子块
   try {
-    const blocks = await getChildrenBlocks(pageId);
-    if (blocks.length > 0) {
-      const customMarkdown = await blocksToMarkdown(blocks);
-      if (customMarkdown.trim()) {
-        result = customMarkdown;
+    const converter = ensureNotionMarkdown();
+    if (converter) {
+      logger.info(`[NOTION-TO-MD] 使用 notion-to-md 解析页面: ${pageId}`);
+      const mdBlocks = await converter.pageToMarkdown(pageId);
+      const { parent } = converter.toMarkdownString(mdBlocks);
+      if (parent.trim()) {
+        result = parent;
+        logger.info(`[NOTION-TO-MD] 成功解析,内容长度: ${result.length}`);
       }
     }
   } catch (error) {
-    logger.error(`自定义解析 Notion 内容失败: ${pageId}`, error);
+    logger.warn(`NotionToMarkdown 解析失败,尝试自定义解析: ${pageId}`, error);
   }
 
-  // 如果自定义解析失败，退回 notion-to-md 确保至少有输出
+  // 如果 notion-to-md 失败,回退到自定义解析
   if (!result) {
     try {
-      const converter = ensureNotionMarkdown();
-      if (converter) {
-        const mdBlocks = await converter.pageToMarkdown(pageId);
-        const { parent } = converter.toMarkdownString(mdBlocks);
-        if (parent.trim()) {
-          result = parent;
+      const blocks = await getChildrenBlocks(pageId);
+      if (blocks.length > 0) {
+        const customMarkdown = await blocksToMarkdown(blocks);
+        if (customMarkdown.trim()) {
+          result = customMarkdown;
         }
       }
     } catch (error) {
-      logger.warn(`NotionToMarkdown 回退解析失败: ${pageId}`, error);
+      logger.error(`自定义解析 Notion 内容失败: ${pageId}`, error);
     }
   }
 
@@ -1329,23 +1332,36 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
         const calloutColor = block.callout?.color || 'default';
         const iconHtml = renderCalloutIcon(block.callout?.icon);
 
-        let nestedContent = '';
-        if (block.has_children && depth < 2) {
-          const children = await getChildrenBlocks(block.id);
-          if (children.length > 0) {
-            nestedContent = await blocksToMarkdown(children, depth + 1);
+        // 调试:输出原始 rich_text 长度
+        const rawTextCount = block.callout?.rich_text?.length || 0;
+        const rawTextPreview = JSON.stringify(block.callout?.rich_text || []).substring(0, 200);
+
+        // 有子块则获取并处理
+        let finalContent = calloutContent;
+        if (block.has_children) {
+          try {
+            const children = await getChildrenBlocks(block.id);
+            if (children.length > 0) {
+              const childrenMarkdown = await blocksToMarkdown(children, depth + 1);
+              // 将主内容和子块内容合并
+              finalContent = `${calloutContent}\n\n${childrenMarkdown}`;
+            }
+          } catch (error) {
+            logger.error('[CALLOUT] Error fetching children', error);
           }
         }
 
+        // 处理换行:保留原始换行符
+        const processedContent = finalContent.replace(/\n/g, '<br>');
+
+        // 渲染 callout
         markdown += `<div class="notion-callout" data-color="${escapeAttribute(calloutColor)}">`;
         markdown += `<div class="notion-callout-icon">${iconHtml}</div>`;
-        // 手动处理 callout 内容的换行
-        const processedCalloutContent = calloutContent.replace(/  \n/g, '<br>');
-        markdown += `<div class="notion-callout-body">${processedCalloutContent}`;
-        if (nestedContent.trim()) {
-          markdown += `<div class="notion-callout-children">${nestedContent}</div>`;
-        }
-        markdown += `</div></div>\n\n`;
+        markdown += `<div class="notion-callout-body">${processedContent}</div>`;
+        markdown += `</div>\n\n`;
+
+        // 调试日志
+        logger.info(`[CALLOUT] has_children=${block.has_children}, rich_text_count=${rawTextCount}, content_len=${finalContent.length}`);
         break;
       }
 

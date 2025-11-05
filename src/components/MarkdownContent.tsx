@@ -740,45 +740,62 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
         /* Callout 卡片样式 */
         .notion-callout {
           display: flex;
-          gap: 1rem;
-          padding: 1rem 1.25rem;
-          border-radius: 16px;
+          gap: 0.75rem;
+          padding: 0.85rem 1rem;
+          border-radius: 12px;
           border: 1px solid rgba(148, 163, 184, 0.35);
           background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-          box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-          margin: 1.75rem 0;
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+          margin: 1.25rem 0;
         }
         .notion-callout-icon {
-          font-size: 1.6rem;
+          font-size: 1.35rem;
           line-height: 1;
           flex-shrink: 0;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: center;
+          padding-top: 0.15rem;
         }
         .notion-callout-emoji {
-          font-size: 1.8rem;
+          font-size: 1.5rem;
         }
         .notion-callout-image img {
-          width: 2.25rem;
-          height: 2.25rem;
+          width: 1.75rem;
+          height: 1.75rem;
           object-fit: cover;
-          border-radius: 12px;
+          border-radius: 8px;
         }
         .notion-callout-body {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          width: 100%;
-          white-space: pre-wrap;
-          line-height: 1.6;
+          flex: 1;
+          min-width: 0;
+          line-height: 1.5;
+          font-size: 0.95rem;
+        }
+        .notion-callout-body > * {
+          margin: 0.35rem 0;
+        }
+        .notion-callout-body > *:first-child {
+          margin-top: 0;
+        }
+        .notion-callout-body > *:last-child {
+          margin-bottom: 0;
+        }
+        .notion-callout-body p {
+          margin: 0.35rem 0;
+        }
+        .notion-callout-body ul,
+        .notion-callout-body ol {
+          margin: 0.35rem 0;
+          padding-left: 1.5rem;
+        }
+        .notion-callout-body li {
+          margin: 0.15rem 0;
         }
         .notion-callout-children {
-          border-top: 1px solid rgba(148, 163, 184, 0.25);
-          padding-top: 0.75rem;
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
+          margin-top: 0.35rem;
+          padding-top: 0.35rem;
+          border-top: 1px solid rgba(148, 163, 184, 0.2);
         }
 
         .notion-callout[data-color='default'] { background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); }
@@ -1009,15 +1026,25 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
           }
         }
 
-        /* 引用块 */
+        /* 引用块 / Callout (notion-to-md 转换后) */
         blockquote.notion-quote {
           border-left: 4px solid rgba(148, 163, 184, 0.6);
-          margin: 1.75rem 0;
-          padding: 0.6rem 0 0.6rem 1.2rem;
+          margin: 1.25rem 0;
+          padding: 0.85rem 1rem;
           color: #475569;
-          font-style: italic;
+          font-style: normal;
           background: rgba(248, 250, 252, 0.9);
-          border-radius: 0 18px 18px 0;
+          border-radius: 0 12px 12px 0;
+        }
+        blockquote.notion-quote p {
+          margin: 0.35rem 0 !important;
+          line-height: 1.5 !important;
+        }
+        blockquote.notion-quote p:first-child {
+          margin-top: 0 !important;
+        }
+        blockquote.notion-quote p:last-child {
+          margin-bottom: 0 !important;
         }
         .dark blockquote.notion-quote {
           background: rgba(30, 41, 59, 0.65);

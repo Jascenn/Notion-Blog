@@ -1,154 +1,130 @@
-# Notion Blog 系统完整文档
+# 文档导航
 
-## 📖 文档概述
+欢迎来到 Simple Blog 项目文档中心。
 
-这是一个基于 Next.js 15 和 Notion API 的现代化博客系统，支持完整的 Notion 块格式渲染，具备深色模式、响应式设计和优化的媒体播放器。
+## 📖 项目概述
 
-## 🎯 系统特性
+这是一个基于 Next.js 15 和 Notion API 的现代化博客系统，支持完整的 Notion 块格式渲染，具备深色模式、响应式设计和多种内容格式支持。
 
-- ✅ **完整格式支持**：21种 Notion 块类型 (100% 支持率)
-- 🎨 **现代化设计**：深色模式 + 响应式布局
-- 🎵 **优化播放器**：专业的音频视频播放体验
-- 🚀 **性能优化**：懒加载、缓存、代码分割
-- 📱 **移动友好**：完美的移动端适配
-
-## 📚 文档导航
-
-### 开发相关
-- [开发指南](./DEVELOPMENT.md) - 环境搭建、项目架构、开发工作流
-- [API 文档](./API.md) - Notion API 集成和数据处理
-- [组件文档](./COMPONENTS.md) - 核心组件使用说明
-
-### 功能相关
-- [功能清单](./FEATURES.md) - 完整功能列表和使用说明
-- [格式支持](./FORMATS.md) - 21种 Notion 块类型详解
-- [设计系统](./DESIGN.md) - 样式规范和主题系统
-
-### 维护相关
-- [部署指南](./DEPLOYMENT.md) - 生产环境部署
-- [故障排除](./TROUBLESHOOTING.md) - 常见问题解决
-- [更新日志](./CHANGELOG.md) - 版本历史和修复记录
+### ✨ 核心特性
+- **Notion CMS**: 使用 Notion 作为内容管理系统
+- **完整格式支持**: 支持多种 Notion 块类型渲染
+- **深色模式**: 完整的浅色/深色主题切换
+- **响应式设计**: 完美适配移动端和桌面端
+- **全文搜索**: 支持文章标题、内容、标签搜索
+- **性能优化**: 懒加载、缓存、错误处理
 
 ## 🚀 快速开始
 
-### 环境要求
-- Node.js 18+
-- npm 或 yarn
-- Notion API 密钥
+### 用户指南
+- **[开发指南](./guides/DEVELOPMENT.md)** - 环境搭建、本地开发、项目架构
+- **[部署指南](./guides/DEPLOYMENT.md)** - 生产环境部署、域名配置
+- **[Notion 配置](./guides/NOTION_SETUP.md)** - Notion 集成设置、数据库配置
 
-### 安装步骤
-```bash
-# 1. 克隆项目
-git clone <repository-url>
-cd simple-blog
+## 📚 文档索引
 
-# 2. 安装依赖
-npm install
+### 快速访问
+- **[完整文档索引](./INDEX.md)** - 所有文档的详细目录和导航
+- **[变更日志](./CHANGELOG.md)** - 版本历史和功能更新
+- **[项目结构](./PROJECT_STRUCTURE_OPTIMIZED.md)** - 详细的项目结构说明
 
-# 3. 配置环境变量
-cp .env.example .env.local
-# 编辑 .env.local 添加 Notion API 密钥
+### 技术文档
+- **[格式支持](./technical/FORMATS.md)** - Notion 块类型支持详解
+- **[故障排查](./technical/TROUBLESHOOTING.md)** - 常见问题和解决方案
+- **[Callout 优化](./technical/callout-optimization-2025-11-05.md)** - Callout 块渲染优化
+- **[项目清理](./technical/PROJECT_CLEANUP_2025-11-05.md)** - 项目维护和清理记录
+- **[项目对比](./technical/PROJECT_COMPARISON_2025-11-05.md)** - 版本对比分析
 
-# 4. 启动开发服务器
-npm run dev
-```
-
-### 验证安装
-- 访问：http://localhost:3003
-- 测试页面：http://localhost:3003/test-formats
-- 验证所有格式正常显示
+### 历史归档
+- **[归档文档](./archive/)** - 历史版本文档和报告
 
 ## 🏗️ 项目架构
 
 ```
 simple-blog/
-├── docs/                    # 📚 完整文档
 ├── src/
-│   ├── app/                 # 📄 页面路由
-│   │   ├── [slug]/         # 📝 博客文章页
-│   │   ├── test-formats/   # 🧪 格式测试页
+│   ├── app/                 # Next.js App Router 页面
+│   │   ├── [slug]/         # 动态文章页面
+│   │   ├── about/          # 关于页面
+│   │   ├── search/         # 搜索页面
+│   │   └── page.tsx        # 首页
+│   ├── components/          # React 组件
+│   │   ├── MarkdownContent.tsx  # Markdown 渲染组件
+│   │   ├── BlogCard.tsx         # 文章卡片
+│   │   ├── ThemeToggle.tsx      # 主题切换
 │   │   └── ...
-│   ├── components/         # 🧩 组件库
-│   │   ├── MarkdownContent.tsx  # 🎯 核心渲染组件
-│   │   ├── BlogCard.tsx         # 📋 文章卡片
-│   │   └── ...
-│   └── lib/               # 🔧 工具库
-│       ├── notion.ts      # 🔗 Notion API
-│       └── logger.ts      # 📊 日志工具
-└── public/               # 📁 静态资源
+│   └── lib/                # 工具库
+│       ├── notion.ts       # Notion API 集成
+│       └── logger.ts       # 日志工具
+├── docs/                   # 📚 项目文档
+│   ├── guides/            # 用户指南
+│   ├── technical/         # 技术文档
+│   └── archive/           # 历史归档
+└── public/                # 静态资源
 ```
 
-## 🎨 核心功能
+## 🛠️ 技术栈
 
-### Notion 格式支持 (21种)
-| 类别 | 格式数量 | 支持状态 |
-|------|----------|----------|
-| 基础文本 | 6种 | ✅ 100% |
-| 列表 | 2种 | ✅ 100% |
-| 媒体 | 4种 | ✅ 100% |
-| 嵌入 | 2种 | ✅ 100% |
-| 结构 | 5种 | ✅ 100% |
-| 特殊 | 2种 | ⚠️ 95% |
+- **框架**: Next.js 15 + React 19
+- **样式**: Tailwind CSS
+- **字体**: LXGW WenKai (霞鹜文楷)
+- **CMS**: Notion API
+- **Markdown**: react-markdown + rehype + remark
+- **部署**: Vercel (lingyi.bio)
 
-### 媒体播放器
-- 🎵 **音频**：MP3, WAV, OGG, M4A, FLAC, AAC
-- 🎬 **视频**：MP4, AVI, MOV + YouTube 嵌入
-- 🖼️ **图片**：懒加载 + 点击放大
-- 📄 **文件**：智能类型识别 + 下载
+## 📊 功能清单
 
-### 设计系统
-- 🌙 **深色模式**：完整主题切换
-- 📱 **响应式**：Mobile-first 设计
-- 🎨 **颜色系统**：Notion 原生颜色支持
-- ✨ **动画效果**：平滑过渡和交互
+### 内容管理
+- ✅ Notion 数据库集成
+- ✅ 实时内容同步
+- ✅ Markdown 渲染
+- ✅ 代码高亮
+- ✅ 数学公式支持
 
-## 🔧 开发工具
+### 用户体验
+- ✅ 深色/浅色模式
+- ✅ 响应式设计
+- ✅ 全文搜索
+- ✅ 文章置顶
+- ✅ 标签筛选
+- ✅ RSS 订阅
 
-### 测试验证
-- **格式测试页**：`/test-formats` - 验证所有块类型
-- **开发调试**：控制台警告和错误提示
-- **性能监控**：加载时间和渲染性能
+### 性能优化
+- ✅ 图片懒加载
+- ✅ 内容缓存
+- ✅ 错误处理
+- ✅ 超时重试
 
-### 代码质量
-- **TypeScript**：完整类型安全
-- **ESLint + Prettier**：代码规范
-- **组件化**：可复用的模块设计
+## 🌐 生产环境
 
-## 📊 性能指标
+- **域名**: lingyi.bio
+- **部署平台**: Vercel
+- **环境变量**:
+  - `NOTION_SECRET` - Notion Integration Token
+  - `NOTION_DATABASE_ID` - Notion 数据库 ID
+  - `NEXT_PUBLIC_SITE_URL` - 网站 URL (https://lingyi.bio)
 
-- **格式支持率**：21/21 (100%)
-- **响应时间**：< 2s (首次加载)
-- **SEO 友好**：结构化数据 + 元标签
-- **可访问性**：WCAG 2.1 AA 标准
+## 📞 获取帮助
 
-## 🤝 贡献指南
+### 开发问题
+1. 查看 [开发指南](./guides/DEVELOPMENT.md)
+2. 查看 [故障排查](./technical/TROUBLESHOOTING.md)
+3. 检查 [完整文档索引](./INDEX.md)
 
-### 开发流程
-1. Fork 项目仓库
-2. 创建功能分支
-3. 开发并测试
-4. 提交 Pull Request
+### 部署问题
+1. 查看 [部署指南](./guides/DEPLOYMENT.md)
+2. 检查环境变量配置
+3. 查看 Vercel 部署日志
 
-### 代码规范
-- 使用 TypeScript
-- 遵循 ESLint 规则
-- 添加适当注释
-- 确保深色模式兼容
-
-### 测试清单
-- [ ] 21种格式正确显示
-- [ ] 深色模式正常切换
-- [ ] 移动端响应式正常
-- [ ] 媒体播放功能正常
-
-## 📞 支持与反馈
-
-- **问题反馈**：GitHub Issues
-- **功能建议**：GitHub Discussions
-- **技术支持**：查看故障排除文档
+### Notion 集成问题
+1. 查看 [Notion 配置指南](./guides/NOTION_SETUP.md)
+2. 确认 Integration 权限
+3. 验证数据库 ID
 
 ---
 
-**最后更新**：2025-09-28
-**当前版本**：v1.2.0
-**维护状态**：🟢 积极维护
+**提示**: 建议从 [完整文档索引](./INDEX.md) 开始浏览,它提供了所有文档的详细分类和导航。
+
+**最后更新**: 2025-11-05
+**当前版本**: v1.2.0
+**维护状态**: 🟢 积极维护

@@ -140,3 +140,31 @@ docs/.docusaurus/
 *.pid
 *.seed
 *.pid.lock
+
+# ============================
+# Test & Debug Pages
+# ============================
+src/app/test-*/
+src/app/*-test/
+src/app/debug-*/
+
+# ============================
+# Documentation - Local Only
+# ============================
+# 技术文档 (带日期的开发文档)
+docs/technical/
+
+# 历史归档 (旧版本文档)
+docs/archive/
+
+# 项目分析和对比文档
+docs/PROJECT_COMPARISON_*.md
+docs/PROJECT_CLEANUP_*.md
+docs/PROJECT_STRUCTURE_OPTIMIZED.md
+docs/PROJECT_SUMMARY.md
+
+# 维护脚本 (本地工具)
+scripts/
+
+# 测试脚本 (本地测试)
+tests/

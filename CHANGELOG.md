@@ -8,6 +8,22 @@
 ## [Unreleased]
 
 ### Added
+- **在线阅读统计功能** (基于 Vercel KV)
+  - 实时统计全局文章浏览量
+  - 使用 Redis 存储阅读数据
+  - 每个会话只计数一次（sessionStorage 防重）
+  - 格式化显示阅读次数（例如：1,234 次阅读）
+  - 加载时显示动画效果
+- **分享功能**
+  - 支持 Twitter、微博、Facebook、LinkedIn 社交平台分享
+  - 移动端原生分享支持（Web Share API）
+  - 一键复制链接功能
+  - 集成式下拉菜单设计
+  - 复制成功视觉反馈
+- **API 路由**
+  - 新增 `/api/views/[slug]` 用于阅读统计
+  - 支持 GET（获取浏览次数）和 POST（增加浏览次数）
+  - Edge Runtime 优化性能
 - 图片标题智能显示策略
   - 自动移除图片标题中的文件扩展名(.png, .jpg, .jpeg 等)
   - 过滤无意义的文件名(image, photo, 图片, 照片等)
@@ -18,6 +34,11 @@
 - 新增 `ChangelogSection` 组件用于展示项目更新历史
 
 ### Changed
+- **文章详情页布局优化**
+  - 阅读统计、分享、导出按钮移至文章底部
+  - 左侧显示阅读统计，右侧显示操作按钮
+  - 响应式设计：移动端垂直布局，桌面端水平布局
+  - 更简洁美观的视觉效果
 - 优化 `MarkdownContent` 组件的图片渲染逻辑
   - 添加 `isMeaninglessFilename()` 函数用于过滤无意义文件名
   - 添加 `removeFileExtension()` 函数用于移除文件扩展名

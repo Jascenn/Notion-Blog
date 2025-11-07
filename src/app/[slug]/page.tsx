@@ -4,6 +4,8 @@ import MarkdownContent from '@/components/MarkdownContent';
 import TableOfContents from '@/components/TableOfContents';
 import RelatedPosts from '@/components/RelatedPosts';
 import ReadingTime from '@/components/ReadingTime';
+import ReadingStats from '@/components/ReadingStats';
+import ShareButtons from '@/components/ShareButtons';
 import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
 import { getPostBySlug, getPosts } from '@/lib/notion';
 import { logger } from '@/lib/logger';
@@ -75,6 +77,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       });
     };
 
+    // 获取完整 URL
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+    const postUrl = `${siteUrl}/${slug}`;
+
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 min-h-screen">
         <article className="pb-16">
@@ -83,42 +89,59 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               {post.title}
             </h1>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                <time>{formatDate(post.publishedAt)}</time>
-                <span>•</span>
-                <ReadingTime content={post.content} />
-                {post.tags.length > 0 && (
-                  <>
-                    <span>•</span>
-                    <div className="flex space-x-2">
-                      {post.tags.map((tag) => (
-                        <Link
-                          key={tag}
-                          href={`/search?tags=${encodeURIComponent(tag)}`}
-                          className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        >
-                          {tag}
-                        </Link>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-              <ExportPDFAdvanced
-                title={post.title}
-                date={formatDate(post.publishedAt)}
-                tags={post.tags}
-                filename={post.slug}
-                contentId="article-content"
-              />
+
+            {/* 文章元信息：时间、阅读时间、标签 */}
+            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+              <time>{formatDate(post.publishedAt)}</time>
+              <span>•</span>
+              <ReadingTime content={post.content} />
+              {post.tags.length > 0 && (
+                <>
+                  <span>•</span>
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags.map((tag) => (
+                      <Link
+                        key={tag}
+                        href={`/search?tags=${encodeURIComponent(tag)}`}
+                        className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        {tag}
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </header>
 
           {/* 文章内容 */}
-          <div id="article-content">
+          <div id="article-content" className="mb-12">
             <MarkdownContent content={post.content} />
           </div>
+
+          {/* 文章底部：阅读统计、分享按钮、导出按钮 */}
+          <footer className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              {/* 左侧：阅读统计 */}
+              <ReadingStats slug={slug} />
+
+              {/* 右侧：分享和导出按钮 */}
+              <div className="flex items-center gap-3">
+                <ShareButtons
+                  title={post.title}
+                  url={postUrl}
+                  description={post.excerpt}
+                />
+                <ExportPDFAdvanced
+                  title={post.title}
+                  date={formatDate(post.publishedAt)}
+                  tags={post.tags}
+                  filename={post.slug}
+                  contentId="article-content"
+                />
+              </div>
+            </div>
+          </footer>
         </article>
 
         {/* 目录 */}

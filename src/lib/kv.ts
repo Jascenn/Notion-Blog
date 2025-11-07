@@ -1,9 +1,20 @@
 import { kv } from '@vercel/kv';
 
+// 检查是否配置了 KV
+const hasKVConfig = () => {
+  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+};
+
 /**
  * 获取文章浏览次数
  */
 export async function getPostViews(slug: string): Promise<number> {
+  // 如果没有配置 KV，返回 0（本地开发模式）
+  if (!hasKVConfig()) {
+    console.log('[KV] Not configured, returning 0 views');
+    return 0;
+  }
+
   try {
     const views = await kv.get<number>(`post:views:${slug}`);
     return views || 0;
@@ -17,6 +28,12 @@ export async function getPostViews(slug: string): Promise<number> {
  * 增加文章浏览次数
  */
 export async function incrementPostViews(slug: string): Promise<number> {
+  // 如果没有配置 KV，返回 0（本地开发模式）
+  if (!hasKVConfig()) {
+    console.log('[KV] Not configured, skipping increment');
+    return 0;
+  }
+
   try {
     const newViews = await kv.incr(`post:views:${slug}`);
     return newViews;

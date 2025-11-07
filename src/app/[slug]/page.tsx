@@ -10,6 +10,9 @@ import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
 import { getPostBySlug, getPosts } from '@/lib/notion';
 import { logger } from '@/lib/logger';
 
+// 启用增量静态再生成（ISR）- 每 60 秒重新验证一次
+export const revalidate = 60;
+
 // 生成静态路径（可选：用于构建时的静态生成）
 export async function generateStaticParams() {
   try {

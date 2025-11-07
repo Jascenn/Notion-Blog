@@ -20,12 +20,23 @@ const nextConfig: NextConfig = {
         hostname: '**',
       },
     ],
-    // 增加图片加载超时时间
+    // 启用图片优化
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
-    // 增加超时时间到60秒
-    minimumCacheTTL: 60,
+    // 图片缓存时间：7 天（单位：秒）
+    minimumCacheTTL: 604800,
+    // 支持的图片格式
+    formats: ['image/avif', 'image/webp'],
+    // 图片质量
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
+
+  // 启用压缩
+  compress: true,
+
+  // 输出配置
+  output: 'standalone',
 }
 
 export default nextConfig;

@@ -1,6 +1,8 @@
 import BlogCard from '@/components/BlogCard';
 import { getPostsOnly } from '@/lib/notion';
 
+// 启用增量静态再生成（ISR）- 每 60 秒重新验证一次
+export const revalidate = 60;
 
 export default async function Home() {
   const posts = await getPostsOnly();

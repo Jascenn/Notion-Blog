@@ -15,6 +15,10 @@ export const metadata: Metadata = {
   keywords: ["博客", "技术", "生活", "分享", "Next.js", "React"],
   authors: [{ name: "博主" }],
   creator: "博主",
+  // 性能优化：预连接到外部域名
+  other: {
+    'viewport': 'width=device-width, initial-scale=1',
+  }
 };
 
 export default function RootLayout({
@@ -24,6 +28,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" style={{ scrollBehavior: 'smooth' }}>
+      <head>
+        {/* 确保字体正常加载 - 双重保险 */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@300;400;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
         className="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
         suppressHydrationWarning={true}

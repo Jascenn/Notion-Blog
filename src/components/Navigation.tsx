@@ -29,7 +29,7 @@ export default function Navigation() {
           </div>
 
           {/* Navigation Links & Theme Toggle */}
-          <div className="flex items-center space-x-3 sm:space-x-6">
+          <div className="flex items-center space-x-4 sm:space-x-6">
             <div className="hidden sm:flex items-center space-x-6">
               {navigation.map((item) => (
                 <Link
@@ -47,14 +47,14 @@ export default function Navigation() {
             </div>
 
             {/* Mobile menu - simplified */}
-            <div className="flex sm:hidden items-center space-x-3">
+            <div className="flex sm:hidden items-center space-x-4">
               {['Blog', 'Search'].map((item) => {
                 const href = item === 'Blog' ? '/' : `/${item.toLowerCase()}`;
                 return (
                   <Link
                     key={item}
                     href={href}
-                    className={`text-sm transition-colors dark:text-gray-200 ${
+                    className={`text-sm transition-colors dark:text-gray-200 whitespace-nowrap ${
                       pathname === href
                         ? 'text-gray-900 dark:text-white font-medium'
                         : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'

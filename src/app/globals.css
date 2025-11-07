@@ -1,5 +1,5 @@
-/* 霞鹜字体引入 - 必须在最前面 */
-@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@300;400;700&display=swap');
+/* 霞鹜字体引入 - 使用 jsdelivr CDN（国内可访问） */
+@import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css');
 @import "tailwindcss";
 
 :root {

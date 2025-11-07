@@ -1,0 +1,13 @@
+# robots.txt - 搜索引擎爬虫配置
+
+# 允许所有搜索引擎爬取所有内容
+User-agent: *
+Allow: /
+
+# 站点地图（如果有的话，可以取消注释）
+# Sitemap: https://yourdomain.com/sitemap.xml
+
+# 禁止爬取的路径（示例，根据需要调整）
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/

@@ -38,6 +38,7 @@ build/
 !.env.local.example
 !.env.example
 
+
 # ============================
 # Logs
 # ============================
@@ -163,8 +164,8 @@ docs/PROJECT_CLEANUP_*.md
 docs/PROJECT_STRUCTURE_OPTIMIZED.md
 docs/PROJECT_SUMMARY.md
 
-# 维护脚本 (本地工具)
-scripts/
+# 本地归档目录（配置文档和脚本）
+.local-archive/
 
-# 测试脚本 (本地测试)
+# 测试脚本（本地测试）
 tests/

@@ -114,14 +114,24 @@ export default function ShareButtons({ title, url, description }: ShareButtonsPr
       {/* 下拉菜单 */}
       {showMenu && (
         <>
-          {/* 遮罩层 */}
+          {/* 遮罩层 - 只在移动端显示 */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-[100] md:hidden"
             onClick={() => setShowMenu(false)}
           />
 
-          {/* 菜单内容 */}
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 py-1">
+          {/* 菜单内容 - 桌面端向下展开，移动端固定居中显示 */}
+          <div
+            className="
+              fixed md:absolute
+              left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+              md:left-auto md:top-auto md:right-0 md:translate-x-0 md:translate-y-0 md:mt-2
+              w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl
+              border border-gray-200 dark:border-gray-700
+              z-[101] py-1
+              max-h-[80vh] md:max-h-96 overflow-y-auto
+            "
+          >
             {/* 社交平台分享 */}
             {shareOptions.map((option) => (
               <a

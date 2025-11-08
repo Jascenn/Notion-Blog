@@ -4,6 +4,18 @@ import { useState } from 'react';
 
 const changelogData = [
   {
+    version: 'v1.3.0',
+    date: '2025-11-08',
+    title: '字体加载优化与部署配置改进',
+    changes: [
+      { type: '修复', color: 'text-red-500', text: '修复移动端字体加载失败问题' },
+      { type: '优化', color: 'text-blue-500', text: '切换字体 CDN 从 Google Fonts 到 jsDelivr' },
+      { type: '优化', color: 'text-blue-500', text: '使用 CSS 变量统一管理字体配置' },
+      { type: '修复', color: 'text-red-500', text: '修复 Vercel 多区域部署配置兼容性' },
+      { type: '新增', color: 'text-green-500', text: '新增技术问题解决方案文档' },
+    ]
+  },
+  {
     version: 'v1.2.0',
     date: '2025-11-05',
     title: '项目结构优化与功能改进',
@@ -58,7 +70,7 @@ export default function ChangelogSection() {
         }`}
       >
         <div className="space-y-8">
-          {changelogData.map((entry, index) => (
+          {changelogData.map((entry) => (
             <div key={entry.version}>
               <div className="flex items-baseline gap-3 mb-3">
                 <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">

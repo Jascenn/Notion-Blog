@@ -29,10 +29,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" style={{ scrollBehavior: 'smooth' }}>
       <head>
-        {/* 确保字体正常加载 - 双重保险 */}
         <link
-          href="https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@300;400;700&display=swap"
           rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css"
         />
       </head>
       <body

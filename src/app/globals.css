@@ -1,4 +1,4 @@
-/* 霞鹜字体引入 - 使用 jsdelivr CDN（国内可访问） */
+/* 霞鹜文楷字体（CDN） */
 @import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css');
 @import "tailwindcss";
 
@@ -28,7 +28,7 @@ html {
 }
 
 body {
-  font-family: "LXGW WenKai", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-family: var(--font-sans);
   font-feature-settings: "kern" 1;
   font-kerning: normal;
   letter-spacing: 0.02em;
@@ -72,12 +72,12 @@ code {
 
 /* 霞鹜字体特殊优化 */
 .lxgw-wenkai {
-  font-family: "LXGW WenKai", serif;
+  font-family: var(--font-sans), serif;
 }
 
 /* 标题使用稍重的字重 */
 h1, h2, h3, h4, h5, h6 {
-  font-family: "LXGW WenKai", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
 }
 

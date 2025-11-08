@@ -147,7 +147,11 @@ Pinned: ❌
 - 博客卡片：`src/components/BlogCard.tsx`
 
 ### 字体设置
-项目使用 LXGW WenKai 字体，通过 Google Fonts 加载。
+项目使用 LXGW WenKai (霞鹜文楷) 字体，通过 jsDelivr CDN 加载，国内访问稳定可靠。
+
+配置文件：
+- `src/app/layout.tsx` - 字体 CDN 链接
+- `src/app/globals.css` - 字体变量和样式定义
 
 ## 🚀 部署到 Vercel
 
@@ -208,6 +212,7 @@ simple-blog/
 - [🏗️ 开发指南](./docs/DEVELOPMENT.md) - 开发环境、架构、工作流
 - [📝 格式支持](./docs/FORMATS.md) - 21种 Notion 块类型详解
 - [🔧 故障排除](./docs/TROUBLESHOOTING.md) - 问题诊断和解决方案
+- [💡 技术解决方案](./docs/TROUBLESHOOTING_SOLUTIONS.md) - 常见问题详细解决方案
 - [📅 更新日志](./docs/CHANGELOG.md) - 版本历史和改进记录
 
 ### 🔧 配置文档

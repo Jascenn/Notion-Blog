@@ -45,12 +45,6 @@
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
-  ],
-  "regions": ["iad1", "sfo1", "hnd1", "fra1", "sin1"],
+  "rewrites": [],
   "framework": "nextjs"
 }

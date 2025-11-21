@@ -210,11 +210,11 @@ function ensureNotionMarkdown(): NotionToMarkdown | null {
 // 请求缓存和限流
 const childrenCache = new Map<string, { data: NotionBlock[]; timestamp: number }>();
 const pageCache = new Map<string, { data: string; timestamp: number }>();
-const CACHE_TTL = 0; // 临时禁用缓存用于调试 callout 问题
+const CACHE_TTL = process.env.NODE_ENV === 'development' ? 60 * 1000 : 5 * 60 * 1000;
 const requestQueue: Array<() => Promise<void>> = [];
 let isProcessingQueue = false;
-const MAX_CONCURRENT_REQUESTS = 1; // 减少到1个并发请求
-const REQUEST_DELAY = 200; // 增加请求间延迟到200ms
+const MAX_CONCURRENT_REQUESTS = process.env.NODE_ENV === 'development' ? 2 : 4;
+const REQUEST_DELAY = process.env.NODE_ENV === 'development' ? 100 : 50;
 
 // 请求队列处理
 async function processQueue() {
@@ -556,7 +556,7 @@ function getRichTextMarkdown(richText: NotionRichText[]): string {
         'gray_background': '#f5f5f5',
       };
 
-      let styles: string[] = [];
+      const styles: string[] = [];
 
       // 检查是否有背景色
       if (annotations.color.endsWith('_background')) {
@@ -748,6 +748,9 @@ async function getPageMarkdown(pageId: string): Promise<string> {
 async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<string> {
   // 限制最大嵌套深度为4层，防止无限递归和性能问题
   const MAX_DEPTH = 4;
+  if (depth > MAX_DEPTH) {
+    return '';
+  }
   let markdown = '';
   let currentListType: 'bulleted' | 'numbered' | null = null;
 
@@ -1008,7 +1011,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
               canEmbed = true;
             }
           } catch (error) {
-            // URL 解析失败，保持原始处理
+            logger.debug('解析视频嵌入链接失败', error);
           }
 
           if (canEmbed) {
@@ -1130,7 +1133,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
               canEmbed = true;
             }
           } catch (error) {
-            // URL 解析失败，保持原始处理
+            logger.debug('解析音频嵌入链接失败', error);
           }
 
           if (canEmbed) {
@@ -1218,7 +1221,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
             // 其他嵌入内容，尝试使用 iframe
             try {
               const url = new URL(embedUrl);
-              const domain = url.hostname;
+              const domain = url.hostname.replace(/^www\./, '');
 
               markdown += `<div class="embed-container">
                 <iframe
@@ -1228,9 +1231,13 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
                   class="w-full aspect-video rounded-xl border border-gray-200"
                   allowfullscreen
                 ></iframe>
-                ${embedCaption ? `<p class="embed-caption">${escapeAttribute(embedCaption)}</p>` : ''}
+                <div class="embed-meta">
+                  <span class="embed-domain">${escapeAttribute(domain)}</span>
+                  ${embedCaption ? `<span class="embed-caption">${escapeAttribute(embedCaption)}</span>` : ''}
+                </div>
               </div>\n\n`;
             } catch (error) {
+              logger.debug('解析嵌入链接失败', error);
               // URL 解析失败，显示为链接卡片
               markdown += `<div class="embed-link">
                 <div class="embed-preview">
@@ -1331,10 +1338,6 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
         const calloutContent = getRichTextMarkdown(block.callout?.rich_text || []);
         const calloutColor = block.callout?.color || 'default';
         const iconHtml = renderCalloutIcon(block.callout?.icon);
-
-        // 调试:输出原始 rich_text 长度
-        const rawTextCount = block.callout?.rich_text?.length || 0;
-        const rawTextPreview = JSON.stringify(block.callout?.rich_text || []).substring(0, 200);
 
         // 有子块则获取并处理
         let finalContent = calloutContent;

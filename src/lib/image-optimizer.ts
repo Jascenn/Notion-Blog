@@ -7,7 +7,7 @@
  * 优化 Notion 图片 URL
  * Notion 图片 URL 通常很长且包含签名，我们可以通过 Next.js Image Optimization 来优化
  */
-export function optimizeNotionImageUrl(url: string, width?: number): string {
+export function optimizeNotionImageUrl(url: string): string {
   if (!url) return '';
 
   // 如果是 Notion 的图片，使用 Next.js Image Optimization API

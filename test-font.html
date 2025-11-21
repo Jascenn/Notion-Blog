@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>字体加载测试</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css">
+  <style>
+    body {
+      padding: 20px;
+      font-family: "LXGW WenKai", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.7;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+    }
+    .font-fallback {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .info {
+      background: #f0f0f0;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>字体加载测试页面</h1>
+  
+  <div class="info">
+    <strong>当前设备:</strong> <span id="device"></span><br>
+    <strong>User Agent:</strong> <span id="ua"></span><br>
+    <strong>视口宽度:</strong> <span id="viewport"></span>px
+  </div>
+
+  <div class="test-section">
+    <h2>测试文本 (应该使用霞鹜文楷)</h2>
+    <p>这是一段测试文字，用来检查霞鹜文楷字体是否正确加载。The quick brown fox jumps over the lazy dog. 1234567890</p>
+    <p><strong>加粗文本：</strong>霞鹜文楷是一款开源中文字体</p>
+  </div>
+
+  <div class="test-section font-fallback">
+    <h2>对照组 (系统默认字体)</h2>
+    <p>这是一段测试文字，使用系统默认字体显示。The quick brown fox jumps over the lazy dog. 1234567890</p>
+    <p><strong>加粗文本：</strong>这是系统默认字体</p>
+  </div>
+
+  <div class="info" id="font-check">
+    <strong>字体加载状态:</strong> 检测中...
+  </div>
+
+  <script>
+    // 显示设备信息
+    document.getElementById('device').textContent = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? '移动端' : '桌面端';
+    document.getElementById('ua').textContent = navigator.userAgent;
+    document.getElementById('viewport').textContent = window.innerWidth;
+
+    // 检测字体是否加载
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        const fontCheck = document.getElementById('font-check');
+        const loaded = document.fonts.check('16px "LXGW WenKai"');
+        fontCheck.innerHTML = `<strong>字体加载状态:</strong> ${loaded ? '✅ 霞鹜文楷已加载' : '❌ 霞鹜文楷未加载，使用回退字体'}`;
+        fontCheck.style.background = loaded ? '#d4edda' : '#f8d7da';
+      });
+    }
+
+    // 监听窗口大小变化
+    window.addEventListener('resize', () => {
+      document.getElementById('viewport').textContent = window.innerWidth;
+    });
+  </script>
+</body>
+</html>

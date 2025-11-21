@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { slugifyHeading } from '@/lib/slugifyHeading';
 
 interface TocItem {
   id: string;
@@ -27,12 +28,7 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
       while ((match = headingRegex.exec(markdown)) !== null) {
         const level = match[1].length;
         const text = match[2].trim();
-        const id = text
-          .toLowerCase()
-          .replace(/[^\w\u4e00-\u9fff\s-]/g, '') // 保留中文、英文、数字、空格、横线
-          .replace(/\s+/g, '-')
-          .replace(/--+/g, '-')
-          .trim();
+        const id = slugifyHeading(text);
 
         items.push({ id, text, level });
       }

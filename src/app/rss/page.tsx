@@ -6,6 +6,9 @@ export const metadata: Metadata = {
 };
 
 export default function RSSPage() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+  const feedUrl = `${siteUrl.replace(/\/$/, '')}/rss.xml`;
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <div className="max-w-2xl">
@@ -25,7 +28,7 @@ export default function RSSPage() {
               RSS Feed地址
             </h2>
             <div className="bg-white border border-gray-200 rounded px-3 py-2 font-mono text-sm text-gray-700">
-              https://lingyi.blog/rss.xml
+              {feedUrl}
             </div>
             <p className="text-sm text-gray-500 mt-2">
               复制此地址到你的RSS阅读器中即可订阅
@@ -46,7 +49,7 @@ export default function RSSPage() {
 
           <div className="border-t border-gray-200 pt-6">
             <p className="text-sm text-gray-500">
-              RSS功能正在开发中，敬请期待！
+              RSS 订阅已可用，如果阅读器暂时无法解析，请稍后刷新。
             </p>
           </div>
         </div>

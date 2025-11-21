@@ -5,10 +5,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeRaw from 'rehype-raw';
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { logger } from '@/lib/logger';
 import 'highlight.js/styles/github.css';
+import { slugifyHeading } from '@/lib/slugifyHeading';
 
 // 动态导入数学公式组件，避免 SSR 问题
 const MathFormula = dynamic(() => import('./MathFormula'), {
@@ -17,7 +17,7 @@ const MathFormula = dynamic(() => import('./MathFormula'), {
 });
 
 // 计算列表嵌套深度的辅助函数
-function getListDepth(node: any): number {
+function getListDepth(node: MarkdownNode | null | undefined): number {
   if (!node) return 1;
 
   let depth = 1;
@@ -36,6 +36,19 @@ function getListDepth(node: any): number {
 interface MarkdownContentProps {
   content: string;
 }
+
+interface MarkdownNode {
+  type?: string;
+  tagName?: string;
+  parent?: MarkdownNode | null;
+  properties?: Record<string, unknown>;
+}
+
+const getTextFromChildren = (children: React.ReactNode): string => {
+  return React.Children.toArray(children)
+    .map(child => (typeof child === 'string' ? child : ''))
+    .join('');
+};
 
 // 判断是否为无意义的文件名(包括常见的默认文件名)
 const isMeaninglessFilename = (text: string): boolean => {
@@ -134,6 +147,7 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
               </div>
             </div>
           )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
             alt={alt || ''}
@@ -172,6 +186,7 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
           onClick={() => setIsZoomed(false)}
         >
           <div className="relative max-w-full max-h-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
               alt={alt || '图片'}
@@ -2092,90 +2107,69 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, rehypeHighlight]}
-        children={cleanedContent}
         components={{
-          // 处理数学公式段落
+          // 处理数学公式段落，并保持统一段落渲染
           p: ({ children }) => {
-            // 检查是否包含 $$...$$ 块级公式
-            const childText = React.Children.toArray(children).map(child =>
-              typeof child === 'string' ? child : ''
-            ).join('');
+            const textContent = getTextFromChildren(children);
+            const isPlainText = React.Children.toArray(children).every(child => typeof child === 'string');
 
-            if (childText.startsWith('$$') && childText.endsWith('$$')) {
-              const expression = childText.slice(2, -2).trim();
+            if (isPlainText && textContent.startsWith('$$') && textContent.endsWith('$$')) {
+              const expression = textContent.slice(2, -2).trim();
               return <MathFormula expression={expression} displayMode={true} />;
             }
 
-            // 检查是否包含 $...$ 行内公式
-            if (childText.includes('$') && !childText.includes('$$')) {
-              const parts = childText.split(/\$([^$]+)\$/g);
+            if (isPlainText && textContent.includes('$') && !textContent.includes('$$')) {
+              const parts = textContent.split(/\$([^$]+)\$/g);
               if (parts.length > 1) {
                 const elements = parts.map((part, index) => {
                   if (index % 2 === 1) {
-                    // 这是公式部分
-                    return <MathFormula key={index} expression={part} displayMode={false} />;
+                    return <MathFormula key={index} expression={part.trim()} displayMode={false} />;
                   }
-                  // 这是普通文本部分
                   return part || null;
                 }).filter(Boolean);
 
-                return <p className="mb-6">{elements}</p>;
+                return (
+                  <p className="leading-7 mb-6 tracking-wide">
+                    {elements.map((element, idx) => (
+                      <React.Fragment key={idx}>{element}</React.Fragment>
+                    ))}
+                  </p>
+                );
               }
             }
 
-            return <p className="mb-6">{children}</p>;
+            return (
+              <p className="leading-7 mb-6 tracking-wide">
+                {children}
+              </p>
+            );
           },
 
           // 自定义标题样式，添加 id 属性支持锚点跳转
           h1: ({ children }) => {
-            const text = typeof children === 'string' ? children : '';
-            const id = `h1-${text
-              .toLowerCase()
-              .replace(/[^\w\u4e00-\u9fff\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/--+/g, '-')
-              .trim()}`;
+            const id = slugifyHeading(getTextFromChildren(children));
             return (
-              <h1 id={id} className="text-3xl font-bold text-gray-900 mt-10 mb-6 leading-tight tracking-tight first:mt-0">
+              <h1 id={id || undefined} className="text-3xl font-bold text-gray-900 mt-10 mb-6 leading-tight tracking-tight first:mt-0">
                 {children}
               </h1>
             );
           },
           h2: ({ children }) => {
-            const text = typeof children === 'string' ? children : '';
-            const id = `h2-${text
-              .toLowerCase()
-              .replace(/[^\w\u4e00-\u9fff\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/--+/g, '-')
-              .trim()}`;
+            const id = slugifyHeading(getTextFromChildren(children));
             return (
-              <h2 id={id} className="text-2xl font-semibold text-gray-900 mt-8 mb-4 leading-tight tracking-tight">
+              <h2 id={id || undefined} className="text-2xl font-semibold text-gray-900 mt-8 mb-4 leading-tight tracking-tight">
                 {children}
               </h2>
             );
           },
           h3: ({ children }) => {
-            const text = typeof children === 'string' ? children : '';
-            const id = `h3-${text
-              .toLowerCase()
-              .replace(/[^\w\u4e00-\u9fff\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/--+/g, '-')
-              .trim()}`;
+            const id = slugifyHeading(getTextFromChildren(children));
             return (
-              <h3 id={id} className="text-xl font-medium text-gray-900 mt-6 mb-3 leading-tight tracking-tight">
+              <h3 id={id || undefined} className="text-xl font-medium text-gray-900 mt-6 mb-3 leading-tight tracking-tight">
                 {children}
               </h3>
             );
           },
-
-          // 段落样式 - 优化行间距和字间距，保留内部颜色
-          p: ({ children }) => (
-            <p className="leading-7 mb-6 tracking-wide">
-              {children}
-            </p>
-          ),
 
           // 链接样式
           a: ({ href, children }) => (
@@ -2220,7 +2214,8 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
           ),
 
           div: ({ node, className, children, ...rest }) => {
-            const properties = ((node as unknown as { properties?: Record<string, unknown> })?.properties) ?? {};
+            const castNode = node as MarkdownNode | undefined;
+            const properties = (castNode?.properties ?? {}) as Record<string, unknown>;
 
             if (className?.includes('notion-embed')) {
               return (
@@ -2311,7 +2306,8 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
 
                               // 保持所有 div 处理逻辑，但避免递归 column 处理
                               div: ({ node, className, children, ...rest }) => {
-                                const divProperties = ((node as unknown as { properties?: Record<string, unknown> })?.properties) ?? {};
+                                const divCastNode = node as MarkdownNode | undefined;
+                                const divProperties = (divCastNode?.properties ?? {}) as Record<string, unknown>;
 
                                 // 处理嵌入内容
                                 if (className?.includes('notion-embed')) {
@@ -2361,7 +2357,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
           // 列表样式 - 改进嵌套层级显示
           ul: ({ children, className, node }) => {
             // 检测嵌套层级
-            const depth = getListDepth(node);
+            const depth = getListDepth(node as MarkdownNode | undefined);
             const depthClass = depth > 1 ? `nested-list-${Math.min(depth, 4)}` : '';
 
             return (
@@ -2372,7 +2368,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
           },
           ol: ({ children, className, node }) => {
             // 检测嵌套层级
-            const depth = getListDepth(node);
+            const depth = getListDepth(node as MarkdownNode | undefined);
             const depthClass = depth > 1 ? `nested-list-${Math.min(depth, 4)}` : '';
 
             return (
@@ -2391,12 +2387,11 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
             const textContent: React.ReactNode[] = [];
             const nestedLists: React.ReactNode[] = [];
 
-            React.Children.forEach(children, (child, index) => {
-              if (React.isValidElement(child) && (child.type === 'ul' || child.type === 'ol')) {
+            React.Children.forEach(children, (child) => {
+              if (React.isValidElement<{ className?: string }>(child) && (child.type === 'ul' || child.type === 'ol')) {
                 nestedLists.push(
-                  React.cloneElement(child as React.ReactElement, {
-                    className: `${(child.props as any).className || ''} notion-nested-list`,
-                    key: `nested-${index}`
+                  React.cloneElement(child, {
+                    className: `${child.props.className ?? ''} notion-nested-list`.trim() || undefined,
                   })
                 );
               } else {
@@ -2442,7 +2437,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
 
         }}
       >
-        {content}
+        {cleanedContent}
       </ReactMarkdown>
     </div>
   );

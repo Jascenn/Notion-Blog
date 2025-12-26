@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPostsOnly } from '@/lib/notion';
+import { getPosts, NotionPost } from '@/lib/notion';
 
 export const revalidate = 3600; // 1 hour
 
@@ -7,7 +7,8 @@ export async function GET() {
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
 
   try {
-    const posts = await getPostsOnly();
+    const allPosts = await getPosts();
+    const posts = allPosts.filter((p: NotionPost) => p.type !== 'page');
 
     const items = posts.map((post) => {
       const link = `${siteUrl}/${post.slug}`;

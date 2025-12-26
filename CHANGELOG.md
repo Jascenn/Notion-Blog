@@ -5,9 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2025-12-27
+
+### Changed
+
+- 🎨 **视觉还原与优化**
+  - **BlogCard 组件**：像素级还原 GitHub 历史版本的紧凑布局。将标签调整至左下角，日期由于右下角，大幅压缩边距 (`py-4`, `mb-1.5`) 以对齐线上效果。
+  - **阅读体验升级**：全局 Markdown 样式优化，段落间距调整为 `0.8em`，行高 `1.75`，兼顾紧凑感与呼吸感。
+  - **精细化图片容器**：增加 `rounded-xl` 大圆角与 `border-black/5` 极细边框，优化图片与正文的间距关系 (`my-6`)。
+
+### Fixed
+
+- 🐛 **核心功能修复**
+  - **首页内容修复**：重构 `notion.ts` 过滤逻辑，兼容 `Published` (Checkbox) 和 `Status` (Select) 两种发布状态字段，解决文章不显示问题。
+  - **内容渲染修复**：
+    - 引入 `remark-breaks` 插件，修复 Notion 软换行 (`Shift+Enter`) 失效问题。
+    - 修复空段落被过滤问题，将空行转换为 `&nbsp;`，还原写作时的视觉留白。
+  - **标签系统修复**：将标签数据结构从 `string[]` 升级为 `{name, color}[]`，支持 Notion 原生颜色显示。
+
+### Added
+
+- 📚 **技术方案归档**
+  - 新增 `docs/solutions/` 目录，收录以下技术白皮书：
+    - [`image-optimization.md`](docs/solutions/image-optimization.md) - 图片显示优化方案
+    - [`colored-tags.md`](docs/solutions/colored-tags.md) - 彩色标签系统同步方案
+    - [`security-reform.md`](docs/solutions/security-reform.md) - 安全性加固方案
+    - [`line-breaks-fix.md`](docs/solutions/line-breaks-fix.md) - 文本换行与空段落修复方案
+
 ## [1.3.1] - 2025-11-22
 
 ### Added
+
 - ✨ **RSS 订阅功能完整实现**
   - 新增 `/rss.xml` API 路由生成 RSS Feed
   - RSS 页面动态显示订阅地址（从环境变量读取）
@@ -19,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 支持中英文混合标题的 URL 友好转换
 
 ### Changed
+
 - ⚡ **性能优化**
   - 恢复 Notion API 缓存功能（开发环境 60s，生产环境 5分钟）
   - 优化并发请求数（开发 2个，生产 4个）
@@ -33,17 +62,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 改进列表嵌套处理
 
 - 🎨 **UI/UX 改进**
-  - 改进嵌入内容域名显示（移除 www. 前缀）
+  - 改进嵌入内容域名显示（移除 <www>. 前缀）
   - 优化嵌入元信息显示样式
   - RSS 状态文本更新为"订阅已可用"
 
 ### Fixed
+
 - 🐛 **错误处理改进**
   - 使用 logger.debug 替代注释处理错误日志
   - 改进嵌入内容解析的错误处理
   - 修复类型转换警告
 
 ### Removed
+
 - 🧹 **代码清理**
   - 删除未使用的 import（dynamic, Image）
   - 移除 image-optimizer.ts 中未使用的 width 参数
@@ -51,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 清理 ESLint 配置（添加 .local-archive 到忽略列表）
 
 ### Developer Experience
+
 - 📝 **开发工具**
   - 新增 `test-font.html` - 字体加载测试页面
   - 改进开发环境配置
@@ -60,11 +92,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2025-11-08
 
 ### Added
+
 - 博客基础功能完善
 - Notion API 集成
 - Markdown 渲染支持
 
 ### Changed
+
 - 性能优化
 - UI/UX 改进
 
@@ -73,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - Initial Release
 
 ### Added
+
 - 项目初始化
 - Next.js 15 + TypeScript 基础架构
 - Notion 数据库集成
@@ -81,6 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 **版本说明**：
+
 - **Major (X.0.0)** - 重大架构变更或破坏性更新
 - **Minor (x.X.0)** - 新功能添加，向后兼容
 - **Patch (x.x.X)** - Bug 修复和小改进

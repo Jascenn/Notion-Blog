@@ -3,9 +3,11 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeRaw from 'rehype-raw';
 import dynamic from 'next/dynamic';
+import NotionImage from './NotionImage';
 import { logger } from '@/lib/logger';
 import 'highlight.js/styles/github.css';
 import { slugifyHeading } from '@/lib/slugifyHeading';
@@ -137,12 +139,12 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
 
   return (
     <>
-      <div className="my-6">
-        <div className="relative w-full h-auto group">
+      <div className="my-6 select-none flex flex-col items-center">
+        <div className="relative w-full h-auto group bg-gray-50 dark:bg-gray-900/50 rounded-xl overflow-hidden border border-black/5 dark:border-white/10">
           {imageLoading && (
-            <div className="flex items-center justify-center h-48 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-2 text-gray-500">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+            <div className="flex items-center justify-center h-48">
+              <div className="flex items-center space-x-2 text-gray-400">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
                 <span className="text-sm">加载中...</span>
               </div>
             </div>
@@ -151,13 +153,10 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
           <img
             src={src}
             alt={alt || ''}
-            className={`w-full h-auto rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 cursor-pointer hover:shadow-lg hover:scale-[1.02] ${
-              imageLoading ? 'opacity-0 absolute' : 'opacity-100'
-            }`}
-            style={{ objectFit: 'contain', maxWidth: '100%' }}
+            className={`w-full h-auto rounded-xl shadow-sm transition-all duration-300 cursor-zoom-in ${imageLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
+            style={{ objectFit: 'contain', maxHeight: '85vh' }}
             onLoad={() => setImageLoading(false)}
             onError={() => {
-              console.log('Image failed to load:', src);
               setImageError(true);
               setImageLoading(false);
             }}
@@ -165,9 +164,9 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
             title={shouldShowAlt ? displayAlt : undefined}
           />
           {!imageLoading && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <div className="bg-black/50 text-white px-2 py-1 rounded text-xs">
-                🔍 点击放大
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+              <div className="bg-black/50 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+                <span>🔍</span> 点击放大
               </div>
             </div>
           )}
@@ -179,29 +178,53 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
         )}
       </div>
 
-      {/* 放大模态框 */}
+      {/* 放大模态框 - 仅修复遮挡逻辑，保持原始极简 UI */}
       {isZoomed && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/80 flex flex-col items-center justify-center z-50 p-4 cursor-zoom-out"
           onClick={() => setIsZoomed(false)}
         >
-          <div className="relative max-w-full max-h-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={src}
-              alt={alt || '图片'}
-              className="max-w-full max-h-full object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-            />
-            <button
-              className="absolute top-4 right-4 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
-              onClick={() => setIsZoomed(false)}
-              title="关闭"
-            >
-              ✕
-            </button>
+          <div
+            className="relative flex flex-col items-center justify-center max-w-full max-h-full group"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 图片本身 */}
+            <div className="flex-1 min-h-0 flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt={alt || '图片预览'}
+                className="max-w-[95vw] max-h-[85vh] object-contain rounded-lg shadow-2xl pointer-events-auto"
+              />
+            </div>
+
+            {/* 极简功能按钮组 - 悬停显示 */}
+            <div className="absolute top-4 right-4 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-200 z-[60]">
+              {/* 查看原图按钮 - 极致简洁纯文字版 */}
+              <a
+                href={src}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black/50 text-white h-8 px-4 rounded-full flex items-center justify-center hover:bg-black/70 transition-colors text-xs font-medium"
+                onClick={(e) => e.stopPropagation()}
+                title="查看原图"
+              >
+                <span>原图</span>
+              </a>
+
+              {/* 原始极简关闭按钮 */}
+              <button
+                className="bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
+                onClick={() => setIsZoomed(false)}
+                title="关闭"
+              >
+                <span className="text-xl">✕</span>
+              </button>
+            </div>
+
+            {/* 标题 - 仅调整为自然排列在下方，防止遮挡 */}
             {shouldShowAlt && (
-              <div className="absolute bottom-4 left-4 right-4 bg-black/50 text-white p-2 rounded text-center">
+              <div className="mt-4 bg-black/50 text-white px-4 py-2 rounded-lg text-sm backdrop-blur-sm pointer-events-none">
                 {displayAlt}
               </div>
             )}
@@ -715,6 +738,32 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
   return (
     <div className="prose prose-gray max-w-none tracking-wide">
       <style jsx global>{`
+        /* 强制覆盖 prose 的默认段落间距，使其更紧凑但保持呼吸感 */
+        .prose p {
+          margin-bottom: 0.8em !important;
+          margin-top: 0 !important;
+          line-height: 1.75 !important;
+          text-align: justify;
+        }
+        
+        /* 针对列表项的间距优化 */
+        .prose ul, .prose ol {
+          margin-top: 0.5em !important;
+          margin-bottom: 0.5em !important;
+        }
+        .prose li {
+          margin-top: 0.3em !important;
+          margin-bottom: 0.3em !important;
+          line-height: 1.75 !important;
+        }
+        
+        /* 修正空行的大间距问题 */
+        .prose p:has(br), .prose p:empty {
+          margin-bottom: 0 !important;
+          line-height: 1 !important;
+          min-height: 1em;
+        }
+
         /* Notion 颜色支持 */
         .text-red { color: #e03e3e !important; }
         .text-orange { color: #fd8200 !important; }
@@ -2105,8 +2154,8 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
 
       `}</style>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw, rehypeHighlight]}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
+        rehypePlugins={[rehypeHighlight, rehypeRaw]}
         components={{
           // 处理数学公式段落，并保持统一段落渲染
           p: ({ children }) => {
@@ -2139,7 +2188,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
             }
 
             return (
-              <p className="leading-7 mb-6 tracking-wide">
+              <p>
                 {children}
               </p>
             );

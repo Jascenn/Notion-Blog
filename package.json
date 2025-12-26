@@ -23,6 +23,7 @@
     "rehype-highlight": "^7.0.2",
     "rehype-katex": "^6.0.2",
     "rehype-raw": "^7.0.0",
+    "remark-breaks": "^4.0.0",
     "remark-gfm": "^4.0.1",
     "remark-math": "^5.1.1",
     "unist-util-visit": "^5.0.0"

@@ -60,9 +60,35 @@ const nextConfig: NextConfig = {
     } : false,
   },
 
-  // HTTP 缓存头配置（针对 Cloudflare CDN 优化）
+  // HTTP 响应头配置
   async headers() {
     return [
+      // 全局安全响应头
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()'
+          }
+        ]
+      },
       // Next.js 静态资源（_next/static）
       {
         source: '/_next/static/:path*',

@@ -1,7 +1,3 @@
-import { logger } from './logger';
-import { Client } from '@notionhq/client';
-import { NotionToMarkdown } from 'notion-to-md';
-
 export interface NotionPost {
   id: string;
   title: string;
@@ -16,389 +12,226 @@ export interface NotionPost {
   type?: 'post' | 'page' | 'announcement';
 }
 
-// Notion API 响应类型
-interface NotionRichText {
-  plain_text: string;
-  href?: string | null;
-  annotations?: {
-    bold: boolean;
-    italic: boolean;
-    strikethrough: boolean;
-    underline: boolean;
-    code: boolean;
-    color: string;
-  };
-  text?: {
-    link?: {
-      url?: string | null;
-    };
-  };
-}
-
-interface NotionSelect {
-  name: string;
-}
-
-interface NotionMultiSelect {
-  name: string;
-}
-
-interface NotionCheckbox {
-  checkbox: boolean;
-}
-
-interface NotionDate {
-  start: string;
-}
-
-interface NotionFile {
-  url: string;
-}
-
-interface NotionCover {
-  external?: NotionFile;
-  file?: NotionFile;
-}
-
-interface NotionProperties {
-  Title?: { title: NotionRichText[] };
-  Slug?: { rich_text: NotionRichText[] };
-  Summary?: { rich_text: NotionRichText[] };
-  'Published Date'?: { date?: NotionDate };
-  Tags?: { multi_select: NotionMultiSelect[] };
-  Published?: NotionCheckbox;
-  Status?: { select?: NotionSelect };
-  Type?: { select?: NotionSelect };
-  Pinned?: NotionCheckbox;
-}
-
-interface NotionPage {
-  id: string;
-  properties: NotionProperties;
-  cover?: NotionCover;
-  last_edited_time: string;
-}
-
-// Notion 块内容类型
-interface NotionBlockContent {
-  rich_text?: NotionRichText[];
-  language?: string;
-  caption?: NotionRichText[];
-  url?: string;
-  name?: string;
-  color?: string;
-  table_width?: number;
-  is_toggleable?: boolean;
-  children?: NotionBlock[];
-  icon?: {
-    emoji?: string;
-    external?: { url: string };
-    file?: { url: string };
-  };
-  external?: { url: string };
-  file?: { url: string };
-  table_row?: {
-    cells: NotionRichText[][];
-  };
-  bookmark?: {
-    url: string;
-  };
-}
-
-interface NotionBlock {
-  id: string;
-  type: string;
-  has_children: boolean;
-  // 具体的块类型属性
-  paragraph?: NotionBlockContent;
-  heading_1?: NotionBlockContent;
-  heading_2?: NotionBlockContent;
-  heading_3?: NotionBlockContent;
-  bulleted_list_item?: NotionBlockContent;
-  numbered_list_item?: NotionBlockContent;
-  code?: NotionBlockContent;
-  quote?: NotionBlockContent;
-  image?: NotionBlockContent & {
-    external?: { url: string };
-    file?: { url: string };
-  };
-  video?: NotionBlockContent & {
-    external?: { url: string };
-    file?: { url: string };
-  };
-  audio?: NotionBlockContent & {
-    external?: { url: string };
-    file?: { url: string };
-  };
-  file?: NotionBlockContent & {
-    external?: { url: string };
-    file?: { url: string };
-  };
-  embed?: { url: string };
-  table?: { table_width: number };
-  callout?: NotionBlockContent;
-  toggle?: NotionBlockContent;
-  column_list?: NotionBlockContent;
-  column?: NotionBlockContent;
-  table_row?: { cells: NotionRichText[][] };
-  table?: {
-    table_width: number;
-    has_column_header?: boolean;
-    has_row_header?: boolean;
-  };
-  bookmark?: {
-    caption?: NotionRichText[];
-    url: string;
-  };
-  equation?: {
-    expression: string;
-  };
-  pdf?: NotionBlockContent;
-  // 通用索引签名作为后备
-  [key: string]: NotionBlockContent | string | number | boolean | undefined;
-}
-
-interface FetchOptions {
-  method?: string;
-  headers: Record<string, string>;
-  body?: string;
-  signal?: AbortSignal;
-  next?: { revalidate: number };
-  cache?: RequestCache;
-}
-
 // Notion API 请求头
 const getHeaders = () => ({
-  'Authorization': `Bearer ${process.env.NOTION_TOKEN || process.env.NOTION_SECRET}`,
+  'Authorization': `Bearer ${process.env.NOTION_TOKEN}`,
   'Content-Type': 'application/json',
   'Notion-Version': '2022-06-28',
 });
 
-// Fetch 选项，合理的缓存策略
-// 开发环境使用较短的缓存时间，生产环境使用较长的缓存时间
+// Fetch 选项，禁用缓存实现实时更新
 const getFetchOptions = () => ({
-  next: { revalidate: process.env.NODE_ENV === 'development' ? 30 : 300 }, // 开发环境30秒，生产环境5分钟
-  cache: 'force-cache' as RequestCache, // 启用缓存
+  next: { revalidate: 0 }, // 禁用缓存
+  cache: 'no-store' as RequestCache, // 不存储缓存
 });
 
-// Notion 客户端与 Markdown 转换器缓存，避免重复初始化
-let notionClient: Client | null = null;
-let notionMarkdown: NotionToMarkdown | null = null;
-
-function ensureNotionMarkdown(): NotionToMarkdown | null {
-  if (notionMarkdown) {
-    return notionMarkdown;
-  }
-
-  const notionToken = process.env.NOTION_TOKEN || process.env.NOTION_SECRET;
-  if (!notionToken) {
-    return null;
-  }
+// 带超时的 fetch 函数
+async function fetchWithTimeout(url: string, options: any, timeout = 10000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    notionClient = new Client({ auth: notionToken });
-    notionMarkdown = new NotionToMarkdown({ notionClient });
-    return notionMarkdown;
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response;
   } catch (error) {
-    logger.error('初始化 Notion Markdown 转换器失败', error);
-    notionClient = null;
-    notionMarkdown = null;
-    return null;
+    clearTimeout(timeoutId);
+    throw error;
   }
 }
 
-// 请求缓存和限流
-const childrenCache = new Map<string, { data: NotionBlock[]; timestamp: number }>();
-const pageCache = new Map<string, { data: string; timestamp: number }>();
-const CACHE_TTL = process.env.NODE_ENV === 'development' ? 60 * 1000 : 5 * 60 * 1000;
-const requestQueue: Array<() => Promise<void>> = [];
-let isProcessingQueue = false;
-const MAX_CONCURRENT_REQUESTS = process.env.NODE_ENV === 'development' ? 2 : 4;
-const REQUEST_DELAY = process.env.NODE_ENV === 'development' ? 100 : 50;
-
-// 请求队列处理
-async function processQueue() {
-  if (isProcessingQueue || requestQueue.length === 0) return;
-
-  isProcessingQueue = true;
-
-  while (requestQueue.length > 0) {
-    const batch = requestQueue.splice(0, MAX_CONCURRENT_REQUESTS);
-    await Promise.all(batch.map(fn => fn().catch(() => {}))); // 忽略错误
-
-    // 在批次之间添加更长延迟
-    if (requestQueue.length > 0) {
-      await new Promise(resolve => setTimeout(resolve, REQUEST_DELAY));
-    }
+// Mock 数据作为备用
+const mockPosts: NotionPost[] = [
+  {
+    id: '1',
+    title: '📷 图文随笔：四季更替',
+    excerpt: '记录四季的变化，感受时间的流逝，每一个季节都有它独特的美。从春的新绿到冬的纯白，每一帧都值得珍藏。',
+    publishedAt: '2024-12-25',
+    slug: 'seasons-notes',
+    tags: ['随笔', '生活', '摄影', '四季'],
+    published: true,
+    cover: null,
+    content: '# 四季更替\n\n记录四季的变化，感受时间的流逝，每一个季节都有它独特的美。\n\n## 春天的故事\n\n万物复苏的季节...\n\n## 夏日时光\n\n热烈而充满活力...'
+  },
+  {
+    id: '2',
+    title: '🚀 架构笔记：我的博客技术栈',
+    excerpt: '分享这个博客的技术选型和架构设计，以及为什么选择这些技术。从 Next.js 到 Notion CMS，每个选择都有它的理由。',
+    publishedAt: '2024-12-20',
+    slug: 'blog-stack-notes',
+    tags: ['技术', '架构', 'Next.js', 'Notion'],
+    published: true,
+    cover: null,
+    content: '# 博客技术栈\n\n这个博客使用了现代化的技术栈，追求简洁和高效。\n\n## 前端架构\n\n- **Framework**: Next.js 15\n- **Styling**: Tailwind CSS\n- **Font**: LXGW WenKai\n\n## 内容管理\n\n- **CMS**: Notion\n- **Markdown**: react-markdown'
+  },
+  {
+    id: '3',
+    title: '💡 效率工具：打造完美的开发环境',
+    excerpt: '分享我的开发工具和工作流，包括编辑器配置、命令行工具、以及各种提升效率的小技巧。',
+    publishedAt: '2024-12-15',
+    slug: 'dev-tools-setup',
+    tags: ['工具', '效率', '开发', 'VSCode'],
+    published: true,
+    cover: null,
+    content: '# 开发环境配置\n\n一个好的开发环境能够大大提升工作效率。\n\n## 编辑器\n\n使用 VSCode 作为主力编辑器...\n\n## 终端工具\n\n- iTerm2\n- Oh My Zsh\n- 各种有用的命令行工具'
+  },
+  {
+    id: '4',
+    title: '🎨 设计思考：极简主义的魅力',
+    excerpt: '探讨极简主义在设计中的应用，从用户界面到用户体验，少即是多的设计哲学如何改变我们的思考方式。',
+    publishedAt: '2024-12-10',
+    slug: 'minimalism-design',
+    tags: ['设计', '极简', 'UI/UX', '哲学'],
+    published: true,
+    cover: null,
+    content: '# 极简主义设计\n\n少即是多，这是极简主义设计的核心理念。\n\n## 设计原则\n\n1. **简洁性** - 去除不必要的元素\n2. **功能性** - 专注于核心功能\n3. **可读性** - 确保信息清晰传达'
+  },
+  {
+    id: '5',
+    title: '📚 读书笔记：《深度工作》',
+    excerpt: 'Cal Newport 的《深度工作》读后感，分享如何在分心的时代培养专注力，提升工作质量和效率。',
+    publishedAt: '2024-12-05',
+    slug: 'deep-work-notes',
+    tags: ['读书', '效率', '专注', '成长'],
+    published: true,
+    cover: null,
+    content: '# 深度工作读后感\n\n在这个信息爆炸的时代，如何保持专注成为了一种稀缺的能力。\n\n## 核心观点\n\n深度工作是在无干扰的状态下专注进行职业活动的能力...\n\n## 实践方法\n\n1. 设定专门的工作时间\n2. 创造无干扰的环境\n3. 培养专注的习惯'
+  },
+  {
+    id: '6',
+    title: '🌱 生活感悟：慢下来的艺术',
+    excerpt: '在快节奏的现代生活中，我们是否忘记了慢下来的重要性？分享一些关于慢生活的思考和体验。',
+    publishedAt: '2024-11-28',
+    slug: 'slow-living-art',
+    tags: ['生活', '感悟', '慢生活', '哲学'],
+    published: true,
+    cover: null,
+    content: '# 慢下来的艺术\n\n在这个快节奏的时代，慢下来成为了一种奢侈。\n\n## 慢的意义\n\n慢不是懒惰，而是一种生活态度...\n\n## 实践方式\n\n- 每天留出思考的时间\n- 专注于当下的体验\n- 减少不必要的忙碌'
   }
-
-  isProcessingQueue = false;
-}
-
-// 带超时和重试的 fetch 函数
-async function fetchWithTimeout(url: string, options: FetchOptions, timeout = 60000, retries = 3) {
-  let lastError: Error | null = null;
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-
-      // 如果是网络错误，重试
-      if (!response.ok && attempt < retries && (response.status >= 500 || response.status === 429)) {
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000)); // 指数退避
-        continue;
-      }
-
-      return response;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      lastError = error instanceof Error ? error : new Error(String(error));
-
-      // 只有网络错误才重试
-      if (attempt < retries && lastError.message.includes('fetch failed') ||
-          lastError.message.includes('ECONNRESET') ||
-          lastError.message.includes('ETIMEDOUT') ||
-          lastError.message.includes('AbortError')) {
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000)); // 指数退避
-        continue;
-      }
-
-      throw lastError;
-    }
-  }
-
-  throw lastError || new Error('Unknown fetch error');
-}
-
-// Mock posts removed - using real Notion data only
+];
 
 // 获取所有已发布的文章
 export async function getPosts(): Promise<NotionPost[]> {
-  // 调试日志已移除
-
-  // 如果在生产环境但缺少环境变量，这是一个错误
-  const notionToken = process.env.NOTION_TOKEN || process.env.NOTION_SECRET;
-  if (!notionToken || !process.env.NOTION_DATABASE_ID) {
-    logger.error('Notion 环境变量缺失，请配置 NOTION_TOKEN/NOTION_SECRET 与 NOTION_DATABASE_ID');
-    throw new Error('Notion configuration missing');
-  }
-
   try {
-    
     const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
       method: 'POST',
       headers: getHeaders(),
       ...getFetchOptions(),
       body: JSON.stringify({
         filter: {
-          and: [
-            // 主要条件：Status 必须是 Published（注意：Notion中可能包含emoji）
+          or: [
+            {
+              property: 'Published',
+              checkbox: {
+                equals: true,
+              },
+            },
             {
               property: 'Status',
-              select: { equals: '✅ Published' },
+              select: {
+                equals: '✅ Published',
+              },
             },
-            // 兼容条件：如果 Status 是 Published，Published 复选框也应该为 true（可选）
-            // 注释掉下面的条件，让 Status 字段成为唯一判断标准
-            // {
-            //   property: 'Published',
-            //   checkbox: { equals: true },
-            // },
-          ],
+            {
+              property: 'Status',
+              select: {
+                equals: 'Published',
+              },
+            }
+          ]
         },
         sorts: [
-          { property: 'Published Date', direction: 'descending' },
+          {
+            property: 'Published Date',
+            direction: 'descending',
+          },
         ],
       }),
-    }, 20000); // 增加超时到20秒
+    }, 5000); // 5秒超时
 
     if (!response.ok) {
-      const errorText = await response.text();
-      logger.error(`Notion API Error: ${response.status}`, errorText);
-      throw new Error('Notion API error');
+      console.error('Notion API Error:', response.status, await response.text());
+      console.log('🔄 Using mock data as fallback...');
+      return mockPosts;
     }
 
     const data = await response.json();
+    console.log(`[DEBUG] Notion API 返回了 ${data.results?.length} 条结果`);
+
+    if (data.results?.length === 0) {
+      console.log('[DEBUG] 过滤条件:', JSON.stringify({
+        databaseId: process.env.NOTION_DATABASE_ID,
+        notionTokenPrefix: (process.env.NOTION_TOKEN || process.env.NOTION_SECRET || '').substring(0, 10)
+      }));
+    }
 
     const posts = await Promise.all(
-      data.results.map(async (page: NotionPage) => {
+      data.results.map(async (page: any) => {
         try {
-          const content = await getPageMarkdown(page.id);
+          // 获取页面内容
+          const contentResponse = await fetchWithTimeout(`https://api.notion.com/v1/blocks/${page.id}/children`, {
+            headers: getHeaders(),
+            ...getFetchOptions(),
+          }, 3000); // 3秒超时
+
+          let content = '';
+          if (contentResponse.ok) {
+            const contentData = await contentResponse.json();
+            content = blocksToMarkdown(contentData.results);
+          }
 
           return {
             id: page.id,
             title: getPlainText(page.properties.Title?.title || []),
             slug: getPlainText(page.properties.Slug?.rich_text || []) || generateSlug(getPlainText(page.properties.Title?.title || [])),
-            excerpt:
-              getPlainText(page.properties.Summary?.rich_text || []) ||
-              (content ? content.substring(0, 150) + '...' : ''),
+            excerpt: getPlainText(page.properties.Summary?.rich_text || []) || content.substring(0, 150) + '...',
             content: content,
-            publishedAt:
-              page.properties['Published Date']?.date?.start ||
-              page.last_edited_time ||
-              new Date().toISOString(),
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
-            published:
-              (page.properties.Status?.select?.name === 'Published') ||
-              (page.properties.Published?.checkbox || false),
+            publishedAt: page.properties['Published Date']?.date?.start || new Date().toISOString(),
+            tags: page.properties.Tags?.multi_select?.map((tag: any) => ({
+              name: tag.name,
+              color: tag.color
+            })) || [],
+            published: page.properties.Published?.checkbox || (page.properties.Status?.select?.name === '✅ Published'),
             cover: page.cover?.external?.url || page.cover?.file?.url || null,
             pinned: page.properties.Pinned?.checkbox || false,
-            type: (() => {
-              const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
-              if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post'|'announcement'|'page';
-              return 'post';
-            })(),
+            type: page.properties.Type?.select?.name || 'post',
           };
         } catch (error) {
-          logger.error(`Error fetching content for page ${page.id}`, error);
-          // 返回基本信息，内容为空
+          console.error(`Error fetching content for page ${page.id}:`, error);
           return {
             id: page.id,
             title: getPlainText(page.properties.Title?.title || []),
             slug: getPlainText(page.properties.Slug?.rich_text || []) || generateSlug(getPlainText(page.properties.Title?.title || [])),
-            excerpt:
-              getPlainText(page.properties.Summary?.rich_text || []) ||
-              '内容加载失败...',
+            excerpt: getPlainText(page.properties.Summary?.rich_text || []) || '内容加载失败...',
             content: '内容暂时无法加载，请稍后再试。',
-            publishedAt:
-              page.properties['Published Date']?.date?.start ||
-              page.last_edited_time ||
-              new Date().toISOString(),
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
-            published:
-              (page.properties.Status?.select?.name === 'Published') ||
-              (page.properties.Published?.checkbox || false),
+            publishedAt: page.properties['Published Date']?.date?.start || new Date().toISOString(),
+            tags: page.properties.Tags?.multi_select?.map((tag: any) => ({
+              name: tag.name,
+              color: tag.color
+            })) || [],
+            published: page.properties.Published?.checkbox || false,
             cover: page.cover?.external?.url || page.cover?.file?.url || null,
             pinned: page.properties.Pinned?.checkbox || false,
-            type: (() => {
-              const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
-              if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post'|'announcement'|'page';
-              return 'post';
-            })(),
+            type: page.properties.Type?.select?.name || 'post',
           };
         }
       })
     );
 
-    
     return posts;
   } catch (error) {
-    logger.error('Error fetching posts from Notion', error);
-    // 返回空数组而不是抛出错误，让首页能正常显示
-    return [];
+    console.error('Error fetching posts from Notion:', error);
+    console.log('🔄 Using mock data as fallback...');
+    return mockPosts;
   }
 }
 
 // 根据 slug 获取单篇文章
 export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
   try {
-    
     const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
       method: 'POST',
       headers: getHeaders(),
@@ -407,493 +240,149 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
         filter: {
           and: [
             {
-              or: [
-                { property: 'Status', select: { equals: '✅ Published' } },
-                { property: 'Published', checkbox: { equals: true } },
-              ],
+              property: 'Published',
+              checkbox: {
+                equals: true,
+              },
             },
-            { property: 'Slug', rich_text: { equals: slug } },
+            {
+              property: 'Slug',
+              rich_text: {
+                equals: slug,
+              },
+            },
           ],
         },
       }),
-    }, 15000);
+    }, 5000);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      logger.error(`Notion API Error: ${response.status}`, errorText);
-      return null;
+      console.error('Notion API Error:', response.status, await response.text());
+      // 尝试从 mock 数据中查找匹配的文章
+      const matchingPost = mockPosts.find(post => post.slug === slug);
+      return matchingPost || null;
     }
 
     const data = await response.json();
 
     if (data.results.length === 0) {
-      return null;
+      // 尝试从 mock 数据中查找匹配的文章
+      const matchingPost = mockPosts.find(post => post.slug === slug);
+      return matchingPost || null;
     }
 
     const page = data.results[0];
 
     // 获取页面内容
     try {
-      const content = await getPageMarkdown(page.id);
+      const contentResponse = await fetchWithTimeout(`https://api.notion.com/v1/blocks/${page.id}/children`, {
+        headers: getHeaders(),
+        ...getFetchOptions(),
+      }, 3000);
+
+      let content = '';
+      if (contentResponse.ok) {
+        const contentData = await contentResponse.json();
+        content = blocksToMarkdown(contentData.results);
+      }
 
       return {
         id: page.id,
         title: getPlainText(page.properties.Title?.title || []),
         slug: getPlainText(page.properties.Slug?.rich_text || []),
-        excerpt:
-          getPlainText(page.properties.Summary?.rich_text || []),
+        excerpt: getPlainText(page.properties.Excerpt?.rich_text || []),
         content: content,
-        publishedAt:
-          page.properties['Published Date']?.date?.start ||
-          page.last_edited_time ||
-          new Date().toISOString(),
-        tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
-        published:
-          (page.properties.Status?.select?.name === 'Published') ||
-          (page.properties.Published?.checkbox || false),
+        publishedAt: page.properties['Published Date']?.date?.start || new Date().toISOString(),
+        tags: page.properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
+        published: page.properties.Published?.checkbox || false,
         cover: page.cover?.external?.url || page.cover?.file?.url || null,
       };
     } catch (contentError) {
-      logger.error(`Error fetching content for page ${page.id}`, contentError);
+      console.error(`Error fetching content for page ${page.id}:`, contentError);
       // 返回基本信息，内容为空
       return {
         id: page.id,
         title: getPlainText(page.properties.Title?.title || []),
         slug: getPlainText(page.properties.Slug?.rich_text || []),
-        excerpt:
-          getPlainText(page.properties.Summary?.rich_text || []),
+        excerpt: getPlainText(page.properties.Excerpt?.rich_text || []),
         content: '内容暂时无法加载，请稍后再试。',
-        publishedAt:
-          page.properties['Published Date']?.date?.start ||
-          page.last_edited_time ||
-          new Date().toISOString(),
-        tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
-        published:
-          (page.properties.Status?.select?.name === 'Published') ||
-          (page.properties.Published?.checkbox || false),
+        publishedAt: page.properties['Published Date']?.date?.start || new Date().toISOString(),
+        tags: page.properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
+        published: page.properties.Published?.checkbox || false,
         cover: page.cover?.external?.url || page.cover?.file?.url || null,
       };
     }
   } catch (error) {
-    logger.error('Error fetching post by slug', error);
-    return null;
+    console.error('Error fetching post by slug:', error);
+    // 尝试从 mock 数据中查找匹配的文章
+    const matchingPost = mockPosts.find(post => post.slug === slug);
+    return matchingPost || null;
   }
 }
 
 // 辅助函数：提取纯文本
-function getPlainText(richText: NotionRichText[]): string {
+function getPlainText(richText: any[]): string {
   return richText.map((text) => text.plain_text).join('');
-}
-
-// 新函数：将 Rich Text 转换为带格式的 Markdown
-function getRichTextMarkdown(richText: NotionRichText[]): string {
-  return richText.map((text) => {
-    let content = text.plain_text;
-
-    // 将Notion的换行符转换为Markdown的强制换行格式
-    if (content.includes('\n')) {
-      content = content.replace(/\n/g, '  \n');
-    }
-    const linkUrl = text.href || text.text?.link?.url || null;
-
-    // 如果没有注释或格式，直接返回文本
-    if (!text.annotations) {
-      return linkUrl ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${content}</a>` : content;
-    }
-
-    const annotations = text.annotations;
-
-
-    // 应用文本格式（按顺序应用，避免格式冲突）
-    if (annotations.code) {
-      content = `\`${content}\``;
-    } else {
-      // 粗体
-      if (annotations.bold) {
-        content = `**${content}**`;
-      }
-
-      // 斜体
-      if (annotations.italic) {
-        content = `*${content}*`;
-      }
-
-      // 删除线
-      if (annotations.strikethrough) {
-        content = `~~${content}~~`;
-      }
-
-      // 下划线（Markdown 不直接支持，使用 HTML）
-      if (annotations.underline) {
-        content = `<u>${content}</u>`;
-      }
-    }
-
-    // 处理颜色和背景色 - 支持混合样式
-    if (annotations.color && annotations.color !== 'default') {
-
-      // 文字颜色映射
-      const textColorMap: Record<string, string> = {
-        'red': '#e03e3e',
-        'orange': '#fd8200',
-        'yellow': '#dfab01',
-        'green': '#0e6e6e',
-        'blue': '#1e6b99',
-        'purple': '#6b46c1',
-        'brown': '#a97153',
-        'gray': '#6b7280',
-      };
-
-      // 背景色映射
-      const backgroundColorMap: Record<string, string> = {
-        'red_background': '#ffeaea',
-        'orange_background': '#ffefd5',
-        'yellow_background': '#fefce8',
-        'green_background': '#dcfce7',
-        'blue_background': '#dbeafe',
-        'purple_background': '#ede9fe',
-        'brown_background': '#fef3e2',
-        'gray_background': '#f5f5f5',
-      };
-
-      const styles: string[] = [];
-
-      // 检查是否有背景色
-      if (annotations.color.endsWith('_background')) {
-        const backgroundColor = backgroundColorMap[annotations.color];
-        if (backgroundColor) {
-          styles.push(`background-color: ${backgroundColor}`);
-          styles.push('padding: 2px 4px');
-          styles.push('border-radius: 3px');
-        }
-      } else {
-        // 检查是否有文字颜色
-        const textColor = textColorMap[annotations.color];
-        if (textColor) {
-          styles.push(`color: ${textColor}`);
-        }
-      }
-
-      // 根据Notion API返回的颜色信息处理样式
-      // 不做任何硬编码或特殊文本处理，完全基于API数据
-
-      if (styles.length > 0) {
-        const styledContent = `<span style="${styles.join('; ')}">${content}</span>`;
-        content = styledContent;
-      }
-    }
-
-    if (linkUrl) {
-      return `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${content}</a>`;
-    }
-
-    return content;
-  }).join('');
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-function escapeAttribute(value: string): string {
-  return escapeHtml(value).replace(/"/g, '&quot;');
-}
-
-function renderCalloutIcon(icon?: NotionBlockContent['icon']): string {
-  if (!icon) {
-    return '<span class="notion-callout-emoji">💡</span>';
-  }
-
-  if (icon.emoji) {
-    return `<span class="notion-callout-emoji">${escapeHtml(icon.emoji)}</span>`;
-  }
-
-  const imageUrl = icon.external?.url || icon.file?.url;
-  if (imageUrl) {
-    return `<span class="notion-callout-image"><img src="${escapeAttribute(imageUrl)}" alt="" loading="lazy" /></span>`;
-  }
-
-  return '<span class="notion-callout-emoji">💡</span>';
-}
-
-function extractFileName(rawUrl: string): string {
-  if (!rawUrl) {
-    return '未命名文件';
-  }
-
-  try {
-    const withoutQuery = rawUrl.split('?')[0];
-    const decoded = decodeURIComponent(withoutQuery);
-    const segments = decoded.split('/');
-    const lastSegment = segments.pop();
-    if (lastSegment && lastSegment.trim().length > 0) {
-      return lastSegment;
-    }
-  } catch (error) {
-    logger.debug('文件名解析失败', error);
-  }
-
-  return '未命名文件';
 }
 
 // 辅助函数：生成 slug
 function generateSlug(title: string): string {
   return title
     .toLowerCase()
-    .replace(/\//g, '-') // 首先将斜杠替换为短横线，避免路由问题
     .replace(/[^\w\s\u4e00-\u9fff]/g, '') // 保留中文字符
     .replace(/\s+/g, '-')
     .trim();
 }
 
 // 辅助函数：将 Notion 块转换为 Markdown
-// 获取子块的辅助函数 - 带缓存和限流
-async function getChildrenBlocks(blockId: string): Promise<NotionBlock[]> {
-  // 检查缓存
-  const cached = childrenCache.get(blockId);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data;
-  }
-
-  return new Promise((resolve) => {
-    const fetchChildren = async () => {
-      try {
-        const response = await fetchWithTimeout(`https://api.notion.com/v1/blocks/${blockId}/children`, {
-          headers: getHeaders(),
-          ...getFetchOptions(),
-        }, 12000); // 增加超时时间
-
-        if (!response.ok) {
-          resolve([]); // 静默失败
-          return;
-        }
-
-        const data = await response.json();
-        const children = data.results || [];
-
-        // 缓存结果
-        childrenCache.set(blockId, {
-          data: children,
-          timestamp: Date.now()
-        });
-
-        resolve(children);
-      } catch (error) {
-        logger.debug(`获取子块失败: ${blockId}`, error);
-        // 网络错误时直接返回空数组
-        resolve([]);
-      }
-    };
-
-    // 将请求加入队列
-    requestQueue.push(fetchChildren);
-    processQueue(); // 启动队列处理
-  });
-}
-
-async function getPageMarkdown(pageId: string): Promise<string> {
-  // 检查页面缓存
-  const cached = pageCache.get(pageId);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data;
-  }
-
-  let result = '';
-
-  // 优先使用 notion-to-md 库,它正确处理了 callout 等复杂块的子块
-  try {
-    const converter = ensureNotionMarkdown();
-    if (converter) {
-      logger.info(`[NOTION-TO-MD] 使用 notion-to-md 解析页面: ${pageId}`);
-      const mdBlocks = await converter.pageToMarkdown(pageId);
-      const { parent } = converter.toMarkdownString(mdBlocks);
-      if (parent.trim()) {
-        result = parent;
-        logger.info(`[NOTION-TO-MD] 成功解析,内容长度: ${result.length}`);
-      }
-    }
-  } catch (error) {
-    logger.warn(`NotionToMarkdown 解析失败,尝试自定义解析: ${pageId}`, error);
-  }
-
-  // 如果 notion-to-md 失败,回退到自定义解析
-  if (!result) {
-    try {
-      const blocks = await getChildrenBlocks(pageId);
-      if (blocks.length > 0) {
-        const customMarkdown = await blocksToMarkdown(blocks);
-        if (customMarkdown.trim()) {
-          result = customMarkdown;
-        }
-      }
-    } catch (error) {
-      logger.error(`自定义解析 Notion 内容失败: ${pageId}`, error);
-    }
-  }
-
-  // 缓存结果
-  if (result) {
-    pageCache.set(pageId, {
-      data: result,
-      timestamp: Date.now()
-    });
-  }
-
-  return result;
-}
-
-async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<string> {
-  // 限制最大嵌套深度为4层，防止无限递归和性能问题
-  const MAX_DEPTH = 4;
-  if (depth > MAX_DEPTH) {
-    return '';
-  }
+function blocksToMarkdown(blocks: any[]): string {
   let markdown = '';
-  let currentListType: 'bulleted' | 'numbered' | null = null;
 
-  for (let i = 0; i < blocks.length; i++) {
-    const block = blocks[i];
-    const nextBlock = blocks[i + 1];
-
-
+  for (const block of blocks) {
     switch (block.type) {
       case 'paragraph':
-        if (depth === 0) {
-          currentListType = null;
-        }
-        const paragraphText = getRichTextMarkdown(block.paragraph?.rich_text || []);
+        const paragraphText = getPlainText(block.paragraph?.rich_text || []);
+        // 如果是空段落（有内容的才加文字，没内容的作为空行保留）
         if (paragraphText.trim()) {
-          if (depth > 0) {
-            // 当在嵌套结构中时，段落作为子内容
-            markdown += paragraphText + '\n';
-          } else {
-            markdown += paragraphText + '\n\n';
-          }
+          markdown += paragraphText + '\n\n';
+        } else {
+          // 在 Notion 中用户常用的空行，使用空格占位以保留视觉间距
+          markdown += '&nbsp;\n\n';
         }
         break;
 
       case 'heading_1':
-        currentListType = null;
-        const h1Text = getRichTextMarkdown(block.heading_1?.rich_text || []);
+        const h1Text = getPlainText(block.heading_1?.rich_text || []);
         if (h1Text.trim()) {
           markdown += `# ${h1Text}\n\n`;
         }
         break;
 
       case 'heading_2':
-        currentListType = null;
-        const h2Text = getRichTextMarkdown(block.heading_2?.rich_text || []);
+        const h2Text = getPlainText(block.heading_2?.rich_text || []);
         if (h2Text.trim()) {
           markdown += `## ${h2Text}\n\n`;
         }
         break;
 
       case 'heading_3':
-        currentListType = null;
-        const h3Text = getRichTextMarkdown(block.heading_3?.rich_text || []);
+        const h3Text = getPlainText(block.heading_3?.rich_text || []);
         if (h3Text.trim()) {
-          // 检查是否是可折叠标题
-          if (block.heading_3?.is_toggleable && block.has_children && depth < 2) {
-            // 处理为折叠块
-            markdown += `<details class="notion-toggle" data-depth="${depth}">`;
-            markdown += `<summary>${h3Text}</summary>`;
-            const children = await getChildrenBlocks(block.id);
-            if (children.length > 0) {
-              const childContent = await blocksToMarkdown(children, depth + 1);
-              markdown += `<div class="notion-toggle-children">${childContent}</div>`;
-            }
-            markdown += '</details>\n\n';
-          } else {
-            // 普通三级标题
-            markdown += `### ${h3Text}\n\n`;
-          }
+          markdown += `### ${h3Text}\n\n`;
         }
         break;
 
       case 'bulleted_list_item':
-        if (currentListType !== 'bulleted') {
-          currentListType = 'bulleted';
-        }
-        const listText = getRichTextMarkdown(block.bulleted_list_item?.rich_text || []);
+        const listText = getPlainText(block.bulleted_list_item?.rich_text || []);
         if (listText.trim()) {
-          markdown += `- ${listText}`;
-        } else {
-          markdown += `-`;
-        }
-        // 启用嵌套功能，但限制深度为2级以减少API调用
-        if (block.has_children && depth < 2) {
-          const children = await getChildrenBlocks(block.id);
-          if (children.length > 0) {
-            const childrenMarkdown = await blocksToMarkdown(children, depth + 1);
-            // 为子项目添加正确的缩进，每行前面加两个空格
-            const lines = childrenMarkdown.split('\n');
-            const indentedLines = lines.map(line => {
-              if (line.trim() === '') return line;
-              // 如果是列表项，直接缩进
-              if (line.startsWith('- ') || line.match(/^\d+\. /)) {
-                return `  ${line}`;
-              } else {
-                // 段落内容需要在新行且缩进
-                return `  ${line}`;
-              }
-            });
-
-            if (childrenMarkdown.trim()) {
-              markdown += `\n${indentedLines.join('\n')}`;
-            }
-          }
-        }
-        // 完全移除列表项间空白
-        if (nextBlock?.type !== 'bulleted_list_item') {
-          markdown += '\n\n';
-          currentListType = null;
-        } else {
-          markdown += '\n';
+          markdown += `- ${listText}\n`;
         }
         break;
 
       case 'numbered_list_item':
-        if (currentListType !== 'numbered') {
-          currentListType = 'numbered';
-        }
-        const numberedText = getRichTextMarkdown(block.numbered_list_item?.rich_text || []);
+        const numberedText = getPlainText(block.numbered_list_item?.rich_text || []);
         if (numberedText.trim()) {
-          markdown += `1. ${numberedText}`;
-        } else {
-          markdown += `1.`;
-        }
-        // 启用嵌套功能，但限制深度为2级以减少API调用
-        if (block.has_children && depth < 2) {
-          const children = await getChildrenBlocks(block.id);
-          if (children.length > 0) {
-            const childrenMarkdown = await blocksToMarkdown(children, depth + 1);
-            // 为子项目添加正确的缩进，每行前面加三个空格（因为有序列表更宽）
-            const lines = childrenMarkdown.split('\n');
-            const indentedLines = lines.map(line => {
-              if (line.trim() === '') return line;
-              // 如果是列表项，直接缩进
-              if (line.startsWith('- ') || line.match(/^\d+\. /)) {
-                return `   ${line}`;
-              } else {
-                // 段落内容需要在新行且缩进
-                return `   ${line}`;
-              }
-            });
-
-            if (childrenMarkdown.trim()) {
-              markdown += `\n${indentedLines.join('\n')}`;
-            }
-          }
-        }
-        // 完全移除列表项间空白
-        if (nextBlock?.type !== 'numbered_list_item') {
-          markdown += '\n\n';
-          currentListType = null;
-        } else {
-          markdown += '\n';
+          markdown += `1. ${numberedText}\n`;
         }
         break;
 
@@ -906,7 +395,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
         break;
 
       case 'quote':
-        const quoteText = getRichTextMarkdown(block.quote?.rich_text || []);
+        const quoteText = getPlainText(block.quote?.rich_text || []);
         if (quoteText.trim()) {
           markdown += `> ${quoteText}\n\n`;
         }
@@ -916,516 +405,56 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
         const imageUrl = block.image?.external?.url || block.image?.file?.url;
         const imageCaption = getPlainText(block.image?.caption || []);
         if (imageUrl) {
-          markdown += `![${imageCaption}](${imageUrl})\n\n`;
+          markdown += `![${imageCaption || '图片'}](${imageUrl})\n\n`;
         }
         break;
 
-      case 'video': {
-        currentListType = null;
-        const videoSource = block.video?.external?.url || block.video?.file?.url;
+      case 'video':
+        const videoUrl = block.video?.external?.url || block.video?.file?.url;
         const videoCaption = getPlainText(block.video?.caption || []);
-        if (videoSource) {
-          // 检查各种视频平台并转换为嵌入格式
-          let embedUrl = videoSource;
-          let platformType = 'generic';
-          let canEmbed = false;
-
-          try {
-            const url = new URL(videoSource);
-            const hostname = url.hostname.toLowerCase();
-
-            // YouTube 处理
-            if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
-              platformType = 'youtube';
-              if (hostname === 'www.youtube.com' && url.pathname === '/watch') {
-                const videoId = url.searchParams.get('v');
-                if (videoId) {
-                  embedUrl = `https://www.youtube.com/embed/${videoId}`;
-                  canEmbed = true;
-                }
-              } else if (hostname === 'youtu.be') {
-                const videoId = url.pathname.slice(1);
-                if (videoId) {
-                  embedUrl = `https://www.youtube.com/embed/${videoId}`;
-                  canEmbed = true;
-                }
-              }
-            }
-            // Vimeo 处理
-            else if (hostname.includes('vimeo.com')) {
-              platformType = 'vimeo';
-              const videoId = url.pathname.split('/').pop();
-              if (videoId && /^\d+$/.test(videoId)) {
-                embedUrl = `https://player.vimeo.com/video/${videoId}`;
-                canEmbed = true;
-              }
-            }
-            // Bilibili 处理
-            else if (hostname.includes('bilibili.com')) {
-              platformType = 'bilibili';
-              const bvMatch = url.pathname.match(/\/video\/(BV\w+)/);
-              if (bvMatch) {
-                embedUrl = `https://player.bilibili.com/player.html?bvid=${bvMatch[1]}`;
-                canEmbed = true;
-              }
-            }
-            // 腾讯视频处理
-            else if (hostname.includes('v.qq.com')) {
-              platformType = 'tencent';
-              const vidMatch = url.pathname.match(/\/x\/page\/(\w+)\.html/) || url.pathname.match(/\/(\w+)\.html/);
-              if (vidMatch) {
-                embedUrl = `https://v.qq.com/txp/iframe/player.html?vid=${vidMatch[1]}`;
-                canEmbed = true;
-              }
-            }
-            // 优酷处理
-            else if (hostname.includes('youku.com')) {
-              platformType = 'youku';
-              const idMatch = url.pathname.match(/\/v_show\/id_(\w+)/);
-              if (idMatch) {
-                embedUrl = `https://player.youku.com/embed/${idMatch[1]}`;
-                canEmbed = true;
-              }
-            }
-            // Twitch 处理
-            else if (hostname.includes('twitch.tv')) {
-              platformType = 'twitch';
-              const channelMatch = url.pathname.match(/\/(\w+)$/);
-              if (channelMatch) {
-                embedUrl = `https://player.twitch.tv/?channel=${channelMatch[1]}&parent=${window.location.hostname}`;
-                canEmbed = true;
-              }
-            }
-            // Dailymotion 处理
-            else if (hostname.includes('dailymotion.com')) {
-              platformType = 'dailymotion';
-              const videoMatch = url.pathname.match(/\/video\/(\w+)/);
-              if (videoMatch) {
-                embedUrl = `https://www.dailymotion.com/embed/video/${videoMatch[1]}`;
-                canEmbed = true;
-              }
-            }
-            // 直接视频文件格式
-            else if (videoSource.match(/\.(mp4|webm|ogg|mov|avi|mkv)(\?.*)?$/i)) {
-              platformType = 'direct';
-              canEmbed = true;
-            }
-          } catch (error) {
-            logger.debug('解析视频嵌入链接失败', error);
-          }
-
-          if (canEmbed) {
-            if (platformType === 'direct') {
-              // 直接视频文件使用 HTML5 video 标签
-              markdown += `<div class="video-container">
-                <video controls class="w-full rounded-xl" preload="metadata">
-                  <source src="${escapeAttribute(videoSource)}" />
-                  您的浏览器不支持视频播放。
-                </video>
-                ${videoCaption ? `<p class="video-caption">${escapeAttribute(videoCaption)}</p>` : ''}
-              </div>\n\n`;
-            } else {
-              // 其他平台使用 iframe 嵌入
-              const allowAttribute = platformType === 'youtube'
-                ? 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
-                : 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
-
-              markdown += `<div class="video-container ${platformType}-video">
-                <iframe
-                  src="${escapeAttribute(embedUrl)}"
-                  title="${escapeAttribute(videoCaption || '视频')}"
-                  frameborder="0"
-                  allow="${allowAttribute}"
-                  allowfullscreen
-                  class="w-full aspect-video rounded-xl border border-gray-200"
-                ></iframe>
-                ${videoCaption ? `<p class="video-caption">${escapeAttribute(videoCaption)}</p>` : ''}
-              </div>\n\n`;
-            }
-          } else {
-            // 无法嵌入的视频，显示链接卡片
-            const platformEmoji = {
-              'youtube': '📺',
-              'vimeo': '🎬',
-              'bilibili': '📱',
-              'tencent': '🎞️',
-              'youku': '🎦',
-              'twitch': '🎮',
-              'dailymotion': '🎯',
-              'generic': '▶️'
-            }[platformType] || '▶️';
-
-            markdown += `<div class="video-link ${platformType}-link">
-              <div class="video-preview">
-                <div class="video-icon">${platformEmoji}</div>
-                <div class="video-info">
-                  <p class="video-title">${escapeAttribute(videoCaption || '视频内容')}</p>
-                  <p class="video-url">${escapeAttribute(videoSource)}</p>
-                </div>
-                <a href="${escapeAttribute(videoSource)}" target="_blank" rel="noopener noreferrer" class="video-button">观看视频</a>
-              </div>
-            </div>\n\n`;
-          }
+        if (videoUrl) {
+          // 对于视频，我们可以显示为链接或尝试嵌入
+          markdown += `[📹 ${videoCaption || '视频'}](${videoUrl})\n\n`;
         }
         break;
-      }
 
-      case 'audio': {
-        currentListType = null;
-        const audioSource = block.audio?.external?.url || block.audio?.file?.url;
-        const audioCaption = getPlainText(block.audio?.caption || []);
-        if (audioSource) {
-          // 检查各种音频平台并转换为嵌入格式
-          let embedUrl = audioSource;
-          let platformType = 'generic';
-          let canEmbed = false;
-
-          try {
-            const url = new URL(audioSource);
-            const hostname = url.hostname.toLowerCase();
-
-            // Spotify 处理
-            if (hostname.includes('spotify.com')) {
-              platformType = 'spotify';
-              const trackMatch = audioSource.match(/\/track\/([a-zA-Z0-9]+)/);
-              const playlistMatch = audioSource.match(/\/playlist\/([a-zA-Z0-9]+)/);
-              const albumMatch = audioSource.match(/\/album\/([a-zA-Z0-9]+)/);
-
-              if (trackMatch) {
-                embedUrl = `https://open.spotify.com/embed/track/${trackMatch[1]}`;
-                canEmbed = true;
-              } else if (playlistMatch) {
-                embedUrl = `https://open.spotify.com/embed/playlist/${playlistMatch[1]}`;
-                canEmbed = true;
-              } else if (albumMatch) {
-                embedUrl = `https://open.spotify.com/embed/album/${albumMatch[1]}`;
-                canEmbed = true;
-              }
-            }
-            // SoundCloud 处理
-            else if (hostname.includes('soundcloud.com')) {
-              platformType = 'soundcloud';
-              // SoundCloud 需要使用 oEmbed API，这里显示为链接卡片
-              canEmbed = false;
-            }
-            // Apple Music 处理
-            else if (hostname.includes('music.apple.com')) {
-              platformType = 'apple';
-              canEmbed = false; // Apple Music 嵌入需要特殊处理
-            }
-            // 网易云音乐处理
-            else if (hostname.includes('music.163.com')) {
-              platformType = 'netease';
-              const songMatch = audioSource.match(/song\?id=(\d+)/);
-              if (songMatch) {
-                embedUrl = `https://music.163.com/outchain/player?type=2&id=${songMatch[1]}&auto=0&height=90`;
-                canEmbed = true;
-              }
-            }
-            // QQ音乐处理
-            else if (hostname.includes('y.qq.com')) {
-              platformType = 'qq';
-              canEmbed = false; // QQ音乐嵌入较复杂
-            }
-            // 直接音频文件格式
-            else if (audioSource.match(/\.(mp3|wav|ogg|m4a|aac|flac)(\?.*)?$/i)) {
-              platformType = 'direct';
-              canEmbed = true;
-            }
-          } catch (error) {
-            logger.debug('解析音频嵌入链接失败', error);
-          }
-
-          if (canEmbed) {
-            if (platformType === 'direct') {
-              // 直接音频文件使用 HTML5 audio 标签
-              markdown += `<div class="audio-container">
-                <audio controls class="w-full rounded-lg" preload="metadata">
-                  <source src="${escapeAttribute(audioSource)}" />
-                  您的浏览器不支持音频播放。
-                </audio>
-                ${audioCaption ? `<p class="audio-caption">${escapeAttribute(audioCaption)}</p>` : ''}
-              </div>\n\n`;
-            } else {
-              // 其他平台使用 iframe 嵌入
-              const iframeHeight = platformType === 'spotify' ? '152' : '166';
-
-              markdown += `<div class="audio-container ${platformType}-audio">
-                <iframe
-                  src="${escapeAttribute(embedUrl)}"
-                  title="${escapeAttribute(audioCaption || '音频')}"
-                  frameborder="0"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                  style="width: 100%; height: ${iframeHeight}px; border-radius: 12px;"
-                ></iframe>
-                ${audioCaption ? `<p class="audio-caption">${escapeAttribute(audioCaption)}</p>` : ''}
-              </div>\n\n`;
-            }
-          } else {
-            // 无法嵌入的音频，显示链接卡片
-            const platformEmoji = {
-              'spotify': '🎵',
-              'soundcloud': '🔊',
-              'apple': '🎶',
-              'netease': '🎼',
-              'qq': '🎤',
-              'generic': '🎧'
-            }[platformType] || '🎧';
-
-            markdown += `<div class="audio-link ${platformType}-link">
-              <div class="audio-preview">
-                <div class="audio-icon">${platformEmoji}</div>
-                <div class="audio-info">
-                  <p class="audio-title">${escapeAttribute(audioCaption || '音频内容')}</p>
-                  <p class="audio-url">${escapeAttribute(audioSource)}</p>
-                </div>
-                <a href="${escapeAttribute(audioSource)}" target="_blank" rel="noopener noreferrer" class="audio-button">播放音频</a>
-              </div>
-            </div>\n\n`;
-          }
+      case 'file':
+        const fileUrl = block.file?.external?.url || block.file?.file?.url;
+        const fileName = block.file?.name || getPlainText(block.file?.caption || []);
+        if (fileUrl) {
+          markdown += `[📁 ${fileName || '文件'}](${fileUrl})\n\n`;
         }
         break;
-      }
 
-      case 'file': {
-        currentListType = null;
-        const fileSource = block.file?.external?.url || block.file?.file?.url;
-        const fileCaption = getPlainText(block.file?.caption || []);
-        const fileName = block.file?.name || fileCaption || extractFileName(fileSource || '');
-        if (fileSource) {
-          markdown += `<div class="notion-embed" data-embed-type="file" data-url="${escapeAttribute(fileSource)}" data-caption="${escapeAttribute(fileCaption)}" data-name="${escapeAttribute(fileName)}"></div>\n\n`;
-        }
-        break;
-      }
-
-      case 'embed': {
-        currentListType = null;
+      case 'embed':
         const embedUrl = block.embed?.url;
-        const embedCaption = getPlainText(block.embed?.caption || []);
         if (embedUrl) {
-          // 检查是否是 Twitter 链接
-          if (embedUrl.includes('twitter.com') || embedUrl.includes('x.com')) {
-            // Twitter 嵌入 - 显示简洁的卡片样式
-            markdown += `<div class="embed-link twitter-embed">
-              <div class="embed-preview">
-                <div class="embed-icon">🐦</div>
-                <div class="embed-info">
-                  <p class="embed-title">${escapeAttribute(embedCaption || 'Twitter 内容')}</p>
-                  <p class="embed-url">${escapeAttribute(embedUrl)}</p>
-                </div>
-                <a href="${escapeAttribute(embedUrl)}" target="_blank" rel="noopener noreferrer" class="embed-button">查看推文</a>
-              </div>
-            </div>\n\n`;
-          } else {
-            // 其他嵌入内容，尝试使用 iframe
-            try {
-              const url = new URL(embedUrl);
-              const domain = url.hostname.replace(/^www\./, '');
-
-              markdown += `<div class="embed-container">
-                <iframe
-                  src="${escapeAttribute(embedUrl)}"
-                  title="${escapeAttribute(embedCaption || '嵌入内容')}"
-                  frameborder="0"
-                  class="w-full aspect-video rounded-xl border border-gray-200"
-                  allowfullscreen
-                ></iframe>
-                <div class="embed-meta">
-                  <span class="embed-domain">${escapeAttribute(domain)}</span>
-                  ${embedCaption ? `<span class="embed-caption">${escapeAttribute(embedCaption)}</span>` : ''}
-                </div>
-              </div>\n\n`;
-            } catch (error) {
-              logger.debug('解析嵌入链接失败', error);
-              // URL 解析失败，显示为链接卡片
-              markdown += `<div class="embed-link">
-                <div class="embed-preview">
-                  <div class="embed-icon">🔗</div>
-                  <div class="embed-info">
-                    <p class="embed-title">${escapeAttribute(embedCaption || '嵌入内容')}</p>
-                    <p class="embed-url">${escapeAttribute(embedUrl)}</p>
-                  </div>
-                  <a href="${escapeAttribute(embedUrl)}" target="_blank" rel="noopener noreferrer" class="embed-button">查看内容</a>
-                </div>
-              </div>\n\n`;
-            }
-          }
+          markdown += `[🔗 嵌入内容](${embedUrl})\n\n`;
         }
         break;
-      }
-
-      case 'bookmark': {
-        currentListType = null;
-        const bookmarkUrl = block.bookmark?.url;
-        const bookmarkCaption = getPlainText(block.bookmark?.caption || []);
-        if (bookmarkUrl) {
-          // 使用 notion-embed 格式，让 MarkdownContent.tsx 中的 NotionEmbed 组件处理
-          markdown += `<div class="notion-embed" data-embed-type="bookmark" data-url="${escapeAttribute(bookmarkUrl)}" data-caption="${escapeAttribute(bookmarkCaption)}"></div>\n\n`;
-        }
-        break;
-      }
-
-      case 'equation': {
-        currentListType = null;
-        const expression = block.equation?.expression?.trim();
-        if (expression) {
-          markdown += `\n$$${expression}$$\n\n`;
-        }
-        break;
-      }
 
       case 'divider':
         markdown += `---\n\n`;
         break;
 
-      case 'table': {
-        currentListType = null;
-        let rows: NotionBlock[] = [];
-        if (block.has_children && depth < 2) {
-          rows = await getChildrenBlocks(block.id);
-        }
-
-        const hasColumnHeader = !!block.table?.has_column_header;
-        const hasRowHeader = !!block.table?.has_row_header;
-
-        let tableHtml = '<div class="notion-table-wrapper"><table class="notion-table">';
-
-        const renderRow = (cells: NotionRichText[][], cellTag: 'th' | 'td', overrideRowHeader = false) => {
-          let rowHtml = '<tr>';
-          cells.forEach((cell, cellIndex) => {
-            const isHeaderCell = overrideRowHeader && cellIndex === 0;
-            const tag = isHeaderCell ? 'th' : cellTag;
-            let cellContent = getRichTextMarkdown(cell) || '&nbsp;';
-
-            // 处理表格中的Markdown格式，特别是代码格式
-            cellContent = cellContent
-              .replace(/`([^`]+)`/g, '<code class="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
-              .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-              .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-              .replace(/~~([^~]+)~~/g, '<del>$1</del>')
-              .replace(/<u>([^<]+)<\/u>/g, '<u>$1</u>');
-
-            rowHtml += `<${tag}>${cellContent}</${tag}>`;
-          });
-          rowHtml += '</tr>';
-          return rowHtml;
-        };
-
-        if (hasColumnHeader && rows.length > 0) {
-          const headerRow = rows.shift();
-          if (headerRow?.table_row?.cells) {
-            tableHtml += '<thead>' + renderRow(headerRow.table_row.cells, 'th') + '</thead>';
+      case 'table':
+        // 简单的表格处理
+        if (block.table?.table_width > 0) {
+          markdown += `\n| `;
+          for (let i = 0; i < block.table.table_width; i++) {
+            markdown += `列${i + 1} | `;
           }
-        }
-
-        if (rows.length > 0) {
-          tableHtml += '<tbody>';
-          rows.forEach((row) => {
-            if (!row.table_row?.cells) return;
-            tableHtml += renderRow(row.table_row.cells, 'td', hasRowHeader);
-          });
-          tableHtml += '</tbody>';
-        }
-
-        tableHtml += '</table></div>\n\n';
-        markdown += tableHtml;
-        break;
-      }
-
-      case 'callout': {
-        currentListType = null;
-        const calloutContent = getRichTextMarkdown(block.callout?.rich_text || []);
-        const calloutColor = block.callout?.color || 'default';
-        const iconHtml = renderCalloutIcon(block.callout?.icon);
-
-        // 有子块则获取并处理
-        let finalContent = calloutContent;
-        if (block.has_children) {
-          try {
-            const children = await getChildrenBlocks(block.id);
-            if (children.length > 0) {
-              const childrenMarkdown = await blocksToMarkdown(children, depth + 1);
-              // 将主内容和子块内容合并
-              finalContent = `${calloutContent}\n\n${childrenMarkdown}`;
-            }
-          } catch (error) {
-            logger.error('[CALLOUT] Error fetching children', error);
+          markdown += `\n| `;
+          for (let i = 0; i < block.table.table_width; i++) {
+            markdown += `--- | `;
           }
-        }
-
-        // 处理换行:保留原始换行符
-        const processedContent = finalContent.replace(/\n/g, '<br>');
-
-        // 渲染 callout
-        markdown += `<div class="notion-callout" data-color="${escapeAttribute(calloutColor)}">`;
-        markdown += `<div class="notion-callout-icon">${iconHtml}</div>`;
-        markdown += `<div class="notion-callout-body">${processedContent}</div>`;
-        markdown += `</div>\n\n`;
-
-        // 调试日志
-        logger.info(`[CALLOUT] has_children=${block.has_children}, rich_text_count=${rawTextCount}, content_len=${finalContent.length}`);
-        break;
-      }
-
-      case 'toggle': {
-        currentListType = null;
-        const toggleText = getRichTextMarkdown(block.toggle?.rich_text || []);
-        if (toggleText.trim()) {
-          markdown += `<details class="notion-toggle" data-depth="${depth}">`;
-          markdown += `<summary>${toggleText}</summary>`;
-          if (block.has_children && depth < 2) {
-            const children = await getChildrenBlocks(block.id);
-            if (children.length > 0) {
-              const childContent = await blocksToMarkdown(children, depth + 1);
-              markdown += `<div class="notion-toggle-children">${childContent}</div>`;
-            }
-          }
-          markdown += '</details>\n\n';
-        }
-        break;
-      }
-
-      case 'column_list': {
-        currentListType = null;
-        if (block.has_children && depth < 2) {
-          const children = await getChildrenBlocks(block.id);
-
-          // 收集所有列的内容
-          const columns: string[] = [];
-
-          for (const column of children) {
-            if (column.type === 'column') {
-              if (column.has_children) {
-                const columnChildren = await getChildrenBlocks(column.id);
-                const columnContent = await blocksToMarkdown(columnChildren, depth + 1);
-                columns.push(columnContent);
-              } else {
-                columns.push('');
-              }
-            }
-          }
-
-          // 使用特殊标记，让 MarkdownContent.tsx 处理
-          markdown += `<div class="notion-columns-wrapper" data-columns='${JSON.stringify(columns).replace(/'/g, '&apos;')}'></div>\n\n`;
-        }
-        break;
-      }
-
-      case 'column':
-        // column 应该由 column_list 统一处理，这里不单独处理
-        // 如果单独出现的 column，包装在 notion-column 中
-        currentListType = null;
-        if (block.has_children && depth < 2) {
-          const children = await getChildrenBlocks(block.id);
-          const columnContent = await blocksToMarkdown(children, depth + 1);
-          markdown += `<div class="notion-column">${columnContent}</div>\n\n`;
+          markdown += `\n\n`;
         }
         break;
 
       default:
-        const blockContent = block[block.type] as NotionBlockContent | undefined;
-        const defaultText = getPlainText(blockContent?.rich_text || []);
+        // 对于不支持的块类型，尝试提取文本
+        const defaultText = getPlainText(block[block.type]?.rich_text || []);
         if (defaultText.trim()) {
           markdown += defaultText + '\n\n';
         }
@@ -1436,11 +465,9 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
   return markdown.trim();
 }
 
-
 // 获取关于页面内容
 export async function getAboutPage(): Promise<NotionPost | null> {
   try {
-    
     const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
       method: 'POST',
       headers: getHeaders(),
@@ -1469,10 +496,10 @@ export async function getAboutPage(): Promise<NotionPost | null> {
           ],
         },
       }),
-    }, 15000);
+    }, 5000);
 
     if (!response.ok) {
-      logger.error(`Notion API Error for About page: ${response.status}`);
+      console.error('Notion API Error for About page:', response.status);
       return null;
     }
 
@@ -1486,7 +513,16 @@ export async function getAboutPage(): Promise<NotionPost | null> {
 
     // 获取页面内容
     try {
-      const content = await getPageMarkdown(page.id);
+      const contentResponse = await fetchWithTimeout(`https://api.notion.com/v1/blocks/${page.id}/children`, {
+        headers: getHeaders(),
+        ...getFetchOptions(),
+      }, 3000);
+
+      let content = '';
+      if (contentResponse.ok) {
+        const contentData = await contentResponse.json();
+        content = blocksToMarkdown(contentData.results);
+      }
 
       return {
         id: page.id,
@@ -1501,11 +537,11 @@ export async function getAboutPage(): Promise<NotionPost | null> {
         type: 'page',
       };
     } catch (contentError) {
-      logger.error('Error fetching About page content', contentError);
+      console.error(`Error fetching About page content:`, contentError);
       return null;
     }
   } catch (error) {
-    logger.error('Error fetching About page', error);
+    console.error('Error fetching About page:', error);
     return null;
   }
 }
@@ -1522,12 +558,26 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
           and: [
             {
               or: [
-                { property: 'Status', select: { equals: '✅ Published' } },
-                { property: 'Published', checkbox: { equals: true } },
-              ],
+                {
+                  property: 'Published',
+                  checkbox: { equals: true },
+                },
+                {
+                  property: 'Status',
+                  select: { equals: '✅ Published' },
+                },
+                {
+                  property: 'Status',
+                  select: { equals: 'Published' },
+                }
+              ]
             },
-            // 按你的数据库选项名称精确匹配："Announcement"
-            { property: 'Type', select: { equals: 'Announcement' } },
+            {
+              property: 'Type',
+              select: {
+                equals: 'announcement',
+              },
+            },
           ],
         },
         sorts: [
@@ -1537,57 +587,52 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
           },
         ],
       }),
-    }, 15000);
+    }, 5000);
 
     if (!response.ok) {
-      logger.error(`Notion API Error for Announcements: ${response.status}`);
+      console.error('Notion API Error for Announcements:', response.status);
       return [];
     }
 
     const data = await response.json();
 
     const announcements = await Promise.all(
-      data.results.map(async (page: NotionPage) => {
+      data.results.map(async (page: any) => {
         try {
-          const content = await getPageMarkdown(page.id);
+          const contentResponse = await fetchWithTimeout(`https://api.notion.com/v1/blocks/${page.id}/children`, {
+            headers: getHeaders(),
+            ...getFetchOptions(),
+          }, 3000);
+
+          let content = '';
+          if (contentResponse.ok) {
+            const contentData = await contentResponse.json();
+            content = blocksToMarkdown(contentData.results);
+          }
 
           return {
             id: page.id,
             title: getPlainText(page.properties.Title?.title || []),
             slug: getPlainText(page.properties.Slug?.rich_text || []) || generateSlug(getPlainText(page.properties.Title?.title || [])),
-            excerpt:
-              getPlainText(page.properties.Summary?.rich_text || []) ||
-              (content ? content.substring(0, 100) + '...' : ''),
+            excerpt: getPlainText(page.properties.Excerpt?.rich_text || []) || content.substring(0, 100) + '...',
             content: content,
-            publishedAt:
-              page.properties['Published Date']?.date?.start ||
-              page.last_edited_time ||
-              new Date().toISOString(),
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
-            published:
-              (page.properties.Status?.select?.name === 'Published') ||
-              (page.properties.Published?.checkbox || false),
+            publishedAt: page.properties['Published Date']?.date?.start || new Date().toISOString(),
+            tags: page.properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
+            published: page.properties.Published?.checkbox || false,
             cover: page.cover?.external?.url || page.cover?.file?.url || null,
             type: 'announcement' as const,
           };
         } catch (error) {
-          logger.error(`Error fetching announcement content for page ${page.id}`, error);
+          console.error(`Error fetching announcement content for page ${page.id}:`, error);
           return {
             id: page.id,
             title: getPlainText(page.properties.Title?.title || []),
             slug: getPlainText(page.properties.Slug?.rich_text || []) || generateSlug(getPlainText(page.properties.Title?.title || [])),
-            excerpt:
-              getPlainText(page.properties.Summary?.rich_text || []) ||
-              '内容加载失败...',
+            excerpt: getPlainText(page.properties.Excerpt?.rich_text || []) || '内容加载失败...',
             content: '内容暂时无法加载，请稍后再试。',
-            publishedAt:
-              page.properties['Published Date']?.date?.start ||
-              page.last_edited_time ||
-              new Date().toISOString(),
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
-            published:
-              (page.properties.Status?.select?.name === 'Published') ||
-              (page.properties.Published?.checkbox || false),
+            publishedAt: page.properties['Published Date']?.date?.start || new Date().toISOString(),
+            tags: page.properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
+            published: page.properties.Published?.checkbox || false,
             cover: page.cover?.external?.url || page.cover?.file?.url || null,
             type: 'announcement' as const,
           };
@@ -1595,17 +640,15 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
       })
     );
 
-    
     return announcements;
   } catch (error) {
-    logger.error('Error fetching announcements', error);
+    console.error('Error fetching announcements:', error);
     return [];
   }
 }
 
-// 获取文章（过滤掉页面，包含公告）
+// 获取文章（过滤掉页面和公告）
 export async function getPostsOnly(): Promise<NotionPost[]> {
   const allPosts = await getPosts();
-  // 包含 post 和 announcement 类型，过滤掉 page 类型
-  return allPosts.filter(post => post.type !== 'page');
+  return allPosts.filter(post => post.type !== 'announcement' && post.type !== 'page');
 }

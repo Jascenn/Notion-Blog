@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw - 下一代 AI 助手基础设施</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #fff; font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; overflow: hidden; }
+  
+  .slideshow { width: 100vw; height: 100vh; position: relative; }
+  
+  .slide { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; align-items: center; justify-content: center;
+  }
+  .slide.active { display: flex; }
+  
+  .slide img { 
+    max-width: 100%; max-height: 100%; 
+    object-fit: contain;
+    user-select: none;
+  }
+
+  /* 导航 */
+  .nav {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50px;
+    padding: 10px 20px;
+    z-index: 100;
+  }
+  .nav button {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav button:hover { background: rgba(255,255,255,0.25); }
+  .nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+  
+  .page-info {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    min-width: 60px;
+    text-align: center;
+  }
+
+  /* 缩略图栏 */
+  .thumbnails {
+    position: fixed; right: 16px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 6px;
+    z-index: 100;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .thumb {
+    width: 48px; height: 27px;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    opacity: 0.5;
+  }
+  .thumb:hover { opacity: 0.8; }
+  .thumb.active { border-color: #7c6fff; opacity: 1; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* 键盘提示 */
+  .hint {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    font-size: 12px; color: rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.3);
+    padding: 4px 12px; border-radius: 20px;
+    pointer-events: none;
+  }
+
+  /* 加载动画 */
+  .loading {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #0a0a0f;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999;
+    flex-direction: column; gap: 16px;
+  }
+  .loading-bar {
+    width: 200px; height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #7c6fff, #4fc3f7);
+    border-radius: 2px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+  .loading-text { font-size: 13px; color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading">
+  <div style="font-size:24px;font-weight:700;background:linear-gradient(135deg,#7c6fff,#4fc3f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">OpenClaw</div>
+  <div class="loading-bar"><div class="loading-progress" id="progress"></div></div>
+  <div class="loading-text" id="loadingText">加载中...</div>
+</div>
+
+<div class="slideshow" id="slideshow">
+  <!-- slides injected by JS -->
+</div>
+
+<div class="thumbnails" id="thumbnails"></div>
+
+<div class="nav">
+  <button id="prevBtn" onclick="changeSlide(-1)">‹</button>
+  <span class="page-info"><span id="current">1</span> / <span id="total">16</span></span>
+  <button id="nextBtn" onclick="changeSlide(1)">›</button>
+</div>
+
+<div class="hint">← → 键翻页 · 点击右侧缩略图跳转</div>
+
+<script>
+const slides = [
+  { src: 'slide-01-text.png', title: '封面' },
+  { src: 'slide-02-text.png', title: '什么是OpenClaw' },
+  { src: 'slide-03-text.png', title: '核心架构' },
+  { src: 'slide-04-text.png', title: '核心特性' },
+  { src: 'slide-05-text.png', title: '支持渠道' },
+  { src: 'slide-06-text.png', title: '技能系统' },
+  { src: 'slide-07-text.png', title: '多Agent场景' },
+  { src: 'slide-08-text.png', title: '工作空间结构' },
+  { src: 'slide-09-text.png', title: '安全与隐私' },
+  { src: 'slide-10-text.png', title: '快速开始' },
+  { src: 'slide-11-text.png', title: '高级功能' },
+  { src: 'slide-12-text.png', title: '应用场景' },
+  { src: 'slide-13-text.png', title: '技术栈' },
+  { src: 'slide-14-text.png', title: '社区与生态' },
+  { src: 'slide-15-text.png', title: '总结' },
+  { src: 'slide-16-text.png', title: '结尾' },
+];
+
+let current = 0;
+let loaded = 0;
+
+const slideshow = document.getElementById('slideshow');
+const thumbnails = document.getElementById('thumbnails');
+
+// 构建幻灯片和缩略图
+slides.forEach((s, i) => {
+  // 幻灯片
+  const div = document.createElement('div');
+  div.className = 'slide' + (i === 0 ? ' active' : '');
+  div.id = 'slide-' + i;
+  const img = document.createElement('img');
+  img.src = s.src;
+  img.alt = s.title;
+  img.onload = () => {
+    loaded++;
+    const pct = Math.round(loaded / slides.length * 100);
+    document.getElementById('progress').style.width = pct + '%';
+    document.getElementById('loadingText').textContent = `加载中 ${loaded}/${slides.length}`;
+    if (loaded === slides.length) {
+      setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 300);
+    }
+  };
+  div.appendChild(img);
+  slideshow.appendChild(div);
+
+  // 缩略图
+  const thumb = document.createElement('div');
+  thumb.className = 'thumb' + (i === 0 ? ' active' : '');
+  thumb.id = 'thumb-' + i;
+  thumb.title = s.title;
+  thumb.onclick = () => goTo(i);
+  const timg = document.createElement('img');
+  timg.src = s.src;
+  thumb.appendChild(timg);
+  thumbnails.appendChild(thumb);
+});
+
+document.getElementById('total').textContent = slides.length;
+
+function goTo(n) {
+  document.getElementById('slide-' + current).classList.remove('active');
+  document.getElementById('thumb-' + current).classList.remove('active');
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  document.getElementById('slide-' + current).classList.add('active');
+  document.getElementById('thumb-' + current).classList.add('active');
+  document.getElementById('current').textContent = current + 1;
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === slides.length - 1;
+  // 滚动缩略图到可见
+  document.getElementById('thumb-' + current).scrollIntoView({ block: 'nearest' });
+}
+
+function changeSlide(dir) { goTo(current + dir); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+});
+
+goTo(0);
+</script>
+</body>
+</html>

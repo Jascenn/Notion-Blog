@@ -2,6 +2,11 @@ import { logger } from './logger';
 import { Client } from '@notionhq/client';
 import { NotionToMarkdown } from 'notion-to-md';
 
+export interface NotionTag {
+  name: string;
+  color: string;
+}
+
 export interface NotionPost {
   id: string;
   title: string;
@@ -9,7 +14,7 @@ export interface NotionPost {
   excerpt: string;
   content: string;
   publishedAt: string;
-  tags: string[];
+  tags: NotionTag[];
   published: boolean;
   cover?: string | null;
   pinned?: boolean;
@@ -41,6 +46,7 @@ interface NotionSelect {
 
 interface NotionMultiSelect {
   name: string;
+  color: string;
 }
 
 interface NotionCheckbox {
@@ -103,6 +109,7 @@ interface NotionBlockContent {
   bookmark?: {
     url: string;
   };
+  cells?: NotionRichText[][]; // Fix for table_row
 }
 
 interface NotionBlock {
@@ -134,8 +141,7 @@ interface NotionBlock {
     external?: { url: string };
     file?: { url: string };
   };
-  embed?: { url: string };
-  table?: { table_width: number };
+  embed?: { url: string; caption?: NotionRichText[] };
   callout?: NotionBlockContent;
   toggle?: NotionBlockContent;
   column_list?: NotionBlockContent;
@@ -155,7 +161,7 @@ interface NotionBlock {
   };
   pdf?: NotionBlockContent;
   // 通用索引签名作为后备
-  [key: string]: NotionBlockContent | string | number | boolean | undefined;
+  [key: string]: NotionBlockContent | string | number | boolean | undefined | { cells: NotionRichText[][] } | { table_width: number; has_column_header?: boolean; has_row_header?: boolean; } | { expression: string } | { url: string; caption?: NotionRichText[] };
 }
 
 interface FetchOptions {
@@ -198,6 +204,7 @@ function ensureNotionMarkdown(): NotionToMarkdown | null {
   try {
     notionClient = new Client({ auth: notionToken });
     notionMarkdown = new NotionToMarkdown({ notionClient });
+
     return notionMarkdown;
   } catch (error) {
     logger.error('初始化 Notion Markdown 转换器失败', error);
@@ -224,7 +231,7 @@ async function processQueue() {
 
   while (requestQueue.length > 0) {
     const batch = requestQueue.splice(0, MAX_CONCURRENT_REQUESTS);
-    await Promise.all(batch.map(fn => fn().catch(() => {}))); // 忽略错误
+    await Promise.all(batch.map(fn => fn().catch(() => { }))); // 忽略错误
 
     // 在批次之间添加更长延迟
     if (requestQueue.length > 0) {
@@ -263,9 +270,9 @@ async function fetchWithTimeout(url: string, options: FetchOptions, timeout = 60
 
       // 只有网络错误才重试
       if (attempt < retries && lastError.message.includes('fetch failed') ||
-          lastError.message.includes('ECONNRESET') ||
-          lastError.message.includes('ETIMEDOUT') ||
-          lastError.message.includes('AbortError')) {
+        lastError.message.includes('ECONNRESET') ||
+        lastError.message.includes('ETIMEDOUT') ||
+        lastError.message.includes('AbortError')) {
         await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000)); // 指数退避
         continue;
       }
@@ -291,7 +298,7 @@ export async function getPosts(): Promise<NotionPost[]> {
   }
 
   try {
-    
+
     const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
       method: 'POST',
       headers: getHeaders(),
@@ -343,7 +350,10 @@ export async function getPosts(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
+            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({
+              name: tag.name,
+              color: tag.color
+            })) || [],
             published:
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),
@@ -351,7 +361,7 @@ export async function getPosts(): Promise<NotionPost[]> {
             pinned: page.properties.Pinned?.checkbox || false,
             type: (() => {
               const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
-              if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post'|'announcement'|'page';
+              if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post' | 'announcement' | 'page';
               return 'post';
             })(),
           };
@@ -370,7 +380,10 @@ export async function getPosts(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
+            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({
+              name: tag.name,
+              color: tag.color
+            })) || [],
             published:
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),
@@ -378,7 +391,7 @@ export async function getPosts(): Promise<NotionPost[]> {
             pinned: page.properties.Pinned?.checkbox || false,
             type: (() => {
               const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
-              if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post'|'announcement'|'page';
+              if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post' | 'announcement' | 'page';
               return 'post';
             })(),
           };
@@ -386,7 +399,7 @@ export async function getPosts(): Promise<NotionPost[]> {
       })
     );
 
-    
+
     return posts;
   } catch (error) {
     logger.error('Error fetching posts from Notion', error);
@@ -398,7 +411,7 @@ export async function getPosts(): Promise<NotionPost[]> {
 // 根据 slug 获取单篇文章
 export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
   try {
-    
+
     const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
       method: 'POST',
       headers: getHeaders(),
@@ -712,6 +725,11 @@ async function getPageMarkdown(pageId: string): Promise<string> {
       const { parent } = converter.toMarkdownString(mdBlocks);
       if (parent.trim()) {
         result = parent;
+        // 修复 notion-to-md 嵌套段落输出 4 空格缩进 → 用不间断空格 (U+00A0) 替换避免被识别为代码块
+        result = result.replace(
+          /(\n{2,}) {4}(?=[^\s\-*+\d`>])/g,
+          '$1\u00A0\u00A0\u00A0\u00A0'
+        );
         logger.info(`[NOTION-TO-MD] 成功解析,内容长度: ${result.length}`);
       }
     }
@@ -772,6 +790,9 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
           } else {
             markdown += paragraphText + '\n\n';
           }
+        } else {
+          // 空段落修复：注入占位符，强制保留视觉高度
+          markdown += '&nbsp;\n\n';
         }
         break;
 
@@ -1364,7 +1385,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
         markdown += `</div>\n\n`;
 
         // 调试日志
-        logger.info(`[CALLOUT] has_children=${block.has_children}, rich_text_count=${rawTextCount}, content_len=${finalContent.length}`);
+        logger.info(`[CALLOUT] has_children=${block.has_children}, content_len=${finalContent.length}`);
         break;
       }
 
@@ -1440,7 +1461,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
 // 获取关于页面内容
 export async function getAboutPage(): Promise<NotionPost | null> {
   try {
-    
+
     const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
       method: 'POST',
       headers: getHeaders(),
@@ -1595,7 +1616,7 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
       })
     );
 
-    
+
     return announcements;
   } catch (error) {
     logger.error('Error fetching announcements', error);

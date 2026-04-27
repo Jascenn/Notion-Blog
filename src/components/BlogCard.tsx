@@ -44,22 +44,20 @@ export default function BlogCard({ post }: BlogCardProps) {
   const timeDisplay = formatTime();
 
   return (
-    <article className={`group py-3 transition-all duration-200 ${
-      post.pinned || post.type === 'announcement'
+    <article className={`group py-3 transition-all duration-200 ${post.pinned || post.type === 'announcement'
         ? 'border-b border-gray-200 dark:border-gray-700 last:border-b-0'
         : 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/50'
-    }`}>
+      }`}>
       {/* 标题和时间同一行 */}
       <div className="flex items-start sm:items-center justify-between gap-3 mb-3">
         <LinkPrefetch
           href={`/${post.slug}`}
-          className={`text-lg font-medium transition-all duration-200 flex-1 ${
-            post.pinned
+          className={`text-lg font-medium transition-all duration-200 flex-1 ${post.pinned
               ? 'text-gray-900 dark:text-gray-100 font-semibold hover:text-red-600 dark:hover:text-red-400 hover:translate-x-1'
               : post.type === 'announcement'
-              ? 'text-gray-900 dark:text-gray-100 font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1'
-              : 'text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1'
-          }`}
+                ? 'text-gray-900 dark:text-gray-100 font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1'
+                : 'text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1'
+            }`}
         >
           {post.title}
         </LinkPrefetch>
@@ -82,10 +80,10 @@ export default function BlogCard({ post }: BlogCardProps) {
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag) => (
                   <span
-                    key={tag}
-                    className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded"
+                    key={tag.name}
+                    className={`px-2 py-0.5 rounded-md text-xs font-medium transition-colors duration-200 notion-tag-${tag.color}`}
                   >
-                    {tag}
+                    {tag.name}
                   </span>
                 ))}
               </div>

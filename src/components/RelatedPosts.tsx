@@ -13,7 +13,9 @@ export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3 }: Re
     let score = 0;
 
     // 标签匹配度（权重最高）
-    const tagMatches = post.tags.filter(tag => currentPost.tags.includes(tag)).length;
+    const tagMatches = post.tags.filter(tag =>
+      currentPost.tags.some(ct => ct.name === tag.name)
+    ).length;
     score += tagMatches * 3;
 
     // 标题关键词匹配
@@ -89,8 +91,8 @@ export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3 }: Re
                     <span>•</span>
                     <div className="flex space-x-2">
                       {post.tags.slice(0, 2).map((tag) => (
-                        <span key={tag} className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-1.5 py-0.5 rounded text-xs">
-                          {tag}
+                        <span key={tag.name} className={`px-1.5 py-0.5 rounded text-xs transition-colors notion-tag-${tag.color}`}>
+                          {tag.name}
                         </span>
                       ))}
                     </div>

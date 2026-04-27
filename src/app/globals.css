@@ -57,7 +57,9 @@ article p {
   margin: 1.5em 0;
 }
 
-article h1, article h2, article h3 {
+article h1,
+article h2,
+article h3 {
   font-weight: 600;
   line-height: 1.3;
   margin-top: 2em;
@@ -76,7 +78,12 @@ code {
 }
 
 /* 标题使用稍重的字重 */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-sans);
   font-weight: 600;
 }
@@ -224,4 +231,105 @@ html.dark .math-error {
   .katex {
     font-size: 1em;
   }
+}
+
+/* 修正空行的大间距问题，使其只占一个字符高度 */
+.prose p:has(br),
+.prose p:empty {
+  margin-bottom: 0 !important;
+  line-height: 1 !important;
+  min-height: 1em;
+}
+
+/* Notion 标签颜色系统 */
+.notion-tag-default,
+.notion-tag-gray {
+  background-color: #f1f1ef;
+  color: #37352f;
+}
+
+html.dark .notion-tag-default,
+html.dark .notion-tag-gray {
+  background-color: #2f2f2f;
+  color: #e3e3e3;
+}
+
+.notion-tag-brown {
+  background-color: #f4eeee;
+  color: #442a1e;
+}
+
+html.dark .notion-tag-brown {
+  background-color: #4a3228;
+  color: #e9dcd6;
+}
+
+.notion-tag-orange {
+  background-color: #faecdd;
+  color: #5d3012;
+}
+
+html.dark .notion-tag-orange {
+  background-color: #5c3b23;
+  color: #f4dfcc;
+}
+
+.notion-tag-yellow {
+  background-color: #fbf3db;
+  color: #5d3608;
+}
+
+html.dark .notion-tag-yellow {
+  background-color: #564328;
+  color: #fbeecf;
+}
+
+.notion-tag-green {
+  background-color: #edf3ec;
+  color: #2a4128;
+}
+
+html.dark .notion-tag-green {
+  background-color: #243d30;
+  color: #d8eadc;
+}
+
+.notion-tag-blue {
+  background-color: #e7f3f8;
+  color: #0b2f4f;
+}
+
+html.dark .notion-tag-blue {
+  background-color: #203f4f;
+  color: #d1e7f3;
+}
+
+.notion-tag-purple {
+  background-color: #f6f3f9;
+  color: #401e69;
+}
+
+html.dark .notion-tag-purple {
+  background-color: #3d2a58;
+  color: #eae4f2;
+}
+
+.notion-tag-pink {
+  background-color: #faf1f5;
+  color: #551939;
+}
+
+html.dark .notion-tag-pink {
+  background-color: #522842;
+  color: #f5dce9;
+}
+
+.notion-tag-red {
+  background-color: #fdebec;
+  color: #5c181d;
+}
+
+html.dark .notion-tag-red {
+  background-color: #522e2a;
+  color: #fcdce0;
 }

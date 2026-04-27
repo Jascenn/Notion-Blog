@@ -32,7 +32,7 @@ export default function SearchClient({ initialPosts }: SearchClientProps) {
   }, [searchParams]);
 
   const allTags = useMemo(() => {
-    return Array.from(new Set(posts.flatMap(post => post.tags))).sort();
+    return Array.from(new Set(posts.flatMap(post => post.tags.map(t => t.name)))).sort();
   }, [posts]);
 
   const filteredPosts = useMemo(() => {
@@ -42,10 +42,10 @@ export default function SearchClient({ initialPosts }: SearchClientProps) {
       const matchesSearch = lowerTerm === '' ||
         post.title.toLowerCase().includes(lowerTerm) ||
         (post.excerpt || '').toLowerCase().includes(lowerTerm) ||
-        post.tags.some(tag => tag.toLowerCase().includes(lowerTerm));
+        post.tags.some(tag => tag.name.toLowerCase().includes(lowerTerm));
 
       const matchesTags = selectedTags.length === 0 ||
-        selectedTags.some(selectedTag => post.tags.includes(selectedTag));
+        selectedTags.some(selectedTag => post.tags.some(t => t.name === selectedTag));
 
       return matchesSearch && matchesTags;
     });
@@ -89,11 +89,10 @@ export default function SearchClient({ initialPosts }: SearchClientProps) {
               <button
                 key={tag}
                 onClick={() => handleTagClick(tag)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                  selectedTags.includes(tag)
+                className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${selectedTags.includes(tag)
                     ? 'bg-blue-100 text-blue-700 border-blue-300'
                     : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 {tag}
               </button>

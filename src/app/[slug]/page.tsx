@@ -104,11 +104,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map((tag) => (
                       <Link
-                        key={tag}
-                        href={`/search?tags=${encodeURIComponent(tag)}`}
-                        className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        key={tag.name}
+                        href={`/search?tags=${encodeURIComponent(tag.name)}`}
+                        className={`px-2 py-1 rounded text-xs transition-colors notion-tag-${tag.color}`}
                       >
-                        {tag}
+                        {tag.name}
                       </Link>
                     ))}
                   </div>
@@ -138,7 +138,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <ExportPDFAdvanced
                   title={post.title}
                   date={formatDate(post.publishedAt)}
-                  tags={post.tags}
+                  tags={post.tags.map(t => t.name)}
                   filename={post.slug}
                   contentId="article-content"
                 />

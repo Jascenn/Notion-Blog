@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- 🎨 **Notion 标签彩色化**
+  - 引入 `NotionTag` 接口（`{name, color}`），保留 Notion 原始 tag 配色
+  - `globals.css` 新增 `.notion-tag-*` 样式
+- 🔒 **安全加固** (`next.config.ts`)
+  - 响应头：HSTS / CSP / X-Frame-Options / X-Content-Type-Options / Referrer-Policy
+  - 图片域名白名单：Notion / S3 / Unsplash
+- 📦 **依赖**：新增 `remark-breaks`（markdown 软换行支持）
+- 📚 **文档**：`NOTION_SETUP.md`、`SECURITY_CHECKLIST.md`、`docs/solutions/`（5 篇方案文档）
+- 🛠️ **脚本**：`scripts/setup.mjs`、`scripts/check-config.mjs`（交互式初始化与配置校验）
+- 🧩 `NotionImage.tsx` 代理组件（已写未接入）
+
+### Fixed
+- 🐛 **Notion 图片加载失败**：移除 notion-to-md 库的 image 自定义 transformer
+  - 问题原因：transformer 给图片 URL 注入 `notion_block_id` 参数，破坏了 AWS S3 的签名校验，导致图片被拒绝（403）
+- 🐛 **Notion 嵌套段落被误识别为代码块**：notion-to-md 输出 4 空格缩进，被 markdown 解析器当作 indented code block
+  - 修复：用不间断空格（U+00A0）替换前导 4 空格，保留视觉缩进同时不触发代码块语法
+
+## [1.3.2] - 2026-04-28
+
+### Removed
+- 🗑️ **OpenClaw PPT 演示资源**
+  - 删除 `public/openclaw-ppt/` 17 个文件（`index.html` viewer + 16 张 PNG，约 40 MB）
+  - PPT viewer 路由实际未完成（线上 404），属冗余资源
+  - 通过 revert commit `c89132a` 实现，保留完整 git 历史
+
 ## [1.3.1] - 2025-11-22
 
 ### Added

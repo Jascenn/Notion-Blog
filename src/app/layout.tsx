@@ -29,10 +29,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" style={{ scrollBehavior: 'smooth' }}>
       <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css"
-        />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
       </head>
       <body
         className="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"

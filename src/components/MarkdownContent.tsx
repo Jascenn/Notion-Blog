@@ -688,6 +688,24 @@ const NotionEmbed: React.FC<NotionEmbedProps> = ({ type = '', url = '', caption,
   );
 };
 
+// 当链接文字本身就是被 URL 编码的字符串时（Notion 导出的"附件"链接常见），还原可读文字
+const decodeLinkLabel = (children: React.ReactNode): React.ReactNode => {
+  const decode = (text: string): string => {
+    if (!/%[0-9A-Fa-f]{2}/.test(text)) return text;
+    try {
+      const decoded = decodeURIComponent(text);
+      return decoded !== text ? decoded : text;
+    } catch {
+      return text;
+    }
+  };
+  if (typeof children === 'string') return decode(children);
+  if (Array.isArray(children) && children.length === 1 && typeof children[0] === 'string') {
+    return decode(children[0]);
+  }
+  return children;
+};
+
 export default function MarkdownContent({ content }: MarkdownContentProps) {
   // 清理可能存在的孤立 HTML 标签
   const cleanedContent = React.useMemo(() => {
@@ -2179,7 +2197,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
               target={href?.startsWith('http') ? '_blank' : undefined}
               rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
             >
-              {children}
+              {decodeLinkLabel(children)}
             </a>
           ),
 
@@ -2288,7 +2306,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
                                   target={href?.startsWith('http') ? '_blank' : undefined}
                                   rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
                                 >
-                                  {children}
+                                  {decodeLinkLabel(children)}
                                 </a>
                               ),
 

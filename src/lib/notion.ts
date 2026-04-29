@@ -460,7 +460,7 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
           page.properties['Published Date']?.date?.start ||
           page.last_edited_time ||
           new Date().toISOString(),
-        tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
+        tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
         published:
           (page.properties.Status?.select?.name === 'Published') ||
           (page.properties.Published?.checkbox || false),
@@ -480,7 +480,7 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
           page.properties['Published Date']?.date?.start ||
           page.last_edited_time ||
           new Date().toISOString(),
-        tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
+        tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
         published:
           (page.properties.Status?.select?.name === 'Published') ||
           (page.properties.Published?.checkbox || false),
@@ -1584,7 +1584,7 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
+            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
             published:
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),
@@ -1605,7 +1605,7 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => tag.name) || [],
+            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
             published:
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),

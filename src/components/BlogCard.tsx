@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import LinkPrefetch from './LinkPrefetch';
 import ReadingTime from './ReadingTime';
 import { NotionPost } from '@/lib/notion';
@@ -9,16 +10,14 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
-  // 检测用户的语言偏好
-  const getUserLanguage = () => {
-    if (typeof window !== 'undefined') {
-      return navigator.language || navigator.languages[0] || 'zh-CN';
-    }
-    return 'zh-CN';
-  };
+  // 第一次渲染（服务端 + 客户端 hydration）统一使用 zh-CN，避免 hydration mismatch
+  // mount 后再根据 navigator.language 切换
+  const [isEnglish, setIsEnglish] = useState(false);
 
-  const userLanguage = getUserLanguage();
-  const isEnglish = userLanguage.startsWith('en');
+  useEffect(() => {
+    const lang = navigator.language || navigator.languages?.[0] || 'zh-CN';
+    setIsEnglish(lang.startsWith('en'));
+  }, []);
 
   // 智能时间格式化
   const formatTime = () => {

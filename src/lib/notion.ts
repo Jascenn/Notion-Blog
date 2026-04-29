@@ -1478,7 +1478,7 @@ export async function getAboutPage(): Promise<NotionPost | null> {
             {
               property: 'Type',
               select: {
-                equals: 'page',
+                equals: '📄 Page',
               },
             },
             {
@@ -1547,8 +1547,8 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
                 { property: 'Published', checkbox: { equals: true } },
               ],
             },
-            // 按你的数据库选项名称精确匹配："Announcement"
-            { property: 'Type', select: { equals: 'Announcement' } },
+            // 精确匹配数据库选项名称（含 emoji）
+            { property: 'Type', select: { equals: '📣 Announcement' } },
           ],
         },
         sorts: [

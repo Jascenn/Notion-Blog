@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   // 临时禁用检查以便快速部署，稍后修复代码质量问题
@@ -147,4 +148,13 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // 静默 Sentry 输出（Vercel build 上更干净）
+  silent: !process.env.CI,
+  // 隐藏 source map 公开访问（保护源码）
+  hideSourceMaps: true,
+  // 不自动上传 source map（无 SENTRY_AUTH_TOKEN 时跳过）
+  disableLogger: true,
+  // 自动埋 Vercel cron monitors（这个项目暂未用 Vercel cron，留默认）
+  automaticVercelMonitors: false,
+});

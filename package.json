@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@notionhq/client": "^5.1.0",
+    "@sentry/nextjs": "^10.50.0",
     "@vercel/kv": "^3.0.0",
     "dotenv": "^17.2.2",
     "html2canvas": "^1.4.1",

@@ -52,6 +52,9 @@ const nextConfig: NextConfig = {
   // 启用压缩
   compress: true,
 
+  // 不暴露框架指纹
+  poweredByHeader: false,
+
   // 输出配置
   output: 'standalone',
 
@@ -110,7 +113,8 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' blob: data: https: *.notion.so *.amazonaws.com; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:;"
+            // 生产环境 Next.js 不需要 unsafe-eval
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' blob: data: https: *.notion.so *.amazonaws.com; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:;"
           }
         ]
       },

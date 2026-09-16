@@ -151,8 +151,10 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
           <img
             src={src}
             alt={alt || ''}
+            loading="lazy"
+            decoding="async"
             className={`w-full h-auto rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 cursor-pointer hover:shadow-lg hover:scale-[1.02] ${
-              imageLoading ? 'opacity-0 absolute' : 'opacity-100'
+              imageLoading ? 'opacity-0' : 'opacity-100'
             }`}
             style={{ objectFit: 'contain', maxWidth: '100%' }}
             onLoad={() => setImageLoading(false)}
@@ -2203,7 +2205,11 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
 
           // 图片样式
           img: ({ src, alt }) => {
-            const imageSrc = typeof src === 'string' ? src : '';
+            let imageSrc = typeof src === 'string' ? src : '';
+            // Unsplash 原图可能带超大宽度参数，限制到合理尺寸避免 MB 级传输
+            if (imageSrc.includes('images.unsplash.com')) {
+              imageSrc = imageSrc.replace(/([?&])w=\d+/, '$1w=1600');
+            }
             return <ImageComponent src={imageSrc} alt={alt} />;
           },
 
@@ -2294,7 +2300,10 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
 
                               // 图片
                               img: ({ src, alt }) => {
-                                const imageSrc = typeof src === 'string' ? src : '';
+                                let imageSrc = typeof src === 'string' ? src : '';
+                                if (imageSrc.includes('images.unsplash.com')) {
+                                  imageSrc = imageSrc.replace(/([?&])w=\d+/, '$1w=1600');
+                                }
                                 return <ImageComponent src={imageSrc} alt={alt} />;
                               },
 

@@ -1,6 +1,13 @@
 import { Suspense } from 'react';
+import type { Metadata } from 'next';
 import { getPostsOnly } from '@/lib/notion';
 import SearchClient from './SearchClient';
+
+export const metadata: Metadata = {
+  title: '搜索',
+  description: '搜索博客中的全部文章：按标题、摘要与标签筛选。',
+  robots: { index: false, follow: true },
+};
 
 // 搜索页面加载组件
 function SearchLoading() {

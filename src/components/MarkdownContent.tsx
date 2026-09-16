@@ -154,7 +154,7 @@ const ImageComponent: React.FC<{ src: string; alt?: string }> = ({ src, alt }) =
             loading="lazy"
             decoding="async"
             className={`w-full h-auto rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 cursor-pointer hover:shadow-lg hover:scale-[1.02] ${
-              imageLoading ? 'opacity-0' : 'opacity-100'
+              imageLoading ? 'opacity-0 absolute' : 'opacity-100'
             }`}
             style={{ objectFit: 'contain', maxWidth: '100%' }}
             onLoad={() => setImageLoading(false)}

@@ -49,17 +49,19 @@ export default function BlogCard({ post }: BlogCardProps) {
       }`}>
       {/* 标题和时间同一行 */}
       <div className="flex items-start sm:items-center justify-between gap-3 mb-3">
-        <LinkPrefetch
-          href={`/${post.slug}`}
-          className={`text-lg font-medium transition-all duration-200 flex-1 ${post.pinned
-              ? 'text-gray-900 dark:text-gray-100 font-semibold hover:text-red-600 dark:hover:text-red-400 hover:translate-x-1'
-              : post.type === 'announcement'
-                ? 'text-gray-900 dark:text-gray-100 font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1'
-                : 'text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1'
-            }`}
-        >
-          {post.title}
-        </LinkPrefetch>
+        <h3 className="flex-1 m-0">
+          <LinkPrefetch
+            href={`/${post.slug}`}
+            className={`text-lg font-medium transition-all duration-200 ${post.pinned
+                ? 'text-gray-900 dark:text-gray-100 font-semibold hover:text-red-600 dark:hover:text-red-400 hover:translate-x-1'
+                : post.type === 'announcement'
+                  ? 'text-gray-900 dark:text-gray-100 font-semibold hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1'
+                  : 'text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1'
+              }`}
+          >
+            {post.title}
+          </LinkPrefetch>
+        </h3>
         <time className="text-sm text-gray-500 dark:text-gray-400 font-mono whitespace-nowrap shrink-0">
           {timeDisplay}
         </time>

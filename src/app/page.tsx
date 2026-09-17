@@ -1,5 +1,12 @@
 import BlogCard from '@/components/BlogCard';
 import { getPostsOnly } from '@/lib/notion';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+};
 
 // 启用增量静态再生成（ISR）- 每 60 秒重新验证一次
 export const revalidate = 60;
@@ -28,8 +35,30 @@ export default async function Home() {
   // 合并：公告 > 置顶文章 > 普通文章
   const sortedPosts = [...sortedAnnouncements, ...sortedPinned, ...sortedRegular];
 
+  // 网站结构化数据（SEO）
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: '凌一 LingYi 的博客',
+    url: siteUrl,
+    description: '全栈开发实践、AI 工具探索、效率工作流与生活随笔，记录从 0 到 1 的构建过程。',
+    author: {
+      '@type': 'Person',
+      name: '凌一 LingYi',
+      url: `${siteUrl}/about`,
+    },
+    inLanguage: 'zh-CN',
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {/* 首页 h1：仅用于语义结构（SEO/无障碍），不改变视觉样式 */}
+      <h1 className="sr-only">凌一 LingYi 的博客</h1>
       <div className="pb-16">
         {sortedPosts.length === 0 ? (
           <div className="text-center py-16">
@@ -83,6 +112,7 @@ export default async function Home() {
             {/* 普通文章区域 */}
             {sortedRegular.length > 0 && (
               <div className="space-y-6">
+                <h2 className="sr-only">全部文章</h2>
                 {sortedRegular.map((post) => (
                   <BlogCard key={post.id} post={post} />
                 ))}

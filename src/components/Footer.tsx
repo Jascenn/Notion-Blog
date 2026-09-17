@@ -13,7 +13,7 @@ export default function Footer() {
             © <Link href="/about" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">凌一</Link> 2024 - {currentYear}
           </p>
           <p className="text-xs text-gray-400 dark:text-gray-500">
-            友情链接：<a href="https://dkfile.net" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">DKFile</a>
+            友情链接：<a href="https://dkfile.net" target="_blank" rel="noopener noreferrer" data-umami-event="friend-link-click" data-umami-event-site="dkfile.net" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">DKFile</a>
           </p>
         </div>
       </div>

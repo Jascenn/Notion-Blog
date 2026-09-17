@@ -1,5 +1,3 @@
-/* 霞鹜文楷字体（CDN） */
-@import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css');
 @import "tailwindcss";
 
 :root {

@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import * as Sentry from '@sentry/nextjs';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -10,6 +11,8 @@ interface ErrorProps {
 
 export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
+    Sentry.captureException(error);
+
     // 只在开发环境记录详细错误
     if (process.env.NODE_ENV === 'development') {
       console.error('页面错误:', error);

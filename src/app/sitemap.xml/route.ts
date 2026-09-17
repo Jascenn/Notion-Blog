@@ -9,18 +9,22 @@ export async function GET() {
   try {
     const posts = await getPostsOnly();
 
-    const now = new Date().toISOString();
+    const newestPostUpdate = posts.reduce<string | undefined>((latest, post) => {
+      const candidate = post.updatedAt || post.publishedAt;
+      if (!candidate || Number.isNaN(Date.parse(candidate))) return latest;
+      if (!latest || Date.parse(candidate) > Date.parse(latest)) return candidate;
+      return latest;
+    }, undefined);
 
-    const urls: { loc: string; lastmod: string; changefreq: string; priority: string }[] = [
-      { loc: `${siteUrl}/`, lastmod: now, changefreq: 'daily', priority: '1.0' },
-      { loc: `${siteUrl}/about`, lastmod: now, changefreq: 'monthly', priority: '0.8' },
-      { loc: `${siteUrl}/search`, lastmod: now, changefreq: 'weekly', priority: '0.5' },
+    const urls: { loc: string; lastmod?: string; changefreq: string; priority: string }[] = [
+      { loc: `${siteUrl}/`, lastmod: newestPostUpdate, changefreq: 'daily', priority: '1.0' },
+      { loc: `${siteUrl}/about`, changefreq: 'monthly', priority: '0.8' },
     ];
 
     for (const post of posts) {
       urls.push({
         loc: `${siteUrl}/${post.slug}`,
-        lastmod: new Date(post.publishedAt || now).toISOString(),
+        lastmod: new Date(post.updatedAt || post.publishedAt).toISOString(),
         changefreq: 'weekly',
         priority: '0.7',
       });
@@ -30,8 +34,7 @@ export async function GET() {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url>
     <loc>${u.loc}</loc>
-    <lastmod>${u.lastmod}</lastmod>
-    <changefreq>${u.changefreq}</changefreq>
+${u.lastmod ? `    <lastmod>${new Date(u.lastmod).toISOString()}</lastmod>\n` : ''}    <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`).join('\n')}
 </urlset>`;

@@ -8,10 +8,25 @@ import { logger } from '@/lib/logger';
 export const metadata: Metadata = {
   title: '关于',
   description: '了解博主的个人信息和创作理念',
+  alternates: {
+    canonical: '/about',
+  },
 };
 
 export default async function AboutPage() {
   let aboutContent = null;
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const personJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: '凌一 LingYi',
+    alternateName: 'LingYi_Stu',
+    url: `${siteUrl}/about`,
+    image: `${siteUrl}/凌一-头像.png`,
+    description: '全栈开发者与 AI 工具构建者，分享技术实践、项目经验与生活思考。',
+    sameAs: ['https://github.com/Jascenn'],
+    knowsAbout: ['全栈开发', 'AI 工具', 'Claude Code', '效率工作流'],
+  };
 
   try {
     aboutContent = await getAboutPage();
@@ -22,6 +37,10 @@ export default async function AboutPage() {
   if (aboutContent) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
           <div className="mb-12 text-center">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -44,6 +63,10 @@ export default async function AboutPage() {
   // 使用默认内容作为 fallback
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+      />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
         {/* 页面标题 - 添加头像 */}
         <div className="mb-12 text-center">
@@ -108,6 +131,8 @@ export default async function AboutPage() {
                 href="https://lingyi.tools"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event="project-click"
+                data-umami-event-project="lingyi.tools"
                 className="block group"
               >
                 <div className="flex items-start justify-between">
@@ -181,6 +206,8 @@ export default async function AboutPage() {
                   href="https://github.com/Jascenn"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-umami-event="profile-click"
+                  data-umami-event-platform="github"
                   className="text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   @Jascenn
@@ -198,6 +225,8 @@ export default async function AboutPage() {
                   href="https://lingyi.tools"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-umami-event="project-click"
+                  data-umami-event-project="lingyi.tools"
                   className="text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   lingyi.tools
@@ -210,6 +239,7 @@ export default async function AboutPage() {
                 href="https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event="profile-story-click"
                 className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
               >
                 了解更多关于我的故事 →

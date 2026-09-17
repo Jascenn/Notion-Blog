@@ -52,6 +52,9 @@ const nextConfig: NextConfig = {
   // 启用压缩
   compress: true,
 
+  // 不暴露框架指纹
+  poweredByHeader: false,
+
   // 输出配置
   output: 'standalone',
 
@@ -110,7 +113,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' blob: data: https: *.notion.so *.amazonaws.com; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' blob: data: https: *.notion.so *.amazonaws.com; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:;"
           }
         ]
       },
@@ -151,10 +154,10 @@ const nextConfig: NextConfig = {
 export default withSentryConfig(nextConfig, {
   // 静默 Sentry 输出（Vercel build 上更干净）
   silent: !process.env.CI,
-  // 隐藏 source map 公开访问（保护源码）
-  hideSourceMaps: true,
-  // 不自动上传 source map（无 SENTRY_AUTH_TOKEN 时跳过）
-  disableLogger: true,
-  // 自动埋 Vercel cron monitors（这个项目暂未用 Vercel cron，留默认）
-  automaticVercelMonitors: false,
+  // 不生成或上传 source map（此项目未配置 Sentry 发布凭据）
+  sourcemaps: { disable: true },
+  webpack: {
+    treeshake: { removeDebugLogging: true },
+    automaticVercelMonitors: false,
+  },
 });

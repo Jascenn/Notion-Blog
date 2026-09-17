@@ -1,6 +1,7 @@
 import { logger } from './logger';
 import { Client } from '@notionhq/client';
 import { NotionToMarkdown } from 'notion-to-md';
+import { toProxiedImageUrl, isExpiringNotionUrl } from './notion-image';
 
 export interface NotionTag {
   name: string;
@@ -14,6 +15,7 @@ export interface NotionPost {
   excerpt: string;
   content: string;
   publishedAt: string;
+  updatedAt?: string;
   tags: NotionTag[];
   published: boolean;
   cover?: string | null;
@@ -205,6 +207,28 @@ function ensureNotionMarkdown(): NotionToMarkdown | null {
     notionClient = new Client({ auth: notionToken });
     notionMarkdown = new NotionToMarkdown({ notionClient });
 
+    // Notion 附件 URL 有签名时效，统一改走 /api/notion-image 代理（可凭 block id 自愈刷新）
+    notionMarkdown.setCustomTransformer('image', async (block) => {
+      const b = block as unknown as NotionBlock;
+      const url = b.image?.external?.url || b.image?.file?.url;
+      if (!url) return false;
+      const caption = getPlainText((b.image?.caption as NotionRichText[]) || []);
+      return `![${caption.replace(/[[\]]/g, '')}](${toProxiedImageUrl(url, { blockId: b.id })})`;
+    });
+
+    notionMarkdown.setCustomTransformer('video', async (block) => {
+      const b = block as unknown as NotionBlock;
+      const url = b.video?.external?.url || b.video?.file?.url;
+      // YouTube 等外链视频走默认转换，仅代理会过期的附件
+      if (!url || !isExpiringNotionUrl(url)) return false;
+      return `<div class="video-container">
+        <video controls class="w-full rounded-xl" preload="metadata">
+          <source src="${escapeAttribute(toProxiedImageUrl(url, { blockId: b.id }))}" />
+          您的浏览器不支持视频播放。
+        </video>
+      </div>\n\n`;
+    });
+
     return notionMarkdown;
   } catch (error) {
     logger.error('初始化 Notion Markdown 转换器失败', error);
@@ -294,6 +318,9 @@ export async function getPosts(): Promise<NotionPost[]> {
   const notionToken = process.env.NOTION_TOKEN || process.env.NOTION_SECRET;
   if (!notionToken || !process.env.NOTION_DATABASE_ID) {
     logger.error('Notion 环境变量缺失，请配置 NOTION_TOKEN/NOTION_SECRET 与 NOTION_DATABASE_ID');
+    if (process.env.VERCEL_ENV === 'preview') {
+      return [];
+    }
     throw new Error('Notion configuration missing');
   }
 
@@ -350,6 +377,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
+            updatedAt: page.last_edited_time,
             tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({
               name: tag.name,
               color: tag.color
@@ -357,7 +385,7 @@ export async function getPosts(): Promise<NotionPost[]> {
             published:
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),
-            cover: page.cover?.external?.url || page.cover?.file?.url || null,
+            cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             pinned: page.properties.Pinned?.checkbox || false,
             type: (() => {
               const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
@@ -380,6 +408,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
+            updatedAt: page.last_edited_time,
             tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({
               name: tag.name,
               color: tag.color
@@ -387,7 +416,7 @@ export async function getPosts(): Promise<NotionPost[]> {
             published:
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),
-            cover: page.cover?.external?.url || page.cover?.file?.url || null,
+            cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             pinned: page.properties.Pinned?.checkbox || false,
             type: (() => {
               const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
@@ -460,11 +489,12 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
           page.properties['Published Date']?.date?.start ||
           page.last_edited_time ||
           new Date().toISOString(),
+        updatedAt: page.last_edited_time,
         tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
         published:
           (page.properties.Status?.select?.name === 'Published') ||
           (page.properties.Published?.checkbox || false),
-        cover: page.cover?.external?.url || page.cover?.file?.url || null,
+        cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
       };
     } catch (contentError) {
       logger.error(`Error fetching content for page ${page.id}`, contentError);
@@ -480,11 +510,12 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
           page.properties['Published Date']?.date?.start ||
           page.last_edited_time ||
           new Date().toISOString(),
+        updatedAt: page.last_edited_time,
         tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
         published:
           (page.properties.Status?.select?.name === 'Published') ||
           (page.properties.Published?.checkbox || false),
-        cover: page.cover?.external?.url || page.cover?.file?.url || null,
+        cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
       };
     }
   } catch (error) {
@@ -615,7 +646,7 @@ function escapeAttribute(value: string): string {
   return escapeHtml(value).replace(/"/g, '&quot;');
 }
 
-function renderCalloutIcon(icon?: NotionBlockContent['icon']): string {
+function renderCalloutIcon(icon?: NotionBlockContent['icon'], blockId?: string): string {
   if (!icon) {
     return '<span class="notion-callout-emoji">💡</span>';
   }
@@ -626,7 +657,7 @@ function renderCalloutIcon(icon?: NotionBlockContent['icon']): string {
 
   const imageUrl = icon.external?.url || icon.file?.url;
   if (imageUrl) {
-    return `<span class="notion-callout-image"><img src="${escapeAttribute(imageUrl)}" alt="" loading="lazy" /></span>`;
+    return `<span class="notion-callout-image"><img src="${escapeAttribute(toProxiedImageUrl(imageUrl, { blockId }))}" alt="" loading="lazy" /></span>`;
   }
 
   return '<span class="notion-callout-emoji">💡</span>';
@@ -937,13 +968,15 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
         const imageUrl = block.image?.external?.url || block.image?.file?.url;
         const imageCaption = getPlainText(block.image?.caption || []);
         if (imageUrl) {
-          markdown += `![${imageCaption}](${imageUrl})\n\n`;
+          markdown += `![${imageCaption}](${toProxiedImageUrl(imageUrl, { blockId: block.id })})\n\n`;
         }
         break;
 
       case 'video': {
         currentListType = null;
-        const videoSource = block.video?.external?.url || block.video?.file?.url;
+        const rawVideoUrl = block.video?.external?.url || block.video?.file?.url || '';
+        const videoSource = rawVideoUrl;
+        const videoProxySrc = toProxiedImageUrl(rawVideoUrl, { blockId: block.id });
         const videoCaption = getPlainText(block.video?.caption || []);
         if (videoSource) {
           // 检查各种视频平台并转换为嵌入格式
@@ -1040,7 +1073,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
               // 直接视频文件使用 HTML5 video 标签
               markdown += `<div class="video-container">
                 <video controls class="w-full rounded-xl" preload="metadata">
-                  <source src="${escapeAttribute(videoSource)}" />
+                  <source src="${escapeAttribute(videoProxySrc)}" />
                   您的浏览器不支持视频播放。
                 </video>
                 ${videoCaption ? `<p class="video-caption">${escapeAttribute(videoCaption)}</p>` : ''}
@@ -1093,7 +1126,9 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
 
       case 'audio': {
         currentListType = null;
-        const audioSource = block.audio?.external?.url || block.audio?.file?.url;
+        const rawAudioUrl = block.audio?.external?.url || block.audio?.file?.url || '';
+        const audioSource = rawAudioUrl;
+        const audioProxySrc = toProxiedImageUrl(rawAudioUrl, { blockId: block.id });
         const audioCaption = getPlainText(block.audio?.caption || []);
         if (audioSource) {
           // 检查各种音频平台并转换为嵌入格式
@@ -1162,7 +1197,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
               // 直接音频文件使用 HTML5 audio 标签
               markdown += `<div class="audio-container">
                 <audio controls class="w-full rounded-lg" preload="metadata">
-                  <source src="${escapeAttribute(audioSource)}" />
+                  <source src="${escapeAttribute(audioProxySrc)}" />
                   您的浏览器不支持音频播放。
                 </audio>
                 ${audioCaption ? `<p class="audio-caption">${escapeAttribute(audioCaption)}</p>` : ''}
@@ -1358,7 +1393,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
         currentListType = null;
         const calloutContent = getRichTextMarkdown(block.callout?.rich_text || []);
         const calloutColor = block.callout?.color || 'default';
-        const iconHtml = renderCalloutIcon(block.callout?.icon);
+        const iconHtml = renderCalloutIcon(block.callout?.icon, block.id);
 
         // 有子块则获取并处理
         let finalContent = calloutContent;
@@ -1518,7 +1553,7 @@ export async function getAboutPage(): Promise<NotionPost | null> {
         publishedAt: page.properties['Published Date']?.date?.start || new Date().toISOString(),
         tags: [],
         published: page.properties.Published?.checkbox || false,
-        cover: page.cover?.external?.url || page.cover?.file?.url || null,
+        cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
         type: 'page',
       };
     } catch (contentError) {
@@ -1584,11 +1619,12 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
+            updatedAt: page.last_edited_time,
             tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
             published:
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),
-            cover: page.cover?.external?.url || page.cover?.file?.url || null,
+            cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             type: 'announcement' as const,
           };
         } catch (error) {
@@ -1605,11 +1641,12 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
+            updatedAt: page.last_edited_time,
             tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
             published:
               (page.properties.Status?.select?.name === 'Published') ||
               (page.properties.Published?.checkbox || false),
-            cover: page.cover?.external?.url || page.cover?.file?.url || null,
+            cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             type: 'announcement' as const,
           };
         }

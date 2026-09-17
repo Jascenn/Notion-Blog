@@ -28,31 +28,39 @@ export async function generateStaticParams() {
 
 // 生成页面元数据
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  try {
-    const { slug } = await params;
-    const post = await getPostBySlug(slug);
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
 
-    if (!post) {
-      return {
-        title: '文章未找到',
-      };
-    }
+  // 文章不存在时在这里直接 404：若仅在页面组件中 notFound()，
+  // 元数据会先正常解析导致 HTML shell 以 200 提交（软 404）
+  if (!post) {
+    notFound();
+  }
 
-    return {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+
+  return {
+    title: post.title,
+    description: post.excerpt || post.title,
+    alternates: {
+      canonical: `${siteUrl}/${post.slug}`,
+    },
+    openGraph: {
+      type: 'article',
       title: post.title,
       description: post.excerpt || post.title,
-      openGraph: {
-        title: post.title,
-        description: post.excerpt || post.title,
-        images: post.cover ? [post.cover] : [],
-      },
-    };
-  } catch (error) {
-    logger.error('Error generating metadata', error);
-    return {
-      title: '文章未找到',
-    };
-  }
+      publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt || post.publishedAt,
+      url: `${siteUrl}/${post.slug}`,
+      images: post.cover ? [{ url: post.cover }] : [],
+    },
+    twitter: {
+      card: post.cover ? 'summary_large_image' : 'summary',
+      title: post.title,
+      description: post.excerpt || post.title,
+      images: post.cover ? [post.cover] : [],
+    },
+  };
 }
 
 interface BlogPostPageProps {
@@ -62,31 +70,65 @@ interface BlogPostPageProps {
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const { slug } = await params;
+
+  let post: Awaited<ReturnType<typeof getPostBySlug>> = null;
+  let allPosts: Awaited<ReturnType<typeof getPosts>> = [];
   try {
-    const { slug } = await params;
-    const post = await getPostBySlug(slug);
-    const allPosts = await getPosts();
+    post = await getPostBySlug(slug);
+    allPosts = await getPosts();
+  } catch (error) {
+    logger.error('Error loading post', error);
+  }
 
-    if (!post) {
-      notFound();
-    }
+  // 注意：notFound() 通过抛出特殊信号实现 404，不能放在 try/catch 内，
+  // 否则信号被吞掉后不存在的文章会以 200 状态码返回（软 404）
+  if (!post) {
+    notFound();
+  }
 
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      });
-    };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  };
 
-    // 获取完整 URL
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
-    const postUrl = `${siteUrl}/${slug}`;
+  // 获取完整 URL
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+  const postUrl = `${siteUrl}/${slug}`;
 
-    return (
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 min-h-screen">
-        <article className="pb-16">
+  // 文章结构化数据（SEO）
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt || post.title,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt || post.publishedAt,
+    url: postUrl,
+    author: {
+      '@type': 'Person',
+      name: '凌一 LingYi',
+      url: `${siteUrl}/about`,
+    },
+    publisher: {
+      '@type': 'Person',
+      name: '凌一 LingYi',
+    },
+    mainEntityOfPage: postUrl,
+    ...(post.cover ? { image: post.cover.startsWith('http') ? post.cover : `${siteUrl}${post.cover}` } : {}),
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <article className="pb-16">
           {/* 标题和元信息 */}
           <header className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -164,26 +206,4 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
       </div>
     );
-  } catch (error) {
-    logger.error('Error loading post', error);
-
-    return (
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            加载失败
-          </h1>
-          <p className="text-gray-600 mb-8">
-            无法从 Notion 加载文章内容，请检查配置。
-          </p>
-          <Link
-            href="/"
-            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-          >
-            返回首页
-          </Link>
-        </div>
-      </div>
-    );
-  }
 }

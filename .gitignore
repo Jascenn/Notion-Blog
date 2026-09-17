@@ -142,6 +142,11 @@ docs/.docusaurus/
 *.seed
 *.pid.lock
 
+# Local analytics exports
+/analytics-*.json
+/analytics-*.csv
+/analytics-*.csv.gz
+
 # ============================
 # Test & Debug Pages
 # ============================

@@ -131,6 +131,8 @@ export default async function AboutPage() {
                 href="https://lingyi.tools"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event="project-click"
+                data-umami-event-project="lingyi.tools"
                 className="block group"
               >
                 <div className="flex items-start justify-between">
@@ -204,6 +206,8 @@ export default async function AboutPage() {
                   href="https://github.com/Jascenn"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-umami-event="profile-click"
+                  data-umami-event-platform="github"
                   className="text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   @Jascenn
@@ -221,6 +225,8 @@ export default async function AboutPage() {
                   href="https://lingyi.tools"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-umami-event="project-click"
+                  data-umami-event-project="lingyi.tools"
                   className="text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   lingyi.tools
@@ -233,6 +239,7 @@ export default async function AboutPage() {
                 href="https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event="profile-story-click"
                 className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
               >
                 了解更多关于我的故事 →

@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import ExternalLinkIcon from "@/components/ExternalLinkIcon";
 import ScrollToTop from "@/components/ScrollToTop";
 import ReadingProgress from "@/components/ReadingProgress";
+import Analytics from "@/components/Analytics";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio'),
@@ -84,6 +85,7 @@ export default function RootLayout({
             }
           `}
         </Script>
+        <Analytics />
         <ReadingProgress />
         <Navigation />
         <main className="min-h-screen bg-white dark:bg-gray-900">

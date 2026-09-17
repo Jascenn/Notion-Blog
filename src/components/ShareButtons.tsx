@@ -144,6 +144,8 @@ export default function ShareButtons({ title, url, description }: ShareButtonsPr
                 href={option.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event="article-share"
+                data-umami-event-platform={option.name}
                 className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setShowMenu(false)}
               >
@@ -158,6 +160,8 @@ export default function ShareButtons({ title, url, description }: ShareButtonsPr
                 <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
                 <button
                   onClick={handleNativeShare}
+                  data-umami-event="article-share"
+                  data-umami-event-platform="native"
                   className="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,6 +176,8 @@ export default function ShareButtons({ title, url, description }: ShareButtonsPr
             <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
             <button
               onClick={copyLink}
+              data-umami-event="article-share"
+              data-umami-event-platform="copy-link"
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

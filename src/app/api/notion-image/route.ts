@@ -13,7 +13,8 @@ export const dynamic = 'force-dynamic';
  * - b: 图片所属 block id（可选，签名过期时用它向 Notion API 换新签名）
  * - p: 图片所属 page id（可选，用于 cover 的兜底刷新）
  *
- * 成功响应带 immutable 缓存头：一旦被 CDN 缓存，即使签名早已过期也能继续提供服务。
+ * v 参数是去掉签名后的资源路径，仅用于稳定缓存键；图片内容变化时路径也会变化。
+ * 成功响应带长期浏览器/CDN缓存头，签名过期后仍可继续提供已缓存内容。
  */
 
 const ALLOWED_HOST_SUFFIXES = ['.amazonaws.com', '.notion.so'];
@@ -117,6 +118,6 @@ export async function GET(req: NextRequest) {
 
   const headers = new Headers();
   headers.set('Content-Type', result.contentType || 'image/jpeg');
-  headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+  headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400, immutable');
   return new NextResponse(result.body, { status: 200, headers });
 }

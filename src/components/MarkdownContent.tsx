@@ -40,6 +40,7 @@ interface MarkdownContentProps {
 interface MarkdownNode {
   type?: string;
   tagName?: string;
+  children?: MarkdownNode[];
   parent?: MarkdownNode | null;
   properties?: Record<string, unknown>;
 }
@@ -2129,7 +2130,13 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
         rehypePlugins={[rehypeRaw, rehypeHighlight]}
         components={{
           // 处理数学公式段落，并保持统一段落渲染
-          p: ({ children }) => {
+          p: ({ node, children }) => {
+            const castNode = node as MarkdownNode | undefined;
+            const containsImage = castNode?.children?.some(child => child.tagName === 'img');
+            if (containsImage) {
+              return <>{children}</>;
+            }
+
             const textContent = getTextFromChildren(children);
             const isPlainText = React.Children.toArray(children).every(child => typeof child === 'string');
 
@@ -2268,7 +2275,13 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
                             rehypePlugins={[rehypeRaw, rehypeHighlight]}
                             components={{
                               // 基础元素 - 极简间距
-                              p: ({ children }) => <p className="leading-5 mb-1 tracking-normal">{children}</p>,
+                              p: ({ node, children }) => {
+                                const castNode = node as MarkdownNode | undefined;
+                                const containsImage = castNode?.children?.some(child => child.tagName === 'img');
+                                return containsImage
+                                  ? <>{children}</>
+                                  : <p className="leading-5 mb-1 tracking-normal">{children}</p>;
+                              },
                               h1: ({ children }) => <h1 className="text-lg font-bold mb-1 text-gray-900">{children}</h1>,
                               h2: ({ children }) => <h2 className="text-base font-semibold mb-1 text-gray-900">{children}</h2>,
                               h3: ({ children }) => <h3 className="text-sm font-medium mb-0.5 text-gray-900">{children}</h3>,

@@ -43,14 +43,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" style={{ scrollBehavior: 'smooth' }}>
+    <html lang="zh-CN" style={{ scrollBehavior: 'smooth' }} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
       </head>
-      <body
-        className="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-        suppressHydrationWarning={true}
-      >
+      <body className="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <ReadingProgress />
         <Navigation />
         <main className="min-h-screen bg-white dark:bg-gray-900">

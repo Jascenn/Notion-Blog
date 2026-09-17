@@ -317,6 +317,9 @@ export async function getPosts(): Promise<NotionPost[]> {
   const notionToken = process.env.NOTION_TOKEN || process.env.NOTION_SECRET;
   if (!notionToken || !process.env.NOTION_DATABASE_ID) {
     logger.error('Notion 环境变量缺失，请配置 NOTION_TOKEN/NOTION_SECRET 与 NOTION_DATABASE_ID');
+    if (process.env.VERCEL_ENV === 'preview') {
+      return [];
+    }
     throw new Error('Notion configuration missing');
   }
 

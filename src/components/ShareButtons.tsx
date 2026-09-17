@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ShareButtonsProps {
   title: string;
@@ -11,6 +11,11 @@ interface ShareButtonsProps {
 export default function ShareButtons({ title, url, description }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [canNativeShare, setCanNativeShare] = useState(false);
+
+  useEffect(() => {
+    setCanNativeShare(typeof navigator.share === 'function');
+  }, []);
 
   // 编码 URL 参数
   const encodedUrl = encodeURIComponent(url);
@@ -30,7 +35,7 @@ export default function ShareButtons({ title, url, description }: ShareButtonsPr
 
   // Web Share API (移动端原生分享)
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    if (typeof navigator.share === 'function') {
       try {
         await navigator.share({
           title,
@@ -148,7 +153,7 @@ export default function ShareButtons({ title, url, description }: ShareButtonsPr
             ))}
 
             {/* 移动端原生分享 */}
-            {typeof navigator !== 'undefined' && navigator.share && (
+            {canNativeShare && (
               <>
                 <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
                 <button

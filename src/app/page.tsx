@@ -1,5 +1,12 @@
 import BlogCard from '@/components/BlogCard';
 import { getPostsOnly } from '@/lib/notion';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+};
 
 // 启用增量静态再生成（ISR）- 每 60 秒重新验证一次
 export const revalidate = 60;

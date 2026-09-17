@@ -41,7 +41,6 @@ Disallow: /
 # General crawlers
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /_next/
+Disallow: /api/views/
 
 Sitemap: https://lingyi.bio/sitemap.xml

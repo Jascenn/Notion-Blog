@@ -15,6 +15,7 @@ export interface NotionPost {
   excerpt: string;
   content: string;
   publishedAt: string;
+  updatedAt?: string;
   tags: NotionTag[];
   published: boolean;
   cover?: string | null;
@@ -376,6 +377,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
+            updatedAt: page.last_edited_time,
             tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({
               name: tag.name,
               color: tag.color
@@ -406,6 +408,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
+            updatedAt: page.last_edited_time,
             tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({
               name: tag.name,
               color: tag.color
@@ -486,6 +489,7 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
           page.properties['Published Date']?.date?.start ||
           page.last_edited_time ||
           new Date().toISOString(),
+        updatedAt: page.last_edited_time,
         tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
         published:
           (page.properties.Status?.select?.name === 'Published') ||
@@ -506,6 +510,7 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
           page.properties['Published Date']?.date?.start ||
           page.last_edited_time ||
           new Date().toISOString(),
+        updatedAt: page.last_edited_time,
         tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
         published:
           (page.properties.Status?.select?.name === 'Published') ||
@@ -1614,6 +1619,7 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
+            updatedAt: page.last_edited_time,
             tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
             published:
               (page.properties.Status?.select?.name === 'Published') ||
@@ -1635,6 +1641,7 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
               page.properties['Published Date']?.date?.start ||
               page.last_edited_time ||
               new Date().toISOString(),
+            updatedAt: page.last_edited_time,
             tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
             published:
               (page.properties.Status?.select?.name === 'Published') ||

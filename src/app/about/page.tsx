@@ -8,10 +8,25 @@ import { logger } from '@/lib/logger';
 export const metadata: Metadata = {
   title: '关于',
   description: '了解博主的个人信息和创作理念',
+  alternates: {
+    canonical: '/about',
+  },
 };
 
 export default async function AboutPage() {
   let aboutContent = null;
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const personJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: '凌一 LingYi',
+    alternateName: 'LingYi_Stu',
+    url: `${siteUrl}/about`,
+    image: `${siteUrl}/凌一-头像.png`,
+    description: '全栈开发者与 AI 工具构建者，分享技术实践、项目经验与生活思考。',
+    sameAs: ['https://github.com/Jascenn'],
+    knowsAbout: ['全栈开发', 'AI 工具', 'Claude Code', '效率工作流'],
+  };
 
   try {
     aboutContent = await getAboutPage();
@@ -22,6 +37,10 @@ export default async function AboutPage() {
   if (aboutContent) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
           <div className="mb-12 text-center">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -44,6 +63,10 @@ export default async function AboutPage() {
   // 使用默认内容作为 fallback
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+      />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
         {/* 页面标题 - 添加头像 */}
         <div className="mb-12 text-center">

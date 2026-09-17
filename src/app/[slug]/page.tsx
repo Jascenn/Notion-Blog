@@ -50,6 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: post.title,
       description: post.excerpt || post.title,
       publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt || post.publishedAt,
       url: `${siteUrl}/${post.slug}`,
       images: post.cover ? [{ url: post.cover }] : [],
     },
@@ -106,6 +107,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     headline: post.title,
     description: post.excerpt || post.title,
     datePublished: post.publishedAt,
+    dateModified: post.updatedAt || post.publishedAt,
     url: postUrl,
     author: {
       '@type': 'Person',

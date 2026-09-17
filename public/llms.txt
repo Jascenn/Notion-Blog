@@ -1,24 +1,23 @@
-# 凌一 · Lingyi
+# 凌一 LingYi
 
-> 凌一的个人主页与博客。AI 工具构建者，开源项目作者，剽悍江湖社群连续运营官。
+> 凌一的个人主站与博客，记录全栈开发、AI 工具、效率工作流、项目实践与生活思考。
 
-## 关于
+## 主要页面
 
-凌一（Lingyi），专注 AI 工具与效率提升，代表项目包括 LionCC（Claude Code API 中转工具）和 OpenClaw（AI 助手框架）。活跃于 Claude Code、AI 编程工具领域，运营付费社群"OpenClaw&LionCC 交流群"。
+- [首页与文章列表](https://lingyi.bio/)
+- [关于凌一](https://lingyi.bio/about)
+- [站内搜索](https://lingyi.bio/search)
+- [RSS 订阅](https://lingyi.bio/rss.xml)
 
-## 关键页面
+## 代表文章
 
-- /：个人主页，项目与文章列表
-- /about：关于凌一
-- /posts：博客文章列表
+- [AI 辅助编程完成了全栈项目](https://lingyi.bio/20260106-ai-quanzhan)
+- [再见 2025，你好 2026](https://lingyi.bio/20260102-2025-report)
+- [架构笔记：我的博客技术栈](https://lingyi.bio/blog-stack-notes)
 
-## 代表项目
+## 项目与身份
 
-- LionCC：Claude Code API 中转与管理工具，网址 lioncc.ai
-- OpenClaw：AI 助手框架，支持飞书/Telegram 集成，网址 openclaw.ai
-- lingyi.tools：AI 工具导航站
-
-## 社交
-
-- GitHub: https://github.com/Jascenn
-- 个人域名: lingyi.bio
+- [lingyi.tools](https://lingyi.tools/)：凌一构建的 AI 工具与实用资源站。
+- [LionCC](https://lioncc.ai/)：Claude Code 相关工具。
+- [OpenClaw](https://openclaw.ai/)：AI 助手框架。
+- [GitHub](https://github.com/Jascenn)：凌一的开源项目与代码。

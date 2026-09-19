@@ -74,3 +74,39 @@ npm run analytics:export -- --days=30 --output=analytics-30d.json
 
 Umami Cloud 后台也可以直接生成包含页面访问、事件和会话的 CSV 完整导出。
 
+## 5. 每日同步到 Notion
+
+生产环境每天 `09:15`（Asia/Shanghai）由 Vercel Cron 调用
+`/api/cron/analytics`。同步程序会：
+
+1. 使用 Umami Share URL 拉取前一天的完整汇总和维度数据；
+2. 以「日期」为唯一键在 Notion 中创建、更新或跳过记录；
+3. 发现同一天有多行时直接失败，避免覆盖错误数据。
+
+本地命令还会按 `analytics-data/YYYY/MM/YYYY-MM-DD.json` 保存完整快照，
+用于后续导入 DuckDB、Excel、飞书或其他分析工具；这个目录不会提交到 Git。
+
+Vercel 生产环境需要配置：
+
+```dotenv
+UMAMI_SHARE_SLUG=分享链接中的-slug
+UMAMI_SHARE_GATEWAY=https://gateway-us.umami.is/api
+UMAMI_WEBSITE_ID=Umami-Website-ID
+NOTION_ANALYTICS_DATA_SOURCE_ID=每日访问数据的数据源-ID
+CRON_SECRET=随机长字符串
+```
+
+`NOTION_TOKEN` 对应的 Notion Integration 只需被邀请到「网站访问统计」页面，
+不要授权整个工作区。Vercel Cron 的时间表达式使用 UTC，因此 `01:15` 对应北京时间 `09:15`。
+
+本地只取数并生成 JSON，不写 Notion：
+
+```bash
+npm run analytics:sync:dry-run -- --date=2026-09-18
+```
+
+本地执行完整同步：
+
+```bash
+npm run analytics:sync -- --date=2026-09-18
+```

@@ -146,6 +146,7 @@ docs/.docusaurus/
 /analytics-*.json
 /analytics-*.csv
 /analytics-*.csv.gz
+/analytics-data/
 
 # ============================
 # Test & Debug Pages

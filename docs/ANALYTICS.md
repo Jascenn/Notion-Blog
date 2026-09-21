@@ -54,7 +54,9 @@ UMAMI_API_KEY=你的-api-key
 UMAMI_API_BASE=https://api.umami.is/v1
 ```
 
-API Key 不得加 `NEXT_PUBLIC_` 前缀，不得提交到 Git。
+导出程序优先使用 `UMAMI_API_KEY`；没有 API Key 时会自动使用当前免费的
+`UMAMI_SHARE_SLUG` 和 `UMAMI_SHARE_GATEWAY` 只读接口。任何密钥和分享 slug
+都不得加 `NEXT_PUBLIC_` 前缀，也不得提交到 Git。
 
 导出最近 30 天数据：
 

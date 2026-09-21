@@ -4,6 +4,7 @@ const DEFAULT_GATEWAY = 'https://gateway-us.umami.is/api';
 const DEFAULT_TIME_ZONE = 'Asia/Shanghai';
 const REQUEST_TIMEOUT_MS = 20_000;
 const MAX_RICH_TEXT_LENGTH = 1_900;
+const METRIC_TYPES = ['path', 'referrer', 'channel', 'country', 'device', 'browser', 'os', 'event'];
 
 function required(value, name) {
   if (!value) throw new Error(`Missing required configuration: ${name}`);
@@ -103,6 +104,70 @@ function normalizeMetric(items, keyName) {
   return items.map((item) => ({ [keyName]: item.x || '', count: Number(item.y || 0) }));
 }
 
+async function collectShareRange({ gateway, shareSlug, websiteId, range, unit = 'day' }) {
+  const cleanGateway = gateway.replace(/\/$/, '');
+  const token = await getShareToken({
+    gateway: cleanGateway,
+    shareSlug: required(shareSlug, 'UMAMI_SHARE_SLUG'),
+  });
+  const context = {
+    gateway: cleanGateway,
+    websiteId: required(websiteId, 'UMAMI_WEBSITE_ID'),
+    token,
+  };
+  const [stats, pageviews, ...metrics] = await Promise.all([
+    umamiGet({ ...context, path: 'stats', params: range }),
+    umamiGet({
+      ...context,
+      path: 'pageviews',
+      params: { ...range, unit, timezone: DEFAULT_TIME_ZONE },
+    }),
+    ...METRIC_TYPES.map((type) =>
+      umamiGet({ ...context, path: 'metrics', params: { ...range, type, limit: 500 } })
+    ),
+  ]);
+
+  return {
+    stats,
+    pageviews,
+    metricMap: Object.fromEntries(METRIC_TYPES.map((type, index) => [type, metrics[index]])),
+    websiteId: context.websiteId,
+  };
+}
+
+export async function collectAnalyticsRange({
+  startAt,
+  endAt,
+  unit = 'day',
+  gateway = process.env.UMAMI_SHARE_GATEWAY || DEFAULT_GATEWAY,
+  shareSlug = process.env.UMAMI_SHARE_SLUG,
+  websiteId = process.env.UMAMI_WEBSITE_ID || process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
+} = {}) {
+  if (!Number.isFinite(startAt) || !Number.isFinite(endAt) || startAt >= endAt) {
+    throw new Error('Invalid analytics range. Expected finite startAt < endAt timestamps.');
+  }
+
+  const collected = await collectShareRange({
+    gateway,
+    shareSlug,
+    websiteId,
+    range: { startAt, endAt },
+    unit,
+  });
+
+  return {
+    schemaVersion: 1,
+    provider: 'umami-share',
+    website: 'lingyi.bio',
+    websiteId: collected.websiteId,
+    generatedAt: new Date().toISOString(),
+    timeZone: DEFAULT_TIME_ZONE,
+    stats: collected.stats,
+    pageviews: collected.pageviews,
+    metrics: collected.metricMap,
+  };
+}
+
 export async function collectDailyAnalytics({
   date = previousShanghaiDate(),
   gateway = process.env.UMAMI_SHARE_GATEWAY || DEFAULT_GATEWAY,
@@ -110,38 +175,17 @@ export async function collectDailyAnalytics({
   websiteId = process.env.UMAMI_WEBSITE_ID || process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
 } = {}) {
   const normalizedDate = assertDate(date);
-  const cleanGateway = gateway.replace(/\/$/, '');
-  const token = await getShareToken({
-    gateway: cleanGateway,
-    shareSlug: required(shareSlug, 'UMAMI_SHARE_SLUG'),
-  });
   const range = rangeForShanghaiDate(normalizedDate);
-  const context = {
-    gateway: cleanGateway,
-    websiteId: required(websiteId, 'UMAMI_WEBSITE_ID'),
-    token,
-  };
-  const metricTypes = ['path', 'referrer', 'country', 'device', 'browser', 'os', 'event'];
-  const [stats, pageviews, ...metrics] = await Promise.all([
-    umamiGet({ ...context, path: 'stats', params: range }),
-    umamiGet({
-      ...context,
-      path: 'pageviews',
-      params: { ...range, unit: 'day', timezone: DEFAULT_TIME_ZONE },
-    }),
-    ...metricTypes.map((type) =>
-      umamiGet({ ...context, path: 'metrics', params: { ...range, type, limit: 500 } })
-    ),
-  ]);
+  const collected = await collectShareRange({ gateway, shareSlug, websiteId, range });
+  const { stats, pageviews, metricMap } = collected;
 
   const visits = Number(stats.visits || 0);
-  const metricMap = Object.fromEntries(metricTypes.map((type, index) => [type, metrics[index]]));
 
   return {
     schemaVersion: 1,
     provider: 'umami-share',
     website: 'lingyi.bio',
-    websiteId: context.websiteId,
+    websiteId: collected.websiteId,
     generatedAt: new Date().toISOString(),
     timeZone: DEFAULT_TIME_ZONE,
     date: normalizedDate,

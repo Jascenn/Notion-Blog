@@ -10,7 +10,8 @@
     "setup": "node scripts/setup.mjs",
     "analytics:export": "node scripts/export-analytics.mjs",
     "analytics:sync": "node scripts/sync-analytics.mjs",
-    "analytics:sync:dry-run": "node scripts/sync-analytics.mjs --dry-run"
+    "analytics:sync:dry-run": "node scripts/sync-analytics.mjs --dry-run",
+    "test:analytics": "node --test src/lib/analytics-sync.test.mjs"
   },
   "dependencies": {
     "@notionhq/client": "^5.1.0",

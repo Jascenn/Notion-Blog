@@ -1,4 +1,5 @@
 import { timingSafeEqual } from 'node:crypto';
+import * as Sentry from '@sentry/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   collectDailyAnalytics,
@@ -22,8 +23,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
 
+  const date = request.nextUrl.searchParams.get('date') || previousShanghaiDate();
+
   try {
-    const date = request.nextUrl.searchParams.get('date') || previousShanghaiDate();
     const snapshot = await collectDailyAnalytics({ date });
     const notion = await upsertAnalyticsInNotion(snapshot);
     return NextResponse.json(
@@ -31,6 +33,10 @@ export async function GET(request: NextRequest) {
       { headers: { 'Cache-Control': 'private, no-store' } }
     );
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { job: 'daily-analytics-sync', site: 'lingyi.bio' },
+      extra: { date },
+    });
     console.error('Scheduled analytics sync failed', error);
     return NextResponse.json(
       { ok: false, error: error instanceof Error ? error.message : 'Unknown error' },

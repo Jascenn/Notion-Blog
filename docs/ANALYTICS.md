@@ -64,11 +64,19 @@ npm run analytics:export -- --days=30 --output=analytics-30d.json
 
 更换 `days` 可导出不同时间范围。JSON 中包含汇总、访问时间序列，以及页面、来源、渠道、国家、设备、浏览器、系统和自定义事件维度。
 
+直接导出适合 Excel、飞书、DuckDB 和其他分析工具的长表 CSV：
+
+```bash
+npm run analytics:export -- --days=30 --format=csv --output=analytics-30d.csv
+```
+
+CSV 使用 `dataset / metric / timestamp / label / value` 五列保存汇总、时间序列和各维度指标，带 UTF-8 BOM，中文 Excel 可直接打开。
+
 这个文件可以继续导入：
 
 - Python / Pandas
 - DuckDB
-- Excel 或飞书表格（先转换成 CSV）
+- Excel 或飞书表格
 - BigQuery 或其他数据仓库
 - 支持 JSON 的 AI 分析工具
 
@@ -76,12 +84,14 @@ Umami Cloud 后台也可以直接生成包含页面访问、事件和会话的 C
 
 ## 5. 每日同步到 Notion
 
-生产环境每天 `09:15`（Asia/Shanghai）由 Vercel Cron 调用
+生产环境每天北京时间 `09:00-09:59` 之间由 Vercel Cron 调用
 `/api/cron/analytics`。同步程序会：
 
 1. 使用 Umami Share URL 拉取前一天的完整汇总和维度数据；
 2. 以「日期」为唯一键在 Notion 中创建、更新或跳过记录；
 3. 发现同一天有多行时直接失败，避免覆盖错误数据。
+
+同步异常会带上 `daily-analytics-sync` 标签发送到项目现有的 Sentry；生产环境已配置 DSN，后续可在 Sentry 中设置仅新错误或持续失败时通知。
 
 本地命令还会按 `analytics-data/YYYY/MM/YYYY-MM-DD.json` 保存完整快照，
 用于后续导入 DuckDB、Excel、飞书或其他分析工具；这个目录不会提交到 Git。
@@ -97,7 +107,8 @@ CRON_SECRET=随机长字符串
 ```
 
 `NOTION_TOKEN` 对应的 Notion Integration 只需被邀请到「网站访问统计」页面，
-不要授权整个工作区。Vercel Cron 的时间表达式使用 UTC，因此 `01:15` 对应北京时间 `09:15`。
+不要授权整个工作区。Vercel Cron 的时间表达式使用 UTC；Hobby 计划按小时调度，
+因此 `01:00` 对应北京时间 `09:00-09:59` 之间执行，不能保证精确到分钟。
 
 本地只取数并生成 JSON，不写 Notion：
 

@@ -36,8 +36,10 @@ export function previousShanghaiDate(now = new Date()) {
     day: '2-digit',
   }).formatToParts(now);
   const current = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  const todayStart = new Date(`${current.year}-${current.month}-${current.day}T00:00:00+08:00`);
-  return new Date(todayStart.getTime() - 86_400_000).toISOString().slice(0, 10);
+  const previousCalendarDate = new Date(
+    Date.UTC(Number(current.year), Number(current.month) - 1, Number(current.day) - 1)
+  );
+  return previousCalendarDate.toISOString().slice(0, 10);
 }
 
 export function rangeForShanghaiDate(date) {

@@ -7,9 +7,10 @@ import { NotionPost } from '@/lib/notion';
 
 interface BlogCardProps {
   post: NotionPost;
+  hrefPrefix?: string;
 }
 
-export default function BlogCard({ post }: BlogCardProps) {
+export default function BlogCard({ post, hrefPrefix = '' }: BlogCardProps) {
   // 第一次渲染（服务端 + 客户端 hydration）统一使用 zh-CN，避免 hydration mismatch
   // mount 后再根据 navigator.language 切换
   const [isEnglish, setIsEnglish] = useState(false);
@@ -51,7 +52,7 @@ export default function BlogCard({ post }: BlogCardProps) {
       <div className="flex items-start sm:items-center justify-between gap-3 mb-3">
         <h3 className="flex-1 m-0">
           <LinkPrefetch
-            href={`/${post.slug}`}
+            href={`${hrefPrefix}/${post.slug}`}
             className={`text-lg font-medium transition-all duration-200 ${post.pinned
                 ? 'text-gray-900 dark:text-gray-100 font-semibold hover:text-red-600 dark:hover:text-red-400 hover:translate-x-1'
                 : post.type === 'announcement'

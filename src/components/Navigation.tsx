@@ -3,15 +3,56 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
+import previewStyles from '@/app/preview/optimized/optimized.module.css';
 
 export default function Navigation() {
   const pathname = usePathname();
+  const isOptimizedPreview = pathname.startsWith('/preview/optimized');
+  const isOriginalPreview = pathname.startsWith('/preview/original');
+
+  if (isOptimizedPreview) {
+    const previewNavigation = [
+      { name: '文章', href: '/preview/optimized/blog', match: '/preview/optimized/blog' },
+      { name: '关于', href: '/preview/optimized/about', match: '/preview/optimized/about' },
+      { name: '订阅', href: '/rss.xml', match: '/rss.xml' },
+      { name: '搜索', href: '/preview/optimized/search', match: '/preview/optimized/search' },
+    ];
+    const isArticle = !['', '/blog', '/about', '/search'].includes(pathname.replace('/preview/optimized', ''));
+
+    return (
+      <nav className={previewStyles.siteNav}>
+        <div className={previewStyles.navInner}>
+          <Link href="/preview/optimized" className={previewStyles.brand}>LingYi</Link>
+          <div className={previewStyles.navUtility}>
+            <div className={previewStyles.navLinks}>
+              {previewNavigation.map((item) => {
+                const active = pathname === item.match || (item.name === '文章' && isArticle);
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={active ? previewStyles.navActive : undefined}
+                    target={item.name === '订阅' ? '_blank' : undefined}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+            <ThemeToggle />
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  const originalPrefix = isOriginalPreview ? '/preview/original' : '';
 
   const navigation = [
-    { name: 'Blog', href: '/' },
-    { name: 'About', href: '/about' },
+    { name: 'Blog', href: originalPrefix || '/' },
+    { name: 'About', href: `${originalPrefix}/about` },
     { name: 'RSS', href: '/rss' },
-    { name: 'Search', href: '/search' },
+    { name: 'Search', href: `${originalPrefix}/search` },
   ];
 
   return (
@@ -20,7 +61,7 @@ export default function Navigation() {
         <div className="flex justify-between items-center py-4">
           {/* Brand/Name - 英文艺术字 */}
           <div className="flex items-center">
-            <Link href="/" className="group relative">
+            <Link href={originalPrefix || '/'} className="group relative">
               <span className="text-xl sm:text-2xl font-light text-gray-900 dark:text-gray-100 transition-all duration-300 group-hover:text-gray-600 dark:group-hover:text-gray-300 tracking-widest italic" style={{fontFamily: '"Georgia", "Times New Roman", serif', fontVariant: 'small-caps'}}>
                 LingYi
               </span>
@@ -49,7 +90,7 @@ export default function Navigation() {
             {/* Mobile menu - simplified */}
             <div className="flex sm:hidden items-center space-x-4">
               {['Blog', 'Search'].map((item) => {
-                const href = item === 'Blog' ? '/' : `/${item.toLowerCase()}`;
+                const href = item === 'Blog' ? (originalPrefix || '/') : `${originalPrefix}/${item.toLowerCase()}`;
                 return (
                   <Link
                     key={item}

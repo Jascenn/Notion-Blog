@@ -8,10 +8,12 @@ import type { NotionPost } from '@/lib/notion';
 
 interface SearchClientProps {
   initialPosts: NotionPost[];
+  routePrefix?: string;
+  homeHref?: string;
 }
 
 
-export default function SearchClient({ initialPosts }: SearchClientProps) {
+export default function SearchClient({ initialPosts, routePrefix = '', homeHref = '/' }: SearchClientProps) {
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -136,6 +138,7 @@ export default function SearchClient({ initialPosts }: SearchClientProps) {
               <BlogCard
                 key={post.id}
                 post={post}
+                hrefPrefix={routePrefix}
               />
             ))}
           </div>
@@ -144,7 +147,7 @@ export default function SearchClient({ initialPosts }: SearchClientProps) {
 
       <div className="border-t border-gray-200 pt-8">
         <Link
-          href="/"
+          href={homeHref}
           className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
         >
           ← 返回首页

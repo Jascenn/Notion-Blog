@@ -40,8 +40,8 @@ function formatDate(date: string, compact = false) {
   }).format(new Date(date));
 }
 
-function articleHref(post: NotionPost) {
-  return `/${post.slug}`;
+function articleHref(post: NotionPost, routePrefix = '') {
+  return `${routePrefix}/${post.slug}`;
 }
 
 function DemoSwitcher({ active }: { active: DemoVariant }) {
@@ -262,7 +262,7 @@ const curatedTopics = [
   { label: '生活随笔', query: '生活' },
 ] as const;
 
-function CuratedVariant({ posts }: { posts: NotionPost[] }) {
+function CuratedVariant({ posts, routePrefix = '' }: { posts: NotionPost[]; routePrefix?: string }) {
   const [cover, second, third, ...remaining] = posts;
   const latest = remaining.slice(0, 9);
 
@@ -289,7 +289,7 @@ function CuratedVariant({ posts }: { posts: NotionPost[] }) {
 
       <nav className={styles.curatedTopics} aria-label="内容分类">
         {curatedTopics.map((topic, index) => (
-          <Link key={topic.label} href={`/search?q=${encodeURIComponent(topic.query)}`}>
+          <Link key={topic.label} href={`${routePrefix}/search?q=${encodeURIComponent(topic.query)}`}>
             <span>0{index + 1}</span>{topic.label}<b>↗</b>
           </Link>
         ))}
@@ -303,7 +303,7 @@ function CuratedVariant({ posts }: { posts: NotionPost[] }) {
 
         {cover && (
           <div className={styles.magazineLead}>
-            <Link href={articleHref(cover)} data-umami-event="demo-article-click" data-umami-event-variant="curated">
+            <Link href={articleHref(cover, routePrefix)} data-umami-event="demo-article-click" data-umami-event-variant="curated">
               <div className={styles.magazineLeadNumber}>01</div>
               <div>
                 <p className={styles.eyebrow}>COVER STORY / 封面文章</p>
@@ -321,7 +321,7 @@ function CuratedVariant({ posts }: { posts: NotionPost[] }) {
             <article key={post.id}>
               <span className={styles.magazineIndex}>0{index + 2}</span>
               <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
-              <h2><Link href={articleHref(post)} data-umami-event="demo-article-click" data-umami-event-variant="curated">{post.title}</Link></h2>
+              <h2><Link href={articleHref(post, routePrefix)} data-umami-event="demo-article-click" data-umami-event-variant="curated">{post.title}</Link></h2>
               <p>{post.excerpt}</p>
               <div>{post.tags?.slice(0, 2).map((tag) => <span key={tag.name}>{tag.name}</span>)}</div>
             </article>
@@ -329,7 +329,7 @@ function CuratedVariant({ posts }: { posts: NotionPost[] }) {
           <aside>
             <p className={styles.eyebrow}>EDITOR&apos;S NOTE</p>
             <blockquote>“先做出一个真实的版本，再从结果里找到下一步。”</blockquote>
-            <Link href="/about">关于凌一 →</Link>
+            <Link href={`${routePrefix}/about`}>关于凌一 →</Link>
           </aside>
         </div>
       </section>
@@ -338,12 +338,12 @@ function CuratedVariant({ posts }: { posts: NotionPost[] }) {
         <section className={`${styles.minimalArchive} ${styles.curatedLatest}`} aria-labelledby="curated-latest-title">
           <div className={styles.curatedSectionHead}>
             <div><span>02</span><h2 id="curated-latest-title">最近文章</h2></div>
-            <Link href="/search">查看全部文章 →</Link>
+            <Link href={`${routePrefix}/blog`}>查看全部文章 →</Link>
           </div>
           <div>
             {latest.map((post) => (
               <article key={post.id}>
-                <Link href={articleHref(post)} data-umami-event="demo-article-click" data-umami-event-variant="curated">
+                <Link href={articleHref(post, routePrefix)} data-umami-event="demo-article-click" data-umami-event-variant="curated">
                   <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
                   <div>
                     <h3>{post.title}</h3>
@@ -364,10 +364,12 @@ export default function HomepageVariant({
   variant,
   posts,
   showDemoSwitcher = true,
+  routePrefix = '',
 }: {
   variant: DemoVariant;
   posts: NotionPost[];
   showDemoSwitcher?: boolean;
+  routePrefix?: string;
 }) {
   const sortedPosts = [...posts]
     .filter((post) => post.type !== 'announcement')
@@ -379,7 +381,7 @@ export default function HomepageVariant({
       {variant === 'minimal' && <MinimalVariant posts={sortedPosts} />}
       {variant === 'workspace' && <WorkspaceVariant posts={sortedPosts} />}
       {variant === 'magazine' && <MagazineVariant posts={sortedPosts} />}
-      {variant === 'curated' && <CuratedVariant posts={sortedPosts} />}
+      {variant === 'curated' && <CuratedVariant posts={sortedPosts} routePrefix={routePrefix} />}
     </div>
   );
 }

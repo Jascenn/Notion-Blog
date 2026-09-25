@@ -5,9 +5,10 @@ interface RelatedPostsProps {
   currentPost: NotionPost;
   allPosts: NotionPost[];
   maxPosts?: number;
+  hrefPrefix?: string;
 }
 
-export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3 }: RelatedPostsProps) {
+export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3, hrefPrefix = '' }: RelatedPostsProps) {
   // 计算文章相关度
   const calculateRelatedness = (post: NotionPost): number => {
     let score = 0;
@@ -77,7 +78,7 @@ export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3 }: Re
       <div className="space-y-6">
         {relatedPosts.map((post) => (
           <article key={post.id} className="group">
-            <Link href={`/${post.slug}`} className="block space-y-2">
+            <Link href={`${hrefPrefix}/${post.slug}`} className="block space-y-2">
               <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
                 {post.title}
               </h4>

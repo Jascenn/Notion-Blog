@@ -552,6 +552,31 @@
   color: var(--blue);
 }
 
+.footerFriends {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.7rem;
+}
+
+.footerFriends span {
+  color: var(--faint);
+  font: 650 0.62rem/1.4 var(--font-mono);
+  letter-spacing: 0.1em;
+}
+
+.footerFriends a {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.footerFriends a:hover {
+  color: var(--blue);
+}
+
 @media (max-width: 760px) {
   .navInner {
     min-height: 3.8rem;
@@ -611,6 +636,10 @@
   }
 
   .footerLinks {
+    flex-wrap: wrap;
+  }
+
+  .footerFriends {
     flex-wrap: wrap;
   }
 }

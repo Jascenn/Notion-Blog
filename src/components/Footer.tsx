@@ -23,6 +23,18 @@ export default function Footer() {
             <Link href="/preview/optimized/search">搜索</Link>
             <a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools ↗</a>
           </nav>
+          <div className={previewStyles.footerFriends}>
+            <span>FRIENDS / 友链</span>
+            <a
+              href="https://dkfile.net"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-umami-event="friend-link-click"
+              data-umami-event-site="dkfile.net"
+            >
+              DKFile ↗
+            </a>
+          </div>
         </div>
       </footer>
     );

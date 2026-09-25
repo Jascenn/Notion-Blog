@@ -97,7 +97,7 @@ export function OptimizedAbout({ about }: { about: NotionPost | null }) {
             <dl>
               <div className={styles.factBlock}>
                 <dt>CURRENT PROJECT</dt>
-                <dd><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools ↗</a></dd>
+                <dd><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools</a></dd>
               </div>
               <div className={styles.factBlock}>
                 <dt>FOCUS</dt>
@@ -105,7 +105,7 @@ export function OptimizedAbout({ about }: { about: NotionPost | null }) {
               </div>
               <div className={styles.factBlock}>
                 <dt>GITHUB</dt>
-                <dd><a href="https://github.com/Jascenn" target="_blank" rel="noopener noreferrer">@Jascenn ↗</a></dd>
+                <dd><a href="https://github.com/Jascenn" target="_blank" rel="noopener noreferrer">@Jascenn</a></dd>
               </div>
               <div className={styles.factBlock}>
                 <dt>CONTACT</dt>

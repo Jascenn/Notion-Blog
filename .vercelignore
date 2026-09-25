@@ -1,0 +1,5 @@
+.playwright-cli/
+output/
+work-*
+node_modules/
+.next/

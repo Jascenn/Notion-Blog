@@ -13,12 +13,17 @@ export default function Analytics() {
 
   const scriptUrl =
     process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL || 'https://cloud.umami.is/script.js';
+  const allowedDomains =
+    process.env.NEXT_PUBLIC_UMAMI_DOMAINS || 'lingyi.bio,www.lingyi.bio';
 
   return (
     <Script
       id="umami-analytics"
       src={scriptUrl}
       data-website-id={websiteId}
+      data-domains={allowedDomains}
+      data-do-not-track="true"
+      data-performance="true"
       strategy="afterInteractive"
     />
   );

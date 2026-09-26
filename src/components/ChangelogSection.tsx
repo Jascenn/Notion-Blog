@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import previewStyles from '@/app/preview/optimized/optimized.module.css';
 
 const changelogData = [
   {
@@ -47,8 +48,64 @@ const changelogData = [
   }
 ];
 
-export default function ChangelogSection() {
+export default function ChangelogSection({ variant = 'default' }: { variant?: 'default' | 'optimized' }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  if (variant === 'optimized') {
+    const latestEntry = changelogData[0];
+
+    return (
+      <section className={previewStyles.changelogSection} aria-labelledby="optimized-changelog-title">
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className={previewStyles.changelogToggle}
+          aria-expanded={isOpen}
+          aria-controls="optimized-changelog-content"
+        >
+          <span className={previewStyles.changelogHeading}>
+            <span className={previewStyles.kicker}>CHANGELOG / 更新日志</span>
+            <span id="optimized-changelog-title" className={previewStyles.changelogTitle}>网站的版本记录</span>
+            <span className={previewStyles.changelogSummary}>
+              最近更新 {latestEntry.date} · {changelogData.length} 个版本
+            </span>
+          </span>
+          <span className={`${previewStyles.changelogAction} ${isOpen ? previewStyles.changelogActionOpen : ''}`}>
+            {isOpen ? '收起' : '展开全部'}
+            <span aria-hidden="true">+</span>
+          </span>
+        </button>
+
+        <div
+          id="optimized-changelog-content"
+          className={`${previewStyles.changelogBody} ${isOpen ? previewStyles.changelogOpen : ''}`}
+          aria-hidden={!isOpen}
+        >
+          <div className={previewStyles.changelogBodyInner}>
+            <div className={previewStyles.changelogList}>
+              {changelogData.map((entry) => (
+                <article key={entry.version} className={previewStyles.changelogEntry}>
+                  <div className={previewStyles.changelogVersion}>
+                    <strong>{entry.version}</strong>
+                    <time dateTime={entry.date}>{entry.date}</time>
+                  </div>
+                  <h3>{entry.title}</h3>
+                  <ul>
+                    {entry.changes.map((change, changeIndex) => (
+                      <li key={changeIndex}>
+                        <span data-change-type={change.type}>{change.type}</span>
+                        <span>{change.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div className="border-t border-gray-200 dark:border-gray-700 pt-12">

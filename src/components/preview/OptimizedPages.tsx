@@ -4,6 +4,7 @@ import ReadingStats from '@/components/ReadingStats';
 import ReadingTime from '@/components/ReadingTime';
 import ShareButtons from '@/components/ShareButtons';
 import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
+import ChangelogSection from '@/components/ChangelogSection';
 import type { NotionPost } from '@/lib/notion';
 import styles from '@/app/preview/optimized/optimized.module.css';
 
@@ -114,6 +115,8 @@ export function OptimizedAbout({ about }: { about: NotionPost | null }) {
             </dl>
           </aside>
         </div>
+
+        <ChangelogSection variant="optimized" />
       </div>
     </div>
   );

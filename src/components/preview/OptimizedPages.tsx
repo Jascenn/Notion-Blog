@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import MarkdownContent from '@/components/MarkdownContent';
 import ReadingStats from '@/components/ReadingStats';
 import ReadingTime from '@/components/ReadingTime';
@@ -68,57 +69,84 @@ export function OptimizedArchive({ posts, locale = 'zh' }: { posts: NotionPost[]
 
 export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | null; locale?: OptimizedLocale }) {
   const en = locale === 'en';
+  const title = !en && about?.title ? about.title : en ? 'LingYi / LingYi_Stu' : '凌一 / LingYi_Stu';
+  const tagline = !en && about?.excerpt ? about.excerpt : 'Keep it simple, stay focused.';
+
   return (
     <div className={styles.siteRoot}>
       <div className={styles.page}>
         <header className={`${styles.pageHeader} ${styles.aboutHeader}`}>
           <div>
             <span className={styles.kicker}>{en ? 'ABOUT / LINGYI' : 'ABOUT / 关于凌一'}</span>
-            <h1>{en ? <>Build concrete things.<br />Leave honest records.</> : <>做具体的事，<br />留下真实的记录。</>}</h1>
+            <h1>{title}</h1>
           </div>
-          <p className={styles.pageIntro}>
-            {en ? 'I am LingYi, a full-stack developer who keeps learning. This site is both a writing space and a public archive of what I build.' : '我是凌一，一名持续学习的全栈开发者。这个网站既是写作空间，也是公开的构建档案。'}
-          </p>
+          <div className={styles.aboutProfile}>
+            <Image className={styles.aboutAvatar} src="/凌一-头像.png" alt={en ? 'LingYi portrait' : '凌一头像'} width={112} height={112} priority />
+            <div>
+              <span>PROFILE / 01</span>
+              <p>{tagline}</p>
+            </div>
+          </div>
         </header>
 
-        <div className={styles.aboutGrid}>
-          <main>
-            <p className={styles.aboutLead}>
-              {en ? 'I care not only about what gets built, but also how an idea is broken down, tested, and gradually turned into something people can use.' : '我关心的不只是“做出了什么”，也关心一个想法如何被拆开、验证，再慢慢变成可以使用的东西。'}
-            </p>
+        <main className={styles.aboutContent}>
+          {!en && about?.content ? (
             <div className={styles.aboutBody}>
-              {!en && about?.content ? (
-                <MarkdownContent content={about.content} />
-              ) : (
-                <>
-                  <p>{en ? 'I write about full-stack development, AI tools, productivity workflows, and moments from work and life that deserve reflection.' : '这里主要记录全栈开发、AI 工具、效率工作流，以及工作和生活里值得复盘的片段。'}</p>
-                  <p>{en ? 'Good code and good writing have something in common: both should be restrained, clear, and able to withstand real use.' : '我相信好的代码和好的文章很像，都需要克制、清楚，也需要经得住真实使用。'}</p>
-                </>
-              )}
+              <MarkdownContent content={about.content} />
             </div>
-          </main>
+          ) : (
+            <div className={styles.aboutOriginal}>
+              <section className={styles.aboutSection}>
+                <h2>{en ? 'INTRODUCTION' : '个人简介'}</h2>
+                <div className={styles.aboutSectionBody}>
+                  <p className={styles.aboutLead}>{en ? 'Full-stack developer focused on creating simple yet powerful digital experiences.' : '全栈开发者，专注于创建简洁而强大的数字体验。'}</p>
+                  <p>{en ? 'I believe good code, like good writing, needs repeated thought and refinement. Here I share technical reflections, project experience, and observations from life.' : '我相信好的代码如同好的文章，需要反复推敲和打磨。在这里，我分享技术思考、项目经验和生活感悟。'}</p>
+                </div>
+              </section>
 
-          <aside className={styles.aboutAside}>
-            <dl>
-              <div className={styles.factBlock}>
-                <dt>CURRENT PROJECT</dt>
-                <dd><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools</a></dd>
-              </div>
-              <div className={styles.factBlock}>
-                <dt>FOCUS</dt>
-                <dd>{en ? <>AI in Practice · Frontend<br />Productivity · Life Notes</> : <>AI 实践 · 前端开发<br />效率工作流 · 生活随笔</>}</dd>
-              </div>
-              <div className={styles.factBlock}>
-                <dt>GITHUB</dt>
-                <dd><a href="https://github.com/Jascenn" target="_blank" rel="noopener noreferrer">@Jascenn</a></dd>
-              </div>
-              <div className={styles.factBlock}>
-                <dt>CONTACT</dt>
-                <dd><a href="mailto:1286324609@qq.com">1286324609@qq.com</a></dd>
-              </div>
-            </dl>
-          </aside>
-        </div>
+              <section className={styles.aboutSection}>
+                <h2>CURRENTLY FOCUSING ON</h2>
+                <ul className={styles.aboutList}>
+                  <li>{en ? 'Building the lingyi.tools online toolkit' : '构建 lingyi.tools 在线工具集'}</li>
+                  <li>{en ? 'Exploring the intersection of AI and frontend development' : '探索 AI 与前端开发的结合'}</li>
+                  <li>{en ? 'Improving user experience and performance' : '优化用户体验与性能'}</li>
+                </ul>
+              </section>
+
+              <section className={styles.aboutSection}>
+                <h2>SELECTED PROJECTS</h2>
+                <div className={styles.aboutProjects}>
+                  <a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer" data-umami-event="project-click" data-umami-event-project="lingyi.tools">
+                    <strong>lingyi.tools</strong><span>↗</span>
+                    <p>{en ? 'A practical online toolkit for everyday tasks, including base conversion and password checks.' : '实用在线工具集合，包含进制转换、密码检测等日常工具'}</p>
+                  </a>
+                  <div><strong>{en ? 'Personal blog system' : '个人博客系统'}</strong><p>{en ? 'A minimal blog built with Next.js, with Markdown support and real-time search.' : '基于 Next.js 构建的极简博客，支持 Markdown 和实时搜索'}</p></div>
+                  <div><strong>{en ? 'Open-source contributions' : '开源贡献'}</strong><p>{en ? 'Active in open-source communities, with ongoing code and documentation contributions.' : '活跃于开源社区，持续贡献代码和文档'}</p></div>
+                </div>
+              </section>
+
+              <section className={styles.aboutSection}>
+                <h2>TECH STACK</h2>
+                <div className={styles.aboutTech}>
+                  {['React', 'Next.js', 'TypeScript', 'Node.js', 'Tailwind CSS', 'Python', 'Git'].map((tech) => <span key={tech}>{tech}</span>)}
+                </div>
+              </section>
+
+              <section className={styles.aboutSection}>
+                <h2>GET IN TOUCH</h2>
+                <div className={styles.aboutContacts}>
+                  <div><span>Email</span><a href="mailto:1286324609@qq.com">1286324609@qq.com</a></div>
+                  <div><span>GitHub</span><a href="https://github.com/Jascenn" target="_blank" rel="noopener noreferrer" data-umami-event="profile-click" data-umami-event-platform="github">@Jascenn</a></div>
+                  <div><span>WeChat</span><strong>Help000000</strong></div>
+                  <div><span>Website</span><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer" data-umami-event="project-click" data-umami-event-project="lingyi.tools">lingyi.tools</a></div>
+                  <a className={styles.aboutStory} href="https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A" target="_blank" rel="noopener noreferrer" data-umami-event="profile-story-click">
+                    {en ? 'Learn more about my story →' : '了解更多关于我的故事 →'}
+                  </a>
+                </div>
+              </section>
+            </div>
+          )}
+        </main>
 
         <ChangelogSection variant="optimized" locale={locale} />
       </div>
@@ -139,13 +167,27 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
         <header className={styles.articleHeader}>
           <span className={styles.kicker}>{en ? 'FIELD NOTE / BUILD LOG' : 'FIELD NOTE / 构建记录'}</span>
           <h1>{post.title}</h1>
-          {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
-          <div className={styles.articleMeta}>
-            <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, locale)}</time>
-            <span>·</span>
-            <ReadingTime content={post.content} locale={locale} />
-            <span>·</span>
-            <span>LINGYI</span>
+          <div className={styles.articleHeaderDetails}>
+            <div>
+              {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
+              <div className={styles.articleMeta}>
+                <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, locale)}</time>
+                <span>·</span>
+                <ReadingTime content={post.content} locale={locale} />
+                <span>·</span>
+                <span>LINGYI</span>
+              </div>
+            </div>
+            <aside className={styles.articleAside}>
+              <div className={styles.articleTags}>
+                {post.tags.length > 0 ? post.tags.map((tag) => (
+                  <Link key={tag.name} href={`${root}/search?tags=${encodeURIComponent(tag.name)}`}>
+                    {tag.name}
+                  </Link>
+                )) : <span>{en ? 'Build log' : '构建记录'}</span>}
+              </div>
+              <p>{en ? "A note from LingYi's public workspace about building, learning, and turning ideas into working things." : '这是一篇来自凌一公开工作台的记录，关于构建、学习，以及把想法真正做出来的过程。'}</p>
+            </aside>
           </div>
         </header>
 
@@ -171,16 +213,6 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
             </div>
           </div>
 
-          <aside className={styles.articleAside}>
-            <div className={styles.articleTags}>
-              {post.tags.length > 0 ? post.tags.map((tag) => (
-                <Link key={tag.name} href={`${root}/search?tags=${encodeURIComponent(tag.name)}`}>
-                  {tag.name}
-                </Link>
-              )) : <span>{en ? 'Build log' : '构建记录'}</span>}
-            </div>
-            <p>{en ? "A note from LingYi's public workspace about building, learning, and turning ideas into working things." : '这是一篇来自凌一公开工作台的记录，关于构建、学习，以及把想法真正做出来的过程。'}</p>
-          </aside>
         </div>
 
         {related.length > 0 && (

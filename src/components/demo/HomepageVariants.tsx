@@ -38,6 +38,7 @@ function formatDate(date: string, compact = false, locale: OptimizedLocale = 'zh
     ...(compact ? {} : { year: 'numeric' }),
     month: '2-digit',
     day: '2-digit',
+    timeZone: 'Asia/Shanghai',
   }).format(new Date(date));
 }
 

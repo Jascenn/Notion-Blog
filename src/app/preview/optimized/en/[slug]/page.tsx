@@ -6,10 +6,17 @@ import { OptimizedArticle } from '@/components/preview/OptimizedPages';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: 'Article · Optimized Preview',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
+  const localizedPost = post ? localizeOptimizedPost(post, 'en') : null;
+
+  return {
+    title: localizedPost ? `${localizedPost.title} · Optimized Preview` : 'Article · Optimized Preview',
+    description: localizedPost?.excerpt,
+    robots: { index: false, follow: false },
+  };
+}
 
 export async function generateStaticParams() {
   try {

@@ -13,6 +13,7 @@ interface ExportPDFAdvancedProps {
   filename?: string;
   contentId?: string;
   locale?: 'zh' | 'en';
+  variant?: 'default' | 'editorial';
 }
 
 export default function ExportPDFAdvanced({
@@ -22,7 +23,8 @@ export default function ExportPDFAdvanced({
   tags = [],
   filename = 'document',
   contentId = 'article-content',
-  locale = 'zh'
+  locale = 'zh',
+  variant = 'default'
 }: ExportPDFAdvancedProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
@@ -266,7 +268,9 @@ export default function ExportPDFAdvanced({
       <button
         onClick={exportToPDF}
         disabled={isExporting}
-        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className={variant === 'editorial'
+          ? 'inline-flex items-center border border-gray-300 bg-transparent px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-blue-600 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:border-blue-400 dark:hover:text-blue-400'
+          : 'inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'}
       >
         {isExporting ? (
           <>

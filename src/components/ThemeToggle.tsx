@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ locale = 'zh' }: { locale?: 'zh' | 'en' }) {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -37,7 +37,9 @@ export default function ThemeToggle() {
     <button
       onClick={toggleTheme}
       className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 group"
-      aria-label={isDark ? '切换到浅色模式' : '切换到深色模式'}
+      aria-label={isDark
+        ? (locale === 'en' ? 'Switch to light mode' : '切换到浅色模式')
+        : (locale === 'en' ? 'Switch to dark mode' : '切换到深色模式')}
     >
       {isDark ? (
         <svg

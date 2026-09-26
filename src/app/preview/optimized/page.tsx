@@ -1,10 +1,11 @@
 import HomepageVariant from '@/components/demo/HomepageVariants';
 import { getPostsOnly } from '@/lib/notion';
+import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
 
 export const revalidate = 60;
 
 export default async function OptimizedPreviewPage() {
-  const posts = await getPostsOnly();
+  const posts = localizeOptimizedPosts(await getPostsOnly(), 'zh');
   return (
     <HomepageVariant
       variant="curated"

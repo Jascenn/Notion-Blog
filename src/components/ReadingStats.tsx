@@ -5,9 +5,10 @@ import { useEffect, useState } from 'react';
 interface ReadingStatsProps {
   slug: string;
   locale?: 'zh' | 'en';
+  variant?: 'default' | 'editorial';
 }
 
-export default function ReadingStats({ slug, locale = 'zh' }: ReadingStatsProps) {
+export default function ReadingStats({ slug, locale = 'zh', variant = 'default' }: ReadingStatsProps) {
   const [viewCount, setViewCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,7 +47,7 @@ export default function ReadingStats({ slug, locale = 'zh' }: ReadingStatsProps)
 
   if (isLoading) {
     return (
-      <div className="inline-flex items-center text-sm text-gray-500 dark:text-gray-400">
+      <div className={`inline-flex items-center text-sm text-gray-500 dark:text-gray-400 ${variant === 'editorial' ? 'font-mono tracking-wide' : ''}`}>
         <svg
           className="w-4 h-4 mr-1 animate-pulse"
           fill="none"
@@ -72,7 +73,7 @@ export default function ReadingStats({ slug, locale = 'zh' }: ReadingStatsProps)
   }
 
   return (
-    <div className="inline-flex items-center text-sm text-gray-500 dark:text-gray-400">
+    <div className={`inline-flex items-center text-sm text-gray-500 dark:text-gray-400 ${variant === 'editorial' ? 'font-mono tracking-wide' : ''}`}>
       <svg
         className="w-4 h-4 mr-1"
         fill="none"

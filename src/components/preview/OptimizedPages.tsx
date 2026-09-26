@@ -15,6 +15,7 @@ function formatDate(date: string, locale: OptimizedLocale = 'zh') {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
+    timeZone: 'Asia/Shanghai',
   }).format(new Date(date));
 }
 
@@ -153,9 +154,9 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
             <MarkdownContent content={post.content} />
 
             <div className={styles.articleActions}>
-              <ReadingStats slug={post.slug} locale={locale} />
+              <ReadingStats slug={post.slug} locale={locale} variant="editorial" />
               <div className="flex flex-wrap items-center gap-3">
-                <ShareButtons title={post.title} url={postUrl} description={post.excerpt} locale={locale} />
+                <ShareButtons title={post.title} url={postUrl} description={post.excerpt} locale={locale} variant="editorial" />
                 <ExportPDFAdvanced
                   title={post.title}
                   author="LingYi"
@@ -164,6 +165,7 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
                   filename={post.slug}
                   contentId="article-content"
                   locale={locale}
+                  variant="editorial"
                 />
               </div>
             </div>

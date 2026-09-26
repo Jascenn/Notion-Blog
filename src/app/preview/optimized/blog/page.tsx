@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getPostsOnly } from '@/lib/notion';
 import { OptimizedArchive } from '@/components/preview/OptimizedPages';
+import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
 
 export const revalidate = 60;
 
@@ -10,6 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default async function OptimizedBlogPage() {
-  const posts = await getPostsOnly();
+  const posts = localizeOptimizedPosts(await getPostsOnly(), 'zh');
   return <OptimizedArchive posts={posts} />;
 }

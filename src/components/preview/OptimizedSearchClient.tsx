@@ -13,6 +13,7 @@ function formatDate(date: string, locale: OptimizedLocale) {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
+    timeZone: 'Asia/Shanghai',
   }).format(new Date(date));
 }
 
@@ -66,7 +67,7 @@ export default function OptimizedSearchClient({ posts, locale = 'zh' }: { posts:
         <header className={styles.pageHeader}>
           <div>
             <span className={styles.kicker}>{en ? 'SEARCH' : 'SEARCH / 搜索'}</span>
-            <h1>{en ? <>Find the note<br />you are looking for.</> : <>从所有记录里，<br />找到那一篇。</>}</h1>
+            <h1>{en ? <>Find the note{' '}<br />you are looking for.</> : <>从所有记录里，<br />找到那一篇。</>}</h1>
           </div>
           <p className={styles.pageIntro}>{en ? 'Search by topic, title, or keyword. You can also combine tags to narrow the results.' : '输入主题、标题或关键词，也可以直接组合标签筛选。'}</p>
         </header>

@@ -7,9 +7,10 @@ interface ShareButtonsProps {
   url: string;
   description?: string;
   locale?: 'zh' | 'en';
+  variant?: 'default' | 'editorial';
 }
 
-export default function ShareButtons({ title, url, description, locale = 'zh' }: ShareButtonsProps) {
+export default function ShareButtons({ title, url, description, locale = 'zh', variant = 'default' }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
@@ -98,7 +99,9 @@ export default function ShareButtons({ title, url, description, locale = 'zh' }:
       {/* 分享按钮 */}
       <button
         onClick={() => setShowMenu(!showMenu)}
-        className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        className={variant === 'editorial'
+          ? 'inline-flex items-center border border-gray-300 bg-transparent px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-blue-600 hover:text-blue-600 dark:border-gray-600 dark:text-gray-300 dark:hover:border-blue-400 dark:hover:text-blue-400'
+          : 'inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors'}
         aria-label={locale === 'en' ? 'Share article' : '分享文章'}
       >
         <svg
@@ -132,7 +135,7 @@ export default function ShareButtons({ title, url, description, locale = 'zh' }:
               fixed md:absolute
               left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
               md:left-auto md:top-auto md:right-0 md:translate-x-0 md:translate-y-0 md:mt-2
-              w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl
+              w-48 bg-white dark:bg-gray-800 shadow-xl
               border border-gray-200 dark:border-gray-700
               z-[101] py-1
               max-h-[80vh] md:max-h-96 overflow-y-auto

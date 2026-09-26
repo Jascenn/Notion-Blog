@@ -16,6 +16,10 @@ const tagNames: Record<string, string> = {
   '🚀 开始': '🚀 Start',
 };
 
+const publishedAtCorrections: Record<string, string> = {
+  '20251018-essay-post': '2025-10-18',
+};
+
 interface EnglishPost {
   title: string;
   excerpt: string;
@@ -298,21 +302,25 @@ function translateTag(tag: NotionTag): NotionTag {
 }
 
 export function localizeOptimizedPost(post: NotionPost, locale: OptimizedLocale): NotionPost {
-  if (locale === 'zh') return post;
+  const normalizedPost = publishedAtCorrections[post.slug]
+    ? { ...post, publishedAt: publishedAtCorrections[post.slug] }
+    : post;
 
-  const translation = englishPosts[post.slug];
+  if (locale === 'zh') return normalizedPost;
+
+  const translation = englishPosts[normalizedPost.slug];
   if (!translation) {
     return {
-      ...post,
-      content: `> An English translation has not been published for this article yet. The original Chinese text follows.\n\n${post.content}`,
-      tags: post.tags.map(translateTag),
+      ...normalizedPost,
+      content: `> An English translation has not been published for this article yet. The original Chinese text follows.\n\n${normalizedPost.content}`,
+      tags: normalizedPost.tags.map(translateTag),
     };
   }
 
   return {
-    ...post,
+    ...normalizedPost,
     ...translation,
-    tags: post.tags.map(translateTag),
+    tags: normalizedPost.tags.map(translateTag),
   };
 }
 

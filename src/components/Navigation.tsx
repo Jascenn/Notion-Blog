@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
 import OptimizedLanguageSwitcher from './preview/OptimizedLanguageSwitcher';
@@ -42,8 +43,10 @@ export default function Navigation() {
                 );
               })}
             </div>
-            <OptimizedLanguageSwitcher />
-            <ThemeToggle />
+            <Suspense fallback={<span className={previewStyles.languageSwitcher}>中 / EN</span>}>
+              <OptimizedLanguageSwitcher />
+            </Suspense>
+            <ThemeToggle locale={isEnglish ? 'en' : 'zh'} />
           </div>
         </div>
       </nav>

@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { getPostsOnly } from '@/lib/notion';
 import OptimizedSearchClient from '@/components/preview/OptimizedSearchClient';
+import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
 
 export const revalidate = 60;
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function OptimizedSearchPage() {
-  const posts = (await getPostsOnly())
+  const posts = localizeOptimizedPosts(await getPostsOnly(), 'zh')
     .filter((post) => post.type !== 'announcement')
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 

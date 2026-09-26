@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { getAboutPage } from '@/lib/notion';
 import { OptimizedAbout } from '@/components/preview/OptimizedPages';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: '关于 · 优化版预览',

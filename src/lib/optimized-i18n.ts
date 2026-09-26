@@ -26,7 +26,7 @@ interface EnglishPost {
   content: string;
 }
 
-const englishPosts: Record<string, EnglishPost> = {
+export const englishPosts: Record<string, EnglishPost> = {
   '20251018-essay-post': {
     title: 'October 18, 2025 — Notes',
     excerpt: 'A few lessons and small tips from sharing community-operation content.',
@@ -307,6 +307,16 @@ export function localizeOptimizedPost(post: NotionPost, locale: OptimizedLocale)
     : post;
 
   if (locale === 'zh') return normalizedPost;
+
+  // English records stored in Notion are already the source of truth. Only
+  // translate their tag labels for presentation; do not overwrite the body
+  // with the legacy migration seed below.
+  if (normalizedPost.language === 'en') {
+    return {
+      ...normalizedPost,
+      tags: normalizedPost.tags.map(translateTag),
+    };
+  }
 
   const translation = englishPosts[normalizedPost.slug];
   if (!translation) {

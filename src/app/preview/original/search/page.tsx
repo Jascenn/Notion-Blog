@@ -3,7 +3,8 @@ import type { Metadata } from 'next';
 import { getPostsOnly } from '@/lib/notion';
 import SearchClient from '@/app/search/SearchClient';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: '搜索 · 原版预览',

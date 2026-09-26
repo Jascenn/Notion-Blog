@@ -4,7 +4,8 @@ import { getPostsOnly } from '@/lib/notion';
 import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
 import OptimizedSearchClient from '@/components/preview/OptimizedSearchClient';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: 'Search · Optimized Preview',
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function OptimizedEnglishSearchPage() {
-  const posts = localizeOptimizedPosts(await getPostsOnly(), 'en')
+  const posts = localizeOptimizedPosts(await getPostsOnly('en', true), 'en')
     .filter((post) => post.type !== 'announcement')
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 

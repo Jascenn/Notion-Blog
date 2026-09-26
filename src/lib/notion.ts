@@ -8,6 +8,8 @@ export interface NotionTag {
   color: string;
 }
 
+export type NotionLocale = 'zh' | 'en';
+
 export interface NotionPost {
   id: string;
   title: string;
@@ -21,6 +23,7 @@ export interface NotionPost {
   cover?: string | null;
   pinned?: boolean;
   type?: 'post' | 'page' | 'announcement';
+  language?: NotionLocale;
 }
 
 // Notion API 响应类型
@@ -78,6 +81,7 @@ interface NotionProperties {
   Status?: { select?: NotionSelect };
   Type?: { select?: NotionSelect };
   Pinned?: NotionCheckbox;
+  Language?: { select?: NotionSelect };
 }
 
 interface NotionPage {
@@ -179,7 +183,7 @@ interface FetchOptions {
 const getHeaders = () => ({
   'Authorization': `Bearer ${process.env.NOTION_TOKEN || process.env.NOTION_SECRET}`,
   'Content-Type': 'application/json',
-  'Notion-Version': '2022-06-28',
+  'Notion-Version': '2026-03-11',
 });
 
 // Fetch 选项，合理的缓存策略
@@ -204,7 +208,7 @@ function ensureNotionMarkdown(): NotionToMarkdown | null {
   }
 
   try {
-    notionClient = new Client({ auth: notionToken });
+    notionClient = new Client({ auth: notionToken, notionVersion: '2026-03-11' });
     notionMarkdown = new NotionToMarkdown({ notionClient });
 
     // Notion 附件 URL 有签名时效，统一改走 /api/notion-image 代理（可凭 block id 自愈刷新）
@@ -308,10 +312,87 @@ async function fetchWithTimeout(url: string, options: FetchOptions, timeout = 60
   throw lastError || new Error('Unknown fetch error');
 }
 
+let dataSourceIdPromise: Promise<string> | null = null;
+
+async function getNotionDataSourceId(): Promise<string> {
+  if (process.env.NOTION_DATA_SOURCE_ID) return process.env.NOTION_DATA_SOURCE_ID;
+  if (dataSourceIdPromise) return dataSourceIdPromise;
+
+  dataSourceIdPromise = (async () => {
+    const databaseId = process.env.NOTION_DATABASE_ID;
+    if (!databaseId) throw new Error('NOTION_DATABASE_ID is missing');
+
+    const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${databaseId}`, {
+      method: 'GET',
+      headers: getHeaders(),
+      cache: 'no-store',
+    }, 15000);
+
+    if (!response.ok) {
+      throw new Error(`Notion database discovery failed: ${response.status}`);
+    }
+
+    const database = await response.json() as { data_sources?: Array<{ id: string }> };
+    const dataSourceId = database.data_sources?.[0]?.id;
+    if (!dataSourceId) throw new Error('No Notion data source found for the configured database');
+    return dataSourceId;
+  })();
+
+  try {
+    return await dataSourceIdPromise;
+  } catch (error) {
+    // A transient discovery failure must not poison the server process forever.
+    dataSourceIdPromise = null;
+    throw error;
+  }
+}
+
+async function queryNotionDataSource(body: Record<string, unknown>, timeout = 15000): Promise<Response> {
+  const dataSourceId = await getNotionDataSourceId();
+  return fetchWithTimeout(`https://api.notion.com/v1/data_sources/${dataSourceId}/query`, {
+    method: 'POST',
+    headers: getHeaders(),
+    ...getFetchOptions(),
+    body: JSON.stringify(body),
+  }, timeout);
+}
+
+const languageName: Record<NotionLocale, string> = {
+  zh: '🇨🇳 Zh-CN',
+  en: '🇺🇸 En-US',
+};
+
+function languageFilter(locale: NotionLocale) {
+  if (locale === 'en') {
+    return { property: 'Language', select: { equals: languageName.en } };
+  }
+
+  // Existing Chinese records include a few legacy rows without Language.
+  return {
+    or: [
+      { property: 'Language', select: { equals: languageName.zh } },
+      { property: 'Language', select: { is_empty: true } },
+    ],
+  };
+}
+
+function publishedFilter() {
+  return {
+    or: [
+      { property: 'Status', select: { equals: '✅ Published' } },
+      { property: 'Published', checkbox: { equals: true } },
+    ],
+  };
+}
+
+function parseLanguage(page: NotionPage): NotionLocale {
+  return page.properties.Language?.select?.name === languageName.en ? 'en' : 'zh';
+}
+
 // Mock posts removed - using real Notion data only
 
 // 获取所有已发布的文章
-export async function getPosts(): Promise<NotionPost[]> {
+export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost[]> {
   // 调试日志已移除
 
   // 如果在生产环境但缺少环境变量，这是一个错误
@@ -326,31 +407,17 @@ export async function getPosts(): Promise<NotionPost[]> {
 
   try {
 
-    const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
-      method: 'POST',
-      headers: getHeaders(),
-      ...getFetchOptions(),
-      body: JSON.stringify({
+    const response = await queryNotionDataSource({
         filter: {
           and: [
-            // 主要条件：Status 必须是 Published（注意：Notion中可能包含emoji）
-            {
-              property: 'Status',
-              select: { equals: '✅ Published' },
-            },
-            // 兼容条件：如果 Status 是 Published，Published 复选框也应该为 true（可选）
-            // 注释掉下面的条件，让 Status 字段成为唯一判断标准
-            // {
-            //   property: 'Published',
-            //   checkbox: { equals: true },
-            // },
+            ...(!includeUnpublished ? [publishedFilter()] : []),
+            languageFilter(locale),
           ],
         },
         sorts: [
           { property: 'Published Date', direction: 'descending' },
         ],
-      }),
-    }, 20000); // 增加超时到20秒
+      }, 20000);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -383,7 +450,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               color: tag.color
             })) || [],
             published:
-              (page.properties.Status?.select?.name === 'Published') ||
+              (page.properties.Status?.select?.name === '✅ Published') ||
               (page.properties.Published?.checkbox || false),
             cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             pinned: page.properties.Pinned?.checkbox || false,
@@ -392,6 +459,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post' | 'announcement' | 'page';
               return 'post';
             })(),
+            language: parseLanguage(page),
           };
         } catch (error) {
           logger.error(`Error fetching content for page ${page.id}`, error);
@@ -414,7 +482,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               color: tag.color
             })) || [],
             published:
-              (page.properties.Status?.select?.name === 'Published') ||
+              (page.properties.Status?.select?.name === '✅ Published') ||
               (page.properties.Published?.checkbox || false),
             cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             pinned: page.properties.Pinned?.checkbox || false,
@@ -423,6 +491,7 @@ export async function getPosts(): Promise<NotionPost[]> {
               if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post' | 'announcement' | 'page';
               return 'post';
             })(),
+            language: parseLanguage(page),
           };
         }
       })
@@ -438,27 +507,18 @@ export async function getPosts(): Promise<NotionPost[]> {
 }
 
 // 根据 slug 获取单篇文章
-export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
+export async function getPostBySlug(slug: string, locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost | null> {
   try {
 
-    const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
-      method: 'POST',
-      headers: getHeaders(),
-      ...getFetchOptions(),
-      body: JSON.stringify({
+    const response = await queryNotionDataSource({
         filter: {
           and: [
-            {
-              or: [
-                { property: 'Status', select: { equals: '✅ Published' } },
-                { property: 'Published', checkbox: { equals: true } },
-              ],
-            },
+            ...(!includeUnpublished ? [publishedFilter()] : []),
+            languageFilter(locale),
             { property: 'Slug', rich_text: { equals: slug } },
           ],
         },
-      }),
-    }, 15000);
+      }, 15000);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -492,9 +552,10 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
         updatedAt: page.last_edited_time,
         tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
         published:
-          (page.properties.Status?.select?.name === 'Published') ||
+          (page.properties.Status?.select?.name === '✅ Published') ||
           (page.properties.Published?.checkbox || false),
         cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
+        language: parseLanguage(page),
       };
     } catch (contentError) {
       logger.error(`Error fetching content for page ${page.id}`, contentError);
@@ -513,9 +574,10 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
         updatedAt: page.last_edited_time,
         tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
         published:
-          (page.properties.Status?.select?.name === 'Published') ||
+          (page.properties.Status?.select?.name === '✅ Published') ||
           (page.properties.Published?.checkbox || false),
         cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
+        language: parseLanguage(page),
       };
     }
   } catch (error) {
@@ -1497,11 +1559,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
 export async function getAboutPage(): Promise<NotionPost | null> {
   try {
 
-    const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
-      method: 'POST',
-      headers: getHeaders(),
-      ...getFetchOptions(),
-      body: JSON.stringify({
+    const response = await queryNotionDataSource({
         filter: {
           and: [
             {
@@ -1522,10 +1580,10 @@ export async function getAboutPage(): Promise<NotionPost | null> {
                 equals: 'about',
               },
             },
+            languageFilter('zh'),
           ],
         },
-      }),
-    }, 15000);
+      }, 15000);
 
     if (!response.ok) {
       logger.error(`Notion API Error for About page: ${response.status}`);
@@ -1569,11 +1627,7 @@ export async function getAboutPage(): Promise<NotionPost | null> {
 // 获取公告信息
 export async function getAnnouncements(): Promise<NotionPost[]> {
   try {
-    const response = await fetchWithTimeout(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
-      method: 'POST',
-      headers: getHeaders(),
-      ...getFetchOptions(),
-      body: JSON.stringify({
+    const response = await queryNotionDataSource({
         filter: {
           and: [
             {
@@ -1584,6 +1638,7 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
             },
             // 精确匹配数据库选项名称（含 emoji）
             { property: 'Type', select: { equals: '📣 Announcement' } },
+            languageFilter('zh'),
           ],
         },
         sorts: [
@@ -1592,8 +1647,7 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
             direction: 'descending',
           },
         ],
-      }),
-    }, 15000);
+      }, 15000);
 
     if (!response.ok) {
       logger.error(`Notion API Error for Announcements: ${response.status}`);
@@ -1662,8 +1716,8 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
 }
 
 // 获取文章（过滤掉页面，包含公告）
-export async function getPostsOnly(): Promise<NotionPost[]> {
-  const allPosts = await getPosts();
+export async function getPostsOnly(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost[]> {
+  const allPosts = await getPosts(locale, includeUnpublished);
   // 包含 post 和 announcement 类型，过滤掉 page 类型
   return allPosts.filter(post => post.type !== 'page');
 }

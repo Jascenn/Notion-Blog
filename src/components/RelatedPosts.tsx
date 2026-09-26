@@ -6,9 +6,10 @@ interface RelatedPostsProps {
   allPosts: NotionPost[];
   maxPosts?: number;
   hrefPrefix?: string;
+  locale?: 'zh' | 'en';
 }
 
-export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3, hrefPrefix = '' }: RelatedPostsProps) {
+export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3, hrefPrefix = '', locale = 'zh' }: RelatedPostsProps) {
   // 计算文章相关度
   const calculateRelatedness = (post: NotionPost): number => {
     let score = 0;
@@ -63,7 +64,7 @@ export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3, href
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('zh-CN', {
+    return date.toLocaleDateString(locale === 'en' ? 'en-US' : 'zh-CN', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit'
@@ -73,7 +74,7 @@ export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3, href
   return (
     <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700">
       <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
-        相关文章
+        {locale === 'en' ? 'Related articles' : '相关文章'}
       </h3>
       <div className="space-y-6">
         {relatedPosts.map((post) => (

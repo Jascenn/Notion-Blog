@@ -131,7 +131,7 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
   const en = locale === 'en';
   const root = optimizedRoots[locale];
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
-  const postUrl = `${siteUrl}/${post.slug}`;
+  const postUrl = `${siteUrl}${en ? '/en' : ''}/${post.slug}`;
 
   return (
     <div className={styles.siteRoot}>
@@ -150,7 +150,7 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
         </header>
 
         <div className={styles.articleLayout}>
-          <div className={styles.articleBody} id="article-content">
+          <div className={styles.articleBodyOriginal} id="article-content">
             <MarkdownContent content={post.content} />
 
             <div className={styles.articleActions}>

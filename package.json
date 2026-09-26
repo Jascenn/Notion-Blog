@@ -11,10 +11,11 @@
     "analytics:export": "node scripts/export-analytics.mjs",
     "analytics:sync": "node scripts/sync-analytics.mjs",
     "analytics:sync:dry-run": "node scripts/sync-analytics.mjs --dry-run",
+    "notion:sync-english": "tsx scripts/sync-notion-english.ts",
     "test:analytics": "node --test src/lib/analytics-sync.test.mjs"
   },
   "dependencies": {
-    "@notionhq/client": "^5.1.0",
+    "@notionhq/client": "^5.26.0",
     "@sentry/nextjs": "^10.50.0",
     "@vercel/kv": "^3.0.0",
     "dotenv": "^17.2.2",
@@ -44,6 +45,16 @@
     "eslint-config-next": "15.5.4",
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "@sentry/cli": true,
+    "@tailwindcss/oxide": true,
+    "core-js": true,
+    "esbuild": true,
+    "fsevents": true,
+    "sharp": true,
+    "unrs-resolver": true
   }
 }

@@ -582,6 +582,11 @@
   min-width: 0;
 }
 
+.articleBodyOriginal {
+  min-width: 0;
+  max-width: 42rem;
+}
+
 .articleBody :global(.prose) {
   color: var(--ink);
   font-size: 1rem;
@@ -626,6 +631,7 @@
 }
 
 .articleActions {
+  margin-top: 3rem;
   padding: 1.5rem 0;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);

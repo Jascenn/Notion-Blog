@@ -4,7 +4,8 @@ import { getPostsOnly } from '@/lib/notion';
 import OptimizedSearchClient from '@/components/preview/OptimizedSearchClient';
 import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: '搜索 · 优化版预览',

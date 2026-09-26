@@ -71,7 +71,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
   return (
     <div className={styles.siteRoot}>
       <div className={styles.page}>
-        <header className={styles.pageHeader}>
+        <header className={`${styles.pageHeader} ${styles.aboutHeader}`}>
           <div>
             <span className={styles.kicker}>{en ? 'ABOUT / LINGYI' : 'ABOUT / 关于凌一'}</span>
             <h1>{en ? <>Build concrete things.<br />Leave honest records.</> : <>做具体的事，<br />留下真实的记录。</>}</h1>

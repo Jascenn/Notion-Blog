@@ -238,7 +238,13 @@
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
   gap: clamp(2.5rem, 8vw, 8rem);
-  padding-top: clamp(3rem, 7vw, 6rem);
+  padding-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.aboutHeader {
+  padding-bottom: clamp(2rem, 4vw, 3.5rem);
+  border-bottom-width: 1px;
+  border-bottom-color: var(--line-strong);
 }
 
 .aboutLead {
@@ -266,12 +272,17 @@
 
 .aboutAside {
   align-self: start;
-  border-top: 2px solid var(--ink);
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--blue);
 }
 
 .factBlock {
-  padding: 1.25rem 0;
+  padding: 1.05rem 0;
   border-bottom: 1px solid var(--line);
+}
+
+.factBlock:first-child {
+  padding-top: 0.15rem;
 }
 
 .factBlock dt {
@@ -292,8 +303,8 @@
 }
 
 .changelogSection {
-  margin-top: clamp(4.5rem, 10vw, 9rem);
-  border-top: 2px solid var(--ink);
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+  border-top: 1px solid var(--line-strong);
   border-bottom: 1px solid var(--line-strong);
 }
 
@@ -543,8 +554,7 @@
 
 .articleHeader {
   max-width: 61rem;
-  padding-bottom: clamp(2.5rem, 6vw, 5rem);
-  border-bottom: 2px solid var(--ink);
+  padding-bottom: clamp(2rem, 4vw, 3.25rem);
 }
 
 .articleHeader h1 {
@@ -575,7 +585,8 @@
   grid-template-columns: minmax(0, 46rem) minmax(11rem, 1fr);
   gap: clamp(2.5rem, 7vw, 7rem);
   align-items: start;
-  padding-top: clamp(2.5rem, 6vw, 5rem);
+  padding-top: clamp(2rem, 4vw, 3.25rem);
+  border-top: 1px solid var(--line-strong);
 }
 
 .articleBody {
@@ -610,21 +621,21 @@
 .articleAside {
   position: sticky;
   top: 9rem;
-  border-top: 2px solid var(--ink);
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--blue);
 }
 
 .articleTags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  padding: 1.25rem 0;
+  padding: 0 0 1rem;
   border-bottom: 1px solid var(--line);
 }
 
 .articleAside p {
   margin: 0;
-  padding: 1.25rem 0;
-  border-bottom: 1px solid var(--line);
+  padding: 1rem 0 0;
   color: var(--muted);
   font-size: 0.75rem;
   line-height: 1.7;

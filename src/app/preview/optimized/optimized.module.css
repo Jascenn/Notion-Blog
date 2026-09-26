@@ -728,14 +728,8 @@
 .articleBodyOriginal {
   width: 100%;
   min-width: 0;
-  max-width: 44rem;
+  max-width: 50rem;
   margin: 0 auto;
-}
-
-.articleBodyOriginal :global(.prose > .my-6) {
-  width: min(58rem, calc(100vw - 2rem));
-  margin-left: 50%;
-  transform: translateX(-50%);
 }
 
 .articleBody :global(.prose) {

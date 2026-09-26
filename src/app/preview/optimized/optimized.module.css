@@ -696,11 +696,16 @@
 }
 
 .articleHeaderDetails {
-  display: grid;
-  grid-template-columns: minmax(0, 46rem) minmax(14rem, 1fr);
-  gap: clamp(2.5rem, 7vw, 7rem);
-  align-items: end;
   margin-top: 1.5rem;
+}
+
+.articleInfoBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: 1.4rem;
 }
 
 .articleMeta {
@@ -708,7 +713,6 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.7rem;
-  margin-top: 1.5rem;
   color: var(--faint);
   font-size: 0.68rem;
 }
@@ -722,8 +726,16 @@
 }
 
 .articleBodyOriginal {
+  width: 100%;
   min-width: 0;
-  max-width: 42rem;
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.articleBodyOriginal :global(.prose > .my-6) {
+  width: min(58rem, calc(100vw - 2rem));
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
 
 .articleBody :global(.prose) {
@@ -746,28 +758,31 @@
   border-color: var(--line);
 }
 
-.articleAside {
-  width: 100%;
-  max-width: 19rem;
-  justify-self: end;
-  padding-left: 1.1rem;
-  border-left: 2px solid var(--blue);
+.articleTopics {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: var(--faint);
+  font: 650 0.62rem/1.4 var(--font-mono);
+  letter-spacing: 0.1em;
 }
 
 .articleTags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  padding: 0 0 1rem;
-  border-bottom: 1px solid var(--line);
+  padding: 0;
 }
 
-.articleAside p {
-  margin: 0;
-  padding: 1rem 0 0;
-  color: var(--muted);
-  font-size: 0.75rem;
-  line-height: 1.7;
+.articleTags a {
+  background: var(--surface);
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.articleTags a:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-soft);
 }
 
 .articleActions {
@@ -922,7 +937,6 @@
   }
 
   .pageHeader,
-  .articleHeaderDetails,
   .aboutSection {
     grid-template-columns: 1fr;
   }
@@ -957,9 +971,9 @@
     justify-content: flex-start;
   }
 
-  .articleAside {
-    max-width: none;
-    justify-self: start;
+  .articleInfoBar {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .relatedGrid {

@@ -168,8 +168,8 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
           <span className={styles.kicker}>{en ? 'FIELD NOTE / BUILD LOG' : 'FIELD NOTE / 构建记录'}</span>
           <h1>{post.title}</h1>
           <div className={styles.articleHeaderDetails}>
-            <div>
-              {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
+            {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
+            <div className={styles.articleInfoBar}>
               <div className={styles.articleMeta}>
                 <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, locale)}</time>
                 <span>·</span>
@@ -177,17 +177,17 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
                 <span>·</span>
                 <span>LINGYI</span>
               </div>
-            </div>
-            <aside className={styles.articleAside}>
-              <div className={styles.articleTags}>
-                {post.tags.length > 0 ? post.tags.map((tag) => (
-                  <Link key={tag.name} href={`${root}/search?tags=${encodeURIComponent(tag.name)}`}>
-                    {tag.name}
-                  </Link>
-                )) : <span>{en ? 'Build log' : '构建记录'}</span>}
+              <div className={styles.articleTopics}>
+                <span>{en ? 'TOPICS' : '主题'}</span>
+                <div className={styles.articleTags}>
+                  {post.tags.length > 0 ? post.tags.map((tag) => (
+                    <Link key={tag.name} href={`${root}/search?tags=${encodeURIComponent(tag.name)}`}>
+                      {tag.name}
+                    </Link>
+                  )) : <span>{en ? 'Build log' : '构建记录'}</span>}
+                </div>
               </div>
-              <p>{en ? "A note from LingYi's public workspace about building, learning, and turning ideas into working things." : '这是一篇来自凌一公开工作台的记录，关于构建、学习，以及把想法真正做出来的过程。'}</p>
-            </aside>
+            </div>
           </div>
         </header>
 

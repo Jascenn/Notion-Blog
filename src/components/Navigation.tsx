@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
+import OptimizedLanguageSwitcher from './preview/OptimizedLanguageSwitcher';
 import previewStyles from '@/app/preview/optimized/optimized.module.css';
 
 export default function Navigation() {
@@ -11,34 +12,37 @@ export default function Navigation() {
   const isOriginalPreview = pathname.startsWith('/preview/original');
 
   if (isOptimizedPreview) {
+    const isEnglish = pathname === '/preview/optimized/en' || pathname.startsWith('/preview/optimized/en/');
+    const previewRoot = isEnglish ? '/preview/optimized/en' : '/preview/optimized';
     const previewNavigation = [
-      { name: '文章', href: '/preview/optimized/blog', match: '/preview/optimized/blog' },
-      { name: '关于', href: '/preview/optimized/about', match: '/preview/optimized/about' },
-      { name: '订阅', href: '/rss.xml', match: '/rss.xml' },
-      { name: '搜索', href: '/preview/optimized/search', match: '/preview/optimized/search' },
+      { name: isEnglish ? 'Articles' : '文章', href: `${previewRoot}/blog`, match: `${previewRoot}/blog`, id: 'articles' },
+      { name: isEnglish ? 'About' : '关于', href: `${previewRoot}/about`, match: `${previewRoot}/about`, id: 'about' },
+      { name: isEnglish ? 'Subscribe' : '订阅', href: '/rss.xml', match: '/rss.xml', id: 'subscribe' },
+      { name: isEnglish ? 'Search' : '搜索', href: `${previewRoot}/search`, match: `${previewRoot}/search`, id: 'search' },
     ];
-    const isArticle = !['', '/blog', '/about', '/search'].includes(pathname.replace('/preview/optimized', ''));
+    const isArticle = !['', '/blog', '/about', '/search'].includes(pathname.replace(previewRoot, ''));
 
     return (
       <nav className={previewStyles.siteNav}>
         <div className={previewStyles.navInner}>
-          <Link href="/preview/optimized" className={previewStyles.brand}>LingYi</Link>
+          <Link href={previewRoot} className={previewStyles.brand}>LingYi</Link>
           <div className={previewStyles.navUtility}>
             <div className={previewStyles.navLinks}>
               {previewNavigation.map((item) => {
-                const active = pathname === item.match || (item.name === '文章' && isArticle);
+                const active = pathname === item.match || (item.id === 'articles' && isArticle);
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
                     className={active ? previewStyles.navActive : undefined}
-                    target={item.name === '订阅' ? '_blank' : undefined}
+                    target={item.id === 'subscribe' ? '_blank' : undefined}
                   >
                     {item.name}
                   </Link>
                 );
               })}
             </div>
+            <OptimizedLanguageSwitcher />
             <ThemeToggle />
           </div>
         </div>

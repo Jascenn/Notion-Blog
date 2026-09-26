@@ -1,8 +1,9 @@
 interface ReadingTimeProps {
   content: string;
+  locale?: 'zh' | 'en';
 }
 
-export default function ReadingTime({ content }: ReadingTimeProps) {
+export default function ReadingTime({ content, locale = 'zh' }: ReadingTimeProps) {
   // 计算阅读时间（平均每分钟250个中文字符或200个英文单词）
   const calculateReadingTime = (text: string): number => {
     // 去除 markdown 语法
@@ -37,7 +38,7 @@ export default function ReadingTime({ content }: ReadingTimeProps) {
 
   return (
     <span className="text-gray-500 dark:text-gray-400 text-sm">
-      📖 {readingTime} 分钟阅读
+      📖 {locale === 'en' ? `${readingTime} min read` : `${readingTime} 分钟阅读`}
     </span>
   );
 }

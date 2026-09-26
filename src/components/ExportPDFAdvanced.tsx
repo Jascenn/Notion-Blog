@@ -12,6 +12,7 @@ interface ExportPDFAdvancedProps {
   tags?: string[];
   filename?: string;
   contentId?: string;
+  locale?: 'zh' | 'en';
 }
 
 export default function ExportPDFAdvanced({
@@ -20,7 +21,8 @@ export default function ExportPDFAdvanced({
   date = new Date().toLocaleDateString('zh-CN'),
   tags = [],
   filename = 'document',
-  contentId = 'article-content'
+  contentId = 'article-content',
+  locale = 'zh'
 }: ExportPDFAdvancedProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
@@ -42,12 +44,12 @@ export default function ExportPDFAdvanced({
     // 添加作者和日期
     pdf.setFontSize(12);
     pdf.setTextColor(100, 116, 139);
-    pdf.text(`作者: ${author}`, pageWidth / 2, 120, { align: 'center' });
-    pdf.text(`日期: ${date}`, pageWidth / 2, 130, { align: 'center' });
+    pdf.text(`${locale === 'en' ? 'Author' : '作者'}: ${author}`, pageWidth / 2, 120, { align: 'center' });
+    pdf.text(`${locale === 'en' ? 'Date' : '日期'}: ${date}`, pageWidth / 2, 130, { align: 'center' });
 
     // 添加标签
     if (tags.length > 0) {
-      pdf.text(`标签: ${tags.join(', ')}`, pageWidth / 2, 140, { align: 'center' });
+      pdf.text(`${locale === 'en' ? 'Tags' : '标签'}: ${tags.join(', ')}`, pageWidth / 2, 140, { align: 'center' });
     }
 
     // 添加分割线
@@ -69,7 +71,7 @@ export default function ExportPDFAdvanced({
       // 获取要导出的内容
       const element = document.getElementById(contentId);
       if (!element) {
-        throw new Error('未找到要导出的内容');
+        throw new Error(locale === 'en' ? 'Export content was not found' : '未找到要导出的内容');
       }
 
       setExportProgress(20);
@@ -252,7 +254,7 @@ export default function ExportPDFAdvanced({
 
     } catch (error) {
       logger.error('PDF 导出失败:', error);
-      alert('PDF 导出失败，请稍后重试');
+      alert(locale === 'en' ? 'PDF export failed. Please try again later.' : 'PDF 导出失败，请稍后重试');
       setExportProgress(0);
     } finally {
       setIsExporting(false);
@@ -288,7 +290,7 @@ export default function ExportPDFAdvanced({
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            导出中 {exportProgress > 0 && `${exportProgress}%`}
+            {locale === 'en' ? 'Exporting' : '导出中'} {exportProgress > 0 && `${exportProgress}%`}
           </>
         ) : (
           <>
@@ -306,7 +308,7 @@ export default function ExportPDFAdvanced({
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            导出 PDF
+            {locale === 'en' ? 'Export PDF' : '导出 PDF'}
           </>
         )}
       </button>

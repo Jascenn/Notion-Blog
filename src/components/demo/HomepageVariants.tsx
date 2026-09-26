@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import ReadingTime from '@/components/ReadingTime';
 import type { NotionPost } from '@/lib/notion';
+import type { OptimizedLocale } from '@/lib/optimized-i18n';
 import styles from '@/app/demo/demo.module.css';
 
 export const DEMO_VARIANTS = [
@@ -32,8 +33,8 @@ export const DEMO_VARIANTS = [
 
 export type DemoVariant = (typeof DEMO_VARIANTS)[number]['id'];
 
-function formatDate(date: string, compact = false) {
-  return new Intl.DateTimeFormat('zh-CN', {
+function formatDate(date: string, compact = false, locale: OptimizedLocale = 'zh') {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', {
     ...(compact ? {} : { year: 'numeric' }),
     month: '2-digit',
     day: '2-digit',
@@ -255,40 +256,47 @@ function MagazineVariant({ posts }: { posts: NotionPost[] }) {
   );
 }
 
-const curatedTopics = [
-  { label: 'AI 实践', query: 'AI' },
-  { label: '前端开发', query: '前端' },
-  { label: '效率工作流', query: '效率' },
-  { label: '生活随笔', query: '生活' },
-] as const;
-
-function CuratedVariant({ posts, routePrefix = '' }: { posts: NotionPost[]; routePrefix?: string }) {
+function CuratedVariant({ posts, routePrefix = '', locale = 'zh' }: { posts: NotionPost[]; routePrefix?: string; locale?: OptimizedLocale }) {
   const [cover, second, third, ...remaining] = posts;
   const latest = remaining.slice(0, 9);
+  const en = locale === 'en';
+  const topics = en
+    ? [
+        { label: 'AI in Practice', query: 'AI' },
+        { label: 'Frontend', query: 'Tech' },
+        { label: 'Productivity', query: 'workflow' },
+        { label: 'Life Notes', query: 'Notes' },
+      ]
+    : [
+        { label: 'AI 实践', query: 'AI' },
+        { label: '前端开发', query: '前端' },
+        { label: '效率工作流', query: '效率' },
+        { label: '生活随笔', query: '生活' },
+      ];
 
   return (
     <div className={`${styles.variant} ${styles.curated}`}>
       <header className={styles.workspaceHero}>
         <div>
           <p className={styles.eyebrow}>LINGYI / BUILD · WRITE · LIVE</p>
-          <h1>把正在做的事，<br />认真记录下来。</h1>
-          <p>全栈开发、AI 工具与效率实践。这里既是我的博客，也是一个持续更新的公开工作台。</p>
+          <h1>{en ? <>Document the work,<br />while it is being built.</> : <>把正在做的事，<br />认真记录下来。</>}</h1>
+          <p>{en ? 'Full-stack development, AI tools, and better workflows. This is both my blog and an open, continuously updated workspace.' : '全栈开发、AI 工具与效率实践。这里既是我的博客，也是一个持续更新的公开工作台。'}</p>
         </div>
         <aside className={styles.workspaceStatus}>
-          <div><span className={styles.statusDot} /> 当前项目</div>
+          <div><span className={styles.statusDot} /> {en ? 'CURRENT PROJECT' : '当前项目'}</div>
           <a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer" data-umami-event="project-click" data-umami-event-project="lingyi.tools">
             <strong>lingyi.tools</strong>
-            <span>AI 工具导航与个人策展</span>
+            <span>{en ? 'A curated directory of AI tools' : 'AI 工具导航与个人策展'}</span>
           </a>
           <dl>
-            <div><dt>状态</dt><dd>持续构建中</dd></div>
-            <div><dt>记录</dt><dd>{posts.length} 篇文章</dd></div>
+            <div><dt>{en ? 'STATUS' : '状态'}</dt><dd>{en ? 'Building in public' : '持续构建中'}</dd></div>
+            <div><dt>{en ? 'NOTES' : '记录'}</dt><dd>{posts.length} {en ? 'articles' : '篇文章'}</dd></div>
           </dl>
         </aside>
       </header>
 
-      <nav className={styles.curatedTopics} aria-label="内容分类">
-        {curatedTopics.map((topic, index) => (
+      <nav className={styles.curatedTopics} aria-label={en ? 'Topics' : '内容分类'}>
+        {topics.map((topic, index) => (
           <Link key={topic.label} href={`${routePrefix}/search?q=${encodeURIComponent(topic.query)}`}>
             <span>0{index + 1}</span>{topic.label}<b>↗</b>
           </Link>
@@ -297,8 +305,8 @@ function CuratedVariant({ posts, routePrefix = '' }: { posts: NotionPost[]; rout
 
       <section className={styles.curatedEditorial} aria-labelledby="curated-editorial-title">
         <div className={styles.curatedSectionHead}>
-          <div><span>01</span><h2 id="curated-editorial-title">编辑精选</h2></div>
-          <p>从最近的记录中，挑出三篇值得先读的文章。</p>
+          <div><span>01</span><h2 id="curated-editorial-title">{en ? "Editor's Picks" : '编辑精选'}</h2></div>
+          <p>{en ? 'Three recent notes worth starting with.' : '从最近的记录中，挑出三篇值得先读的文章。'}</p>
         </div>
 
         {cover && (
@@ -306,12 +314,12 @@ function CuratedVariant({ posts, routePrefix = '' }: { posts: NotionPost[]; rout
             <Link href={articleHref(cover, routePrefix)} data-umami-event="demo-article-click" data-umami-event-variant="curated">
               <div className={styles.magazineLeadNumber}>01</div>
               <div>
-                <p className={styles.eyebrow}>COVER STORY / 封面文章</p>
+                <p className={styles.eyebrow}>{en ? 'COVER STORY' : 'COVER STORY / 封面文章'}</p>
                 <h2>{cover.title}</h2>
                 <p>{cover.excerpt}</p>
-                <span>继续阅读 →</span>
+                <span>{en ? 'Continue reading →' : '继续阅读 →'}</span>
               </div>
-              <time dateTime={cover.publishedAt}>{formatDate(cover.publishedAt)}</time>
+              <time dateTime={cover.publishedAt}>{formatDate(cover.publishedAt, false, locale)}</time>
             </Link>
           </div>
         )}
@@ -320,7 +328,7 @@ function CuratedVariant({ posts, routePrefix = '' }: { posts: NotionPost[]; rout
           {[second, third].filter((post): post is NotionPost => Boolean(post)).map((post, index) => (
             <article key={post.id}>
               <span className={styles.magazineIndex}>0{index + 2}</span>
-              <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+              <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, false, locale)}</time>
               <h2><Link href={articleHref(post, routePrefix)} data-umami-event="demo-article-click" data-umami-event-variant="curated">{post.title}</Link></h2>
               <p>{post.excerpt}</p>
               <div>{post.tags?.slice(0, 2).map((tag) => <span key={tag.name}>{tag.name}</span>)}</div>
@@ -328,8 +336,8 @@ function CuratedVariant({ posts, routePrefix = '' }: { posts: NotionPost[]; rout
           ))}
           <aside>
             <p className={styles.eyebrow}>EDITOR&apos;S NOTE</p>
-            <blockquote>“先做出一个真实的版本，再从结果里找到下一步。”</blockquote>
-            <Link href={`${routePrefix}/about`}>关于凌一 →</Link>
+            <blockquote>{en ? '“Ship something real first. Let the result show you what comes next.”' : '“先做出一个真实的版本，再从结果里找到下一步。”'}</blockquote>
+            <Link href={`${routePrefix}/about`}>{en ? 'About LingYi →' : '关于凌一 →'}</Link>
           </aside>
         </div>
       </section>
@@ -337,14 +345,14 @@ function CuratedVariant({ posts, routePrefix = '' }: { posts: NotionPost[]; rout
       {latest.length > 0 && (
         <section className={`${styles.minimalArchive} ${styles.curatedLatest}`} aria-labelledby="curated-latest-title">
           <div className={styles.curatedSectionHead}>
-            <div><span>02</span><h2 id="curated-latest-title">最近文章</h2></div>
-            <Link href={`${routePrefix}/blog`}>查看全部文章 →</Link>
+            <div><span>02</span><h2 id="curated-latest-title">{en ? 'Latest Articles' : '最近文章'}</h2></div>
+            <Link href={`${routePrefix}/blog`}>{en ? 'View all articles →' : '查看全部文章 →'}</Link>
           </div>
           <div>
             {latest.map((post) => (
               <article key={post.id}>
                 <Link href={articleHref(post, routePrefix)} data-umami-event="demo-article-click" data-umami-event-variant="curated">
-                  <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+                  <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, false, locale)}</time>
                   <div>
                     <h3>{post.title}</h3>
                     <p>{post.excerpt}</p>
@@ -365,11 +373,13 @@ export default function HomepageVariant({
   posts,
   showDemoSwitcher = true,
   routePrefix = '',
+  locale = 'zh',
 }: {
   variant: DemoVariant;
   posts: NotionPost[];
   showDemoSwitcher?: boolean;
   routePrefix?: string;
+  locale?: OptimizedLocale;
 }) {
   const sortedPosts = [...posts]
     .filter((post) => post.type !== 'announcement')
@@ -381,7 +391,7 @@ export default function HomepageVariant({
       {variant === 'minimal' && <MinimalVariant posts={sortedPosts} />}
       {variant === 'workspace' && <WorkspaceVariant posts={sortedPosts} />}
       {variant === 'magazine' && <MagazineVariant posts={sortedPosts} />}
-      {variant === 'curated' && <CuratedVariant posts={sortedPosts} routePrefix={routePrefix} />}
+      {variant === 'curated' && <CuratedVariant posts={sortedPosts} routePrefix={routePrefix} locale={locale} />}
     </div>
   );
 }

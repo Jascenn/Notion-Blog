@@ -104,6 +104,26 @@
   gap: 1rem;
 }
 
+.languageSwitcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--faint);
+  font: 650 0.62rem/1 var(--font-mono);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.languageSwitcher a {
+  padding: 0.45rem 0.12rem;
+  color: var(--faint);
+}
+
+.languageSwitcher a:hover,
+.languageSwitcher .languageActive {
+  color: var(--blue);
+}
+
 .page {
   width: min(100% - 2rem, 72rem);
   margin: 0 auto;
@@ -824,6 +844,10 @@
 
   .navLinks {
     gap: 0.85rem;
+  }
+
+  .navLinks a:nth-child(2) {
+    display: none;
   }
 
   .changelogToggle {

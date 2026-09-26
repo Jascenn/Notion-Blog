@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import previewStyles from '@/app/preview/optimized/optimized.module.css';
+import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
@@ -48,11 +49,50 @@ const changelogData = [
   }
 ];
 
-export default function ChangelogSection({ variant = 'default' }: { variant?: 'default' | 'optimized' }) {
+const englishChangelogData = [
+  {
+    version: 'v1.3.0', date: '2025-11-08', title: 'Font loading and deployment improvements',
+    changes: [
+      { type: 'Fix', color: 'text-red-500', text: 'Fixed font loading on mobile devices' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Moved the font CDN from Google Fonts to jsDelivr' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Centralized font settings with CSS variables' },
+      { type: 'Fix', color: 'text-red-500', text: 'Fixed Vercel multi-region deployment compatibility' },
+      { type: 'Add', color: 'text-green-500', text: 'Added technical troubleshooting documentation' },
+    ],
+  },
+  {
+    version: 'v1.2.0', date: '2025-11-05', title: 'Project structure and feature improvements',
+    changes: [
+      { type: 'Fix', color: 'text-red-500', text: 'Fixed missing nested content in callout blocks' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Improved callout spacing' },
+      { type: 'Maintain', color: 'text-gray-500', text: 'Reorganized documentation and configured lingyi.bio' },
+    ],
+  },
+  {
+    version: 'v1.1.0', date: '2025-10-25', title: 'Core features completed',
+    changes: [
+      { type: 'Add', color: 'text-green-500', text: 'Pinned articles' },
+      { type: 'Add', color: 'text-green-500', text: 'Site announcements' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Dark mode and caching strategy' },
+    ],
+  },
+  {
+    version: 'v1.0.0', date: '2025-09-28', title: 'Initial release',
+    changes: [
+      { type: 'Add', color: 'text-green-500', text: 'Next.js 15 and Notion API integration' },
+      { type: 'Add', color: 'text-green-500', text: 'Support for 21 Notion block types' },
+      { type: 'Add', color: 'text-green-500', text: 'Full-text search, tags, and RSS' },
+    ],
+  },
+];
+
+export default function ChangelogSection({ variant = 'default', locale = 'zh' }: { variant?: 'default' | 'optimized'; locale?: OptimizedLocale }) {
   const [isOpen, setIsOpen] = useState(false);
 
   if (variant === 'optimized') {
-    const latestEntry = changelogData[0];
+    const en = locale === 'en';
+    const entries = en ? englishChangelogData : changelogData;
+    const latestEntry = entries[0];
 
     return (
       <section className={previewStyles.changelogSection} aria-labelledby="optimized-changelog-title">
@@ -64,14 +104,14 @@ export default function ChangelogSection({ variant = 'default' }: { variant?: 'd
           aria-controls="optimized-changelog-content"
         >
           <span className={previewStyles.changelogHeading}>
-            <span className={previewStyles.kicker}>CHANGELOG / 更新日志</span>
-            <span id="optimized-changelog-title" className={previewStyles.changelogTitle}>网站的版本记录</span>
+            <span className={previewStyles.kicker}>{en ? 'CHANGELOG' : 'CHANGELOG / 更新日志'}</span>
+            <span id="optimized-changelog-title" className={previewStyles.changelogTitle}>{en ? 'A record of site releases' : '网站的版本记录'}</span>
             <span className={previewStyles.changelogSummary}>
-              最近更新 {latestEntry.date} · {changelogData.length} 个版本
+              {en ? `Last updated ${latestEntry.date} · ${entries.length} releases` : `最近更新 ${latestEntry.date} · ${entries.length} 个版本`}
             </span>
           </span>
           <span className={`${previewStyles.changelogAction} ${isOpen ? previewStyles.changelogActionOpen : ''}`}>
-            {isOpen ? '收起' : '展开全部'}
+            {isOpen ? (en ? 'Collapse' : '收起') : (en ? 'View all' : '展开全部')}
             <span aria-hidden="true">+</span>
           </span>
         </button>
@@ -83,7 +123,7 @@ export default function ChangelogSection({ variant = 'default' }: { variant?: 'd
         >
           <div className={previewStyles.changelogBodyInner}>
             <div className={previewStyles.changelogList}>
-              {changelogData.map((entry) => (
+              {entries.map((entry) => (
                 <article key={entry.version} className={previewStyles.changelogEntry}>
                   <div className={previewStyles.changelogVersion}>
                     <strong>{entry.version}</strong>

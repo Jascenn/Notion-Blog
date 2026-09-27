@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import MarkdownContent from '@/components/MarkdownContent';
+import TableOfContents from '@/components/TableOfContents';
+import RelatedPosts from '@/components/RelatedPosts';
 import ReadingStats from '@/components/ReadingStats';
 import ReadingTime from '@/components/ReadingTime';
 import ShareButtons from '@/components/ShareButtons';
@@ -155,87 +157,72 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
 }
 
 export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: NotionPost; allPosts: NotionPost[]; locale?: OptimizedLocale }) {
-  const related = sortedPosts(allPosts).filter((candidate) => candidate.id !== post.id).slice(0, 3);
   const en = locale === 'en';
   const root = optimizedRoots[locale];
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
   const postUrl = `${siteUrl}${en ? '/en' : ''}/${post.slug}`;
 
   return (
-    <div className={styles.siteRoot}>
-      <article className={styles.articlePage}>
-        <header className={styles.articleHeader}>
-          <span className={styles.kicker}>{en ? 'FIELD NOTE / BUILD LOG' : 'FIELD NOTE / 构建记录'}</span>
-          <h1>{post.title}</h1>
-          <div className={styles.articleHeaderDetails}>
-            {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
-            <div className={styles.articleInfoBar}>
-              <div className={styles.articleMeta}>
-                <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, locale)}</time>
-                <span>·</span>
-                <ReadingTime content={post.content} locale={locale} />
-                <span>·</span>
-                <span>LINGYI</span>
-              </div>
-              <div className={styles.articleTopics}>
-                <span>{en ? 'TOPICS' : '主题'}</span>
-                <div className={styles.articleTags}>
-                  {post.tags.length > 0 ? post.tags.map((tag) => (
-                    <Link key={tag.name} href={`${root}/search?tags=${encodeURIComponent(tag.name)}`}>
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 min-h-screen">
+      <article className="pb-16">
+        <header className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{post.title}</h1>
+          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+            <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, locale)}</time>
+            <span>•</span>
+            <ReadingTime content={post.content} locale={locale} />
+            {post.tags.length > 0 && (
+              <>
+                <span>•</span>
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <Link
+                      key={tag.name}
+                      href={`${root}/search?tags=${encodeURIComponent(tag.name)}`}
+                      className={`px-2 py-1 rounded text-xs transition-colors notion-tag-${tag.color}`}
+                    >
                       {tag.name}
                     </Link>
-                  )) : <span>{en ? 'Build log' : '构建记录'}</span>}
+                  ))}
                 </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </header>
 
-        <div className={styles.articleLayout}>
-          <div className="max-w-2xl mx-auto px-4 sm:px-6">
-            <div className={styles.articleBodyOriginal} id="article-content">
-              <MarkdownContent content={post.content} />
-            </div>
-
-            <div className={styles.articleActions}>
-              <ReadingStats slug={post.slug} locale={locale} variant="editorial" />
-              <div className="flex flex-wrap items-center gap-3">
-                <ShareButtons title={post.title} url={postUrl} description={post.excerpt} locale={locale} variant="editorial" />
-                <ExportPDFAdvanced
-                  title={post.title}
-                  author="LingYi"
-                  date={formatDate(post.publishedAt, locale)}
-                  tags={post.tags.map((tag) => tag.name)}
-                  filename={post.slug}
-                  contentId="article-content"
-                  locale={locale}
-                  variant="editorial"
-                />
-              </div>
-            </div>
-          </div>
+        <div id="article-content" className="mb-12">
+          <MarkdownContent content={post.content} />
         </div>
 
-        {related.length > 0 && (
-          <section className={styles.relatedSection} aria-labelledby="related-title">
-            <div className={styles.sectionHead}>
-              <span className={styles.sectionIndex}>NEXT</span>
-              <h2 id="related-title">{en ? 'Continue Reading' : '继续阅读'}</h2>
+        <footer className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <ReadingStats slug={post.slug} locale={locale} />
+            <div className="flex items-center gap-3">
+              <ShareButtons title={post.title} url={postUrl} description={post.excerpt} locale={locale} />
+              <ExportPDFAdvanced
+                title={post.title}
+                date={formatDate(post.publishedAt, locale)}
+                tags={post.tags.map((tag) => tag.name)}
+                filename={post.slug}
+                contentId="article-content"
+                locale={locale}
+              />
             </div>
-            <div className={styles.relatedGrid}>
-              {related.map((candidate) => (
-                <Link key={candidate.id} href={`${root}/${candidate.slug}`} className={styles.relatedCard}>
-                  <time dateTime={candidate.publishedAt}>{formatDate(candidate.publishedAt, locale)}</time>
-                  <h3>{candidate.title}</h3>
-                  <p>{candidate.excerpt}</p>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <Link href={`${root}/blog`} className={styles.backLink}>{en ? '← Back to archive' : '← 返回文章索引'}</Link>
+          </div>
+        </footer>
       </article>
+
+      <TableOfContents content={post.content} />
+      <RelatedPosts currentPost={post} allPosts={allPosts} hrefPrefix={root} locale={locale} />
+
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-8 pb-12 mt-16">
+        <Link
+          href={root}
+          className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors inline-flex items-center gap-1"
+        >
+          {en ? '← Back to home' : '← 返回首页'}
+        </Link>
+      </div>
     </div>
   );
 }

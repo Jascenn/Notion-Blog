@@ -8,10 +8,15 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   const pathname = usePathname();
   const isOptimizedPreview = pathname.startsWith('/preview/optimized');
+  const useOptimizedShell = isOptimizedPreview || (!pathname.startsWith('/preview') && !pathname.startsWith('/demo'));
 
-  if (isOptimizedPreview) {
-    const isEnglish = pathname === '/preview/optimized/en' || pathname.startsWith('/preview/optimized/en/');
-    const previewRoot = isEnglish ? '/preview/optimized/en' : '/preview/optimized';
+  if (useOptimizedShell) {
+    const isEnglish = isOptimizedPreview
+      ? pathname === '/preview/optimized/en' || pathname.startsWith('/preview/optimized/en/')
+      : pathname === '/en' || pathname.startsWith('/en/');
+    const siteRoot = isOptimizedPreview
+      ? (isEnglish ? '/preview/optimized/en' : '/preview/optimized')
+      : (isEnglish ? '/en' : '');
     return (
       <footer className={previewStyles.siteFooter}>
         <div className={previewStyles.footerInner}>
@@ -20,9 +25,9 @@ export default function Footer() {
             <p className={previewStyles.footerMeta}>© {isEnglish ? 'LingYi' : '凌一'} · 2024 - {currentYear}</p>
           </div>
           <nav className={previewStyles.footerLinks} aria-label={isEnglish ? 'Footer navigation' : '页脚导航'}>
-            <Link href={`${previewRoot}/blog`}>{isEnglish ? 'Articles' : '文章'}</Link>
-            <Link href={`${previewRoot}/about`}>{isEnglish ? 'About' : '关于'}</Link>
-            <Link href={`${previewRoot}/search`}>{isEnglish ? 'Search' : '搜索'}</Link>
+            <Link href={`${siteRoot}/blog`}>{isEnglish ? 'Articles' : '文章'}</Link>
+            <Link href={`${siteRoot}/about`}>{isEnglish ? 'About' : '关于'}</Link>
+            <Link href={`${siteRoot}/search`}>{isEnglish ? 'Search' : '搜索'}</Link>
             <a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools</a>
           </nav>
           <div className={previewStyles.footerFriends}>

@@ -8,20 +8,20 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: '搜索',
-  description: '搜索博客中的全部文章：按标题、摘要与标签筛选。',
+  title: 'Search',
+  description: 'Search all articles by title, summary, or topic.',
   robots: { index: false, follow: true },
   alternates: { languages: { 'zh-CN': '/search', 'en-US': '/en/search' } },
 };
 
-export default async function SearchPage() {
-  const posts = localizeOptimizedPosts(await getPostsOnly(), 'zh')
+export default async function EnglishSearchPage() {
+  const posts = localizeOptimizedPosts(await getPostsOnly('en', true), 'en')
     .filter((post) => post.type !== 'announcement')
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
   return (
     <Suspense fallback={<div className="min-h-screen" />}>
-      <OptimizedSearchClient posts={posts} />
+      <OptimizedSearchClient posts={posts} locale="en" />
     </Suspense>
   );
 }

@@ -5,18 +5,21 @@ import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import styles from '@/app/preview/optimized/optimized.module.css';
 
-const ROOT = '/preview/optimized';
-const EN_ROOT = `${ROOT}/en`;
+const PREVIEW_ROOT = '/preview/optimized';
+const PREVIEW_EN_ROOT = `${PREVIEW_ROOT}/en`;
 
 export default function OptimizedLanguageSwitcher() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isEnglish = pathname === EN_ROOT || pathname.startsWith(`${EN_ROOT}/`);
-  const suffix = isEnglish ? pathname.slice(EN_ROOT.length) : pathname.slice(ROOT.length);
+  const isPreview = pathname === PREVIEW_ROOT || pathname.startsWith(`${PREVIEW_ROOT}/`);
+  const zhRoot = isPreview ? PREVIEW_ROOT : '';
+  const enRoot = isPreview ? PREVIEW_EN_ROOT : '/en';
+  const isEnglish = pathname === enRoot || pathname.startsWith(`${enRoot}/`);
+  const suffix = isEnglish ? pathname.slice(enRoot.length) : pathname.slice(zhRoot.length);
   const query = searchParams.toString();
   const querySuffix = query ? `?${query}` : '';
-  const zhHref = `${ROOT}${suffix}${querySuffix}`;
-  const enHref = `${EN_ROOT}${suffix}${querySuffix}`;
+  const zhHref = `${zhRoot}${suffix}${querySuffix}` || '/';
+  const enHref = `${enRoot}${suffix}${querySuffix}`;
 
   useEffect(() => {
     document.documentElement.lang = isEnglish ? 'en' : 'zh-CN';

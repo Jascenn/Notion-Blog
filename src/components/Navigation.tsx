@@ -11,25 +11,32 @@ export default function Navigation() {
   const pathname = usePathname();
   const isOptimizedPreview = pathname.startsWith('/preview/optimized');
   const isOriginalPreview = pathname.startsWith('/preview/original');
+  const isDemo = pathname.startsWith('/demo');
+  const useOptimizedShell = isOptimizedPreview || (!pathname.startsWith('/preview') && !isDemo);
 
-  if (isOptimizedPreview) {
-    const isEnglish = pathname === '/preview/optimized/en' || pathname.startsWith('/preview/optimized/en/');
-    const previewRoot = isEnglish ? '/preview/optimized/en' : '/preview/optimized';
-    const previewNavigation = [
-      { name: isEnglish ? 'Articles' : '文章', href: `${previewRoot}/blog`, match: `${previewRoot}/blog`, id: 'articles' },
-      { name: isEnglish ? 'About' : '关于', href: `${previewRoot}/about`, match: `${previewRoot}/about`, id: 'about' },
+  if (useOptimizedShell) {
+    const isEnglish = isOptimizedPreview
+      ? pathname === '/preview/optimized/en' || pathname.startsWith('/preview/optimized/en/')
+      : pathname === '/en' || pathname.startsWith('/en/');
+    const siteRoot = isOptimizedPreview
+      ? (isEnglish ? '/preview/optimized/en' : '/preview/optimized')
+      : (isEnglish ? '/en' : '');
+    const optimizedNavigation = [
+      { name: isEnglish ? 'Articles' : '文章', href: `${siteRoot}/blog`, match: `${siteRoot}/blog`, id: 'articles' },
+      { name: isEnglish ? 'About' : '关于', href: `${siteRoot}/about`, match: `${siteRoot}/about`, id: 'about' },
       { name: isEnglish ? 'Subscribe' : '订阅', href: '/rss.xml', match: '/rss.xml', id: 'subscribe' },
-      { name: isEnglish ? 'Search' : '搜索', href: `${previewRoot}/search`, match: `${previewRoot}/search`, id: 'search' },
+      { name: isEnglish ? 'Search' : '搜索', href: `${siteRoot}/search`, match: `${siteRoot}/search`, id: 'search' },
     ];
-    const isArticle = !['', '/blog', '/about', '/search'].includes(pathname.replace(previewRoot, ''));
+    const relativePath = siteRoot ? pathname.slice(siteRoot.length) : pathname;
+    const isArticle = !['', '/', '/blog', '/about', '/search'].includes(relativePath);
 
     return (
       <nav className={previewStyles.siteNav}>
         <div className={previewStyles.navInner}>
-          <Link href={previewRoot} className={previewStyles.brand}>LingYi</Link>
+          <Link href={siteRoot || '/'} className={previewStyles.brand}>LingYi</Link>
           <div className={previewStyles.navUtility}>
             <div className={previewStyles.navLinks}>
-              {previewNavigation.map((item) => {
+              {optimizedNavigation.map((item) => {
                 const active = pathname === item.match || (item.id === 'articles' && isArticle);
                 return (
                   <Link

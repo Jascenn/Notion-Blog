@@ -1556,7 +1556,7 @@ async function blocksToMarkdown(blocks: NotionBlock[], depth = 0): Promise<strin
 
 
 // 获取关于页面内容
-export async function getAboutPage(): Promise<NotionPost | null> {
+export async function getAboutPage(locale: NotionLocale = 'zh'): Promise<NotionPost | null> {
   try {
 
     const response = await queryNotionDataSource({
@@ -1580,7 +1580,7 @@ export async function getAboutPage(): Promise<NotionPost | null> {
                 equals: 'about',
               },
             },
-            languageFilter('zh'),
+            languageFilter(locale),
           ],
         },
       }, 15000);

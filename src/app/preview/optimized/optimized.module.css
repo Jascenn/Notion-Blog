@@ -726,10 +726,7 @@
 }
 
 .articleBodyOriginal {
-  width: 100%;
   min-width: 0;
-  max-width: 50rem;
-  margin: 0 auto;
 }
 
 .articleBody :global(.prose) {

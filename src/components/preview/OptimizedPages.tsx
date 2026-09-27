@@ -192,8 +192,10 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
         </header>
 
         <div className={styles.articleLayout}>
-          <div className={styles.articleBodyOriginal} id="article-content">
-            <MarkdownContent content={post.content} />
+          <div className="max-w-2xl mx-auto px-4 sm:px-6">
+            <div className={styles.articleBodyOriginal} id="article-content">
+              <MarkdownContent content={post.content} />
+            </div>
 
             <div className={styles.articleActions}>
               <ReadingStats slug={post.slug} locale={locale} variant="editorial" />
@@ -212,7 +214,6 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: Noti
               </div>
             </div>
           </div>
-
         </div>
 
         {related.length > 0 && (

@@ -21,7 +21,7 @@ export default async function SearchPage() {
 
   return (
     <Suspense fallback={<div className="min-h-screen" />}>
-      <OptimizedSearchClient posts={posts} />
+      <OptimizedSearchClient posts={posts} routeRoot="" />
     </Suspense>
   );
 }

@@ -21,7 +21,7 @@ export default async function EnglishSearchPage() {
 
   return (
     <Suspense fallback={<div className="min-h-screen" />}>
-      <OptimizedSearchClient posts={posts} locale="en" />
+      <OptimizedSearchClient posts={posts} locale="en" routeRoot="/en" />
     </Suspense>
   );
 }

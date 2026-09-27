@@ -28,10 +28,10 @@ function sortedPosts(posts: NotionPost[]) {
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 }
 
-export function OptimizedArchive({ posts, locale = 'zh' }: { posts: NotionPost[]; locale?: OptimizedLocale }) {
+export function OptimizedArchive({ posts, locale = 'zh', routeRoot }: { posts: NotionPost[]; locale?: OptimizedLocale; routeRoot?: string }) {
   const visiblePosts = sortedPosts(posts);
   const en = locale === 'en';
-  const root = optimizedRoots[locale];
+  const root = routeRoot ?? optimizedRoots[locale];
 
   return (
     <div className={styles.siteRoot}>
@@ -156,9 +156,9 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
   );
 }
 
-export function OptimizedArticle({ post, allPosts, locale = 'zh' }: { post: NotionPost; allPosts: NotionPost[]; locale?: OptimizedLocale }) {
+export function OptimizedArticle({ post, allPosts, locale = 'zh', routeRoot }: { post: NotionPost; allPosts: NotionPost[]; locale?: OptimizedLocale; routeRoot?: string }) {
   const en = locale === 'en';
-  const root = optimizedRoots[locale];
+  const root = routeRoot ?? optimizedRoots[locale];
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
   const postUrl = `${siteUrl}${en ? '/en' : ''}/${post.slug}`;
 

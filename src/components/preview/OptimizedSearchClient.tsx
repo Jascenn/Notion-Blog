@@ -17,9 +17,9 @@ function formatDate(date: string, locale: OptimizedLocale) {
   }).format(new Date(date));
 }
 
-export default function OptimizedSearchClient({ posts, locale = 'zh' }: { posts: NotionPost[]; locale?: OptimizedLocale }) {
+export default function OptimizedSearchClient({ posts, locale = 'zh', routeRoot }: { posts: NotionPost[]; locale?: OptimizedLocale; routeRoot?: string }) {
   const en = locale === 'en';
-  const root = optimizedRoots[locale];
+  const root = routeRoot ?? optimizedRoots[locale];
   const searchParams = useSearchParams();
   const queryParam = searchParams.get('q') || '';
   const tagsParam = searchParams.get('tags') || '';

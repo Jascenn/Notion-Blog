@@ -43,6 +43,7 @@ export default async function EnglishArticlePage({ params }: { params: Promise<{
       post={localizeOptimizedPost(post, 'en')}
       allPosts={localizeOptimizedPosts(allPosts, 'en')}
       locale="en"
+      routeRoot="/en"
     />
   );
 }

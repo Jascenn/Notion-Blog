@@ -83,13 +83,13 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
       <div className={styles.page}>
         <header className={`${styles.pageHeader} ${styles.aboutHeader}`}>
           <div>
-            <span className={styles.kicker}>{en ? 'ABOUT / 01' : '关于凌一 / 01'}</span>
+            <span className={styles.kicker}>{en ? 'ABOUT LINGYI' : '关于凌一'}</span>
             <h1>{title}</h1>
           </div>
           <div className={styles.aboutProfile}>
             <Image className={styles.aboutAvatar} src="/凌一-头像.png" alt={en ? 'LingYi portrait' : '凌一头像'} width={112} height={112} priority />
             <div>
-              <span>{en ? 'PROFILE' : '个人档案'}</span>
+              <span>{en ? 'MOTTO' : '个人签名'}</span>
               <p>{tagline}</p>
             </div>
           </div>

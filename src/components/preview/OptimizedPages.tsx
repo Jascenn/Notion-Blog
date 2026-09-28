@@ -8,6 +8,7 @@ import ReadingTime from '@/components/ReadingTime';
 import ShareButtons from '@/components/ShareButtons';
 import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
 import ChangelogSection from '@/components/ChangelogSection';
+import CopyContactButton from '@/components/preview/CopyContactButton';
 import type { NotionPost } from '@/lib/notion';
 import type { OptimizedLocale } from '@/lib/optimized-i18n';
 import { optimizedRoots } from '@/lib/optimized-i18n';
@@ -143,7 +144,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
                 <div className={styles.aboutContacts}>
                   <div><span>{en ? 'Email' : '邮箱'}</span><a href="mailto:1286324609@qq.com">1286324609@qq.com</a></div>
                   <div><span>GitHub</span><a href="https://github.com/Jascenn" target="_blank" rel="noopener noreferrer" data-umami-event="profile-click" data-umami-event-platform="github">@Jascenn</a></div>
-                  <div><span>{en ? 'WeChat' : '微信'}</span><strong>Help000000</strong></div>
+                  <div><span>{en ? 'WeChat' : '微信'}</span><CopyContactButton value="Help000000" locale={locale} /></div>
                   <div><span>{en ? 'Website' : '网站'}</span><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer" data-umami-event="project-click" data-umami-event-project="lingyi.tools">lingyi.tools</a></div>
                   <a className={styles.aboutStory} href="https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A" target="_blank" rel="noopener noreferrer" data-umami-event="profile-story-click">
                     {en ? 'Learn more about my story →' : '了解更多关于我的故事 →'}

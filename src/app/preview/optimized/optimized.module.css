@@ -419,6 +419,40 @@
   font: 500 0.78rem/1.5 var(--font-mono);
 }
 
+.copyContactButton {
+  padding: 0;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  color: var(--ink);
+  background: transparent;
+  font: 500 0.78rem/1.5 var(--font-mono);
+  cursor: copy;
+}
+
+.copyContactValue {
+  transition: color 160ms ease;
+}
+
+.copyContactHint {
+  min-width: 3.4rem;
+  color: var(--faint);
+  font: 650 0.58rem/1.4 var(--font-mono);
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.copyContactButton:hover .copyContactValue {
+  color: var(--blue);
+}
+
+.copyContactButton:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 0.3rem;
+}
+
 .aboutStory {
   margin-top: 0.5rem;
   padding-top: 1rem;

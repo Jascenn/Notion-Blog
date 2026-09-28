@@ -31,7 +31,7 @@ export default function Footer() {
             <a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools</a>
           </nav>
           <div className={previewStyles.footerFriends}>
-            <span>{isEnglish ? 'FRIENDS' : 'FRIENDS / 友链'}</span>
+            <span>{isEnglish ? 'FRIENDS' : '友链'}</span>
             <a
               href="https://dkfile.net"
               target="_blank"

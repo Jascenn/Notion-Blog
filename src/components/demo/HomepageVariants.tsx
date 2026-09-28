@@ -279,7 +279,7 @@ function CuratedVariant({ posts, routePrefix = '', locale = 'zh' }: { posts: Not
     <div className={`${styles.variant} ${styles.curated}`}>
       <header className={styles.workspaceHero}>
         <div>
-          <p className={styles.eyebrow}>LINGYI / BUILD · WRITE · LIVE</p>
+          <p className={styles.eyebrow}>{en ? 'LINGYI / BUILD · WRITE · LIVE' : '凌一 / 构建 · 写作 · 生活'}</p>
           <h1>{en ? <>Document the work,<br />while it is being built.</> : <>把正在做的事，<br />认真记录下来。</>}</h1>
           <p>{en ? 'Full-stack development, AI tools, and better workflows. This is both my blog and an open, continuously updated workspace.' : '全栈开发、AI 工具与效率实践。这里既是我的博客，也是一个持续更新的公开工作台。'}</p>
         </div>
@@ -315,7 +315,7 @@ function CuratedVariant({ posts, routePrefix = '', locale = 'zh' }: { posts: Not
             <Link href={articleHref(cover, routePrefix)} data-umami-event="demo-article-click" data-umami-event-variant="curated">
               <div className={styles.magazineLeadNumber}>01</div>
               <div>
-                <p className={styles.eyebrow}>{en ? 'COVER STORY' : 'COVER STORY / 封面文章'}</p>
+                <p className={styles.eyebrow}>{en ? 'COVER STORY' : '封面文章'}</p>
                 <h2>{cover.title}</h2>
                 <p>{cover.excerpt}</p>
                 <span>{en ? 'Continue reading →' : '继续阅读 →'}</span>
@@ -336,7 +336,7 @@ function CuratedVariant({ posts, routePrefix = '', locale = 'zh' }: { posts: Not
             </article>
           ))}
           <aside>
-            <p className={styles.eyebrow}>EDITOR&apos;S NOTE</p>
+            <p className={styles.eyebrow}>{en ? <>EDITOR&apos;S NOTE</> : '编辑手记'}</p>
             <blockquote>{en ? '“Ship something real first. Let the result show you what comes next.”' : '“先做出一个真实的版本，再从结果里找到下一步。”'}</blockquote>
             <Link href={`${routePrefix}/about`}>{en ? 'About LingYi →' : '关于凌一 →'}</Link>
           </aside>

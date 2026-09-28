@@ -39,14 +39,18 @@ export function OptimizedArchive({ posts, locale = 'zh', routeRoot }: { posts: N
       <div className={styles.page}>
         <header className={styles.pageHeader}>
           <div>
-            <span className={styles.kicker}>{en ? 'ARCHIVE' : 'ARCHIVE / 文章索引'}</span>
+            <span className={styles.kicker}>{en ? 'ARCHIVE' : '文章索引'}</span>
             <h1>{en ? <>Every note,<br />in chronological order.</> : <>所有记录，<br />按时间展开。</>}</h1>
           </div>
           <div>
             <p className={styles.pageIntro}>
               {en ? 'From building tools to organizing everyday life, this is the complete writing archive. Browse chronologically or use search to filter by topic.' : '从构建工具到整理生活，这里保留完整的文章脉络。你可以顺着时间阅读，也可以去搜索页按主题筛选。'}
             </p>
-            <p className={styles.pageMeta}>{String(visiblePosts.length).padStart(2, '0')} ARTICLES · SINCE 2024</p>
+            <p className={styles.pageMeta}>
+              {en
+                ? `${String(visiblePosts.length).padStart(2, '0')} ARTICLES · SINCE 2024`
+                : `${String(visiblePosts.length).padStart(2, '0')} 篇文章 · 自 2024 年起`}
+            </p>
           </div>
         </header>
 

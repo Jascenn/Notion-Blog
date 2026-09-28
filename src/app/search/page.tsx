@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   title: '搜索',
   description: '搜索博客中的全部文章：按标题、摘要与标签筛选。',
   robots: { index: false, follow: true },
-  alternates: { languages: { 'zh-CN': '/search', 'en-US': '/en/search' } },
 };
 
 export default async function SearchPage() {

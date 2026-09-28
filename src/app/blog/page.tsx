@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   description: '凌一的全部文章与构建记录。',
   alternates: {
     canonical: '/blog',
-    languages: { 'zh-CN': '/blog', 'en-US': '/en/blog' },
   },
 };
 

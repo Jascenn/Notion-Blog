@@ -10,7 +10,6 @@ export const metadata: Metadata = {
   description: '了解凌一的个人经历、创作理念与正在构建的项目。',
   alternates: {
     canonical: '/about',
-    languages: { 'zh-CN': '/about', 'en-US': '/en/about' },
   },
 };
 

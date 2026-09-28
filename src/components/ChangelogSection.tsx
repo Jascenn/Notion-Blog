@@ -6,6 +6,15 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.0.2',
+    date: '2026-09-28',
+    title: '暂时下线英文版本',
+    changes: [
+      { type: '调整', color: 'text-purple-500', text: '英文文章尚未达到与中文原文逐段、逐图一致的发布标准，暂时关闭语言切换入口' },
+      { type: '修复', color: 'text-red-500', text: '英文地址暂时返回对应中文页面，并从站点地图和搜索标记中移除' },
+    ]
+  },
+  {
     version: 'v2.0.1',
     date: '2026-09-28',
     title: '双语界面一致性与联系体验修正',
@@ -72,6 +81,13 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.0.2', date: '2026-09-28', title: 'English version temporarily unavailable',
+    changes: [
+      { type: 'Change', color: 'text-purple-500', text: 'Temporarily removed language switching until every English article matches the Chinese source paragraph by paragraph and image by image' },
+      { type: 'Fix', color: 'text-red-500', text: 'English URLs now return their Chinese counterparts and are excluded from the sitemap and language metadata' },
+    ],
+  },
   {
     version: 'v2.0.1', date: '2026-09-28', title: 'Bilingual UI consistency and contact improvements',
     changes: [

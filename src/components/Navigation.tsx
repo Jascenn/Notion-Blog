@@ -50,9 +50,11 @@ export default function Navigation() {
                 );
               })}
             </div>
-            <Suspense fallback={<span className={previewStyles.languageSwitcher}>中 / EN</span>}>
-              <OptimizedLanguageSwitcher />
-            </Suspense>
+            {isOptimizedPreview && (
+              <Suspense fallback={<span className={previewStyles.languageSwitcher}>中 / EN</span>}>
+                <OptimizedLanguageSwitcher />
+              </Suspense>
+            )}
             <ThemeToggle locale={isEnglish ? 'en' : 'zh'} />
           </div>
         </div>

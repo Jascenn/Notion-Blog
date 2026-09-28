@@ -9,7 +9,6 @@ export const revalidate = 0;
 export const metadata: Metadata = {
   alternates: {
     canonical: '/',
-    languages: { 'zh-CN': '/', 'en-US': '/en' },
   },
 };
 
@@ -23,7 +22,7 @@ export default async function Home() {
     url: siteUrl,
     description: '全栈开发实践、AI 工具探索、效率工作流与生活随笔，记录从 0 到 1 的构建过程。',
     author: { '@type': 'Person', name: '凌一 LingYi', url: `${siteUrl}/about` },
-    inLanguage: ['zh-CN', 'en-US'],
+    inLanguage: 'zh-CN',
   };
 
   return (

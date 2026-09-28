@@ -7,10 +7,7 @@ export async function GET() {
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
 
   try {
-    const [posts, englishPosts] = await Promise.all([
-      getPostsOnly(),
-      getPostsOnly('en'),
-    ]);
+    const posts = await getPostsOnly();
 
     const newestPostUpdate = posts.reduce<string | undefined>((latest, post) => {
       const candidate = post.updatedAt || post.publishedAt;
@@ -23,9 +20,6 @@ export async function GET() {
       { loc: `${siteUrl}/`, lastmod: newestPostUpdate, changefreq: 'daily', priority: '1.0' },
       { loc: `${siteUrl}/blog`, lastmod: newestPostUpdate, changefreq: 'daily', priority: '0.9' },
       { loc: `${siteUrl}/about`, changefreq: 'monthly', priority: '0.8' },
-      { loc: `${siteUrl}/en`, changefreq: 'daily', priority: '0.8' },
-      { loc: `${siteUrl}/en/blog`, changefreq: 'daily', priority: '0.7' },
-      { loc: `${siteUrl}/en/about`, changefreq: 'monthly', priority: '0.6' },
     ];
 
     for (const post of posts) {
@@ -34,15 +28,6 @@ export async function GET() {
         lastmod: new Date(post.updatedAt || post.publishedAt).toISOString(),
         changefreq: 'weekly',
         priority: '0.7',
-      });
-    }
-
-    for (const post of englishPosts) {
-      urls.push({
-        loc: `${siteUrl}/en/${post.slug}`,
-        lastmod: new Date(post.updatedAt || post.publishedAt).toISOString(),
-        changefreq: 'weekly',
-        priority: '0.6',
       });
     }
 

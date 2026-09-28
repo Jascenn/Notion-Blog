@@ -126,7 +126,7 @@ export default function ChangelogSection({ variant = 'default', locale = 'zh' }:
           aria-controls="optimized-changelog-content"
         >
           <span className={previewStyles.changelogHeading}>
-            <span className={previewStyles.kicker}>{en ? 'CHANGELOG' : 'CHANGELOG / 更新日志'}</span>
+            <span className={previewStyles.kicker}>{en ? 'CHANGELOG' : '更新日志'}</span>
             <span id="optimized-changelog-title" className={previewStyles.changelogTitle}>{en ? 'A record of site releases' : '网站的版本记录'}</span>
             <span className={previewStyles.changelogSummary}>
               {en ? `Last updated ${latestEntry.date} · ${entries.length} releases` : `最近更新 ${latestEntry.date} · ${entries.length} 个版本`}

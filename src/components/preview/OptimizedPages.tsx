@@ -72,20 +72,24 @@ export function OptimizedArchive({ posts, locale = 'zh', routeRoot }: { posts: N
 export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | null; locale?: OptimizedLocale }) {
   const en = locale === 'en';
   const title = !en && about?.title ? about.title : en ? 'LingYi / LingYi_Stu' : '凌一 / LingYi_Stu';
-  const tagline = !en && about?.excerpt ? about.excerpt : 'Keep it simple, stay focused.';
+  const tagline = !en && about?.excerpt
+    ? about.excerpt
+    : en
+      ? 'Keep it simple, stay focused.'
+      : '保持简单，保持专注。';
 
   return (
     <div className={styles.siteRoot}>
       <div className={styles.page}>
         <header className={`${styles.pageHeader} ${styles.aboutHeader}`}>
           <div>
-            <span className={styles.kicker}>{en ? 'ABOUT / LINGYI' : 'ABOUT / 关于凌一'}</span>
+            <span className={styles.kicker}>{en ? 'ABOUT / 01' : '关于凌一 / 01'}</span>
             <h1>{title}</h1>
           </div>
           <div className={styles.aboutProfile}>
             <Image className={styles.aboutAvatar} src="/凌一-头像.png" alt={en ? 'LingYi portrait' : '凌一头像'} width={112} height={112} priority />
             <div>
-              <span>PROFILE / 01</span>
+              <span>{en ? 'PROFILE' : '个人档案'}</span>
               <p>{tagline}</p>
             </div>
           </div>
@@ -107,7 +111,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
               </section>
 
               <section className={styles.aboutSection}>
-                <h2>CURRENTLY FOCUSING ON</h2>
+                <h2>{en ? 'CURRENTLY FOCUSING ON' : '近期关注'}</h2>
                 <ul className={styles.aboutList}>
                   <li>{en ? 'Building the lingyi.tools online toolkit' : '构建 lingyi.tools 在线工具集'}</li>
                   <li>{en ? 'Exploring the intersection of AI and frontend development' : '探索 AI 与前端开发的结合'}</li>
@@ -116,7 +120,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
               </section>
 
               <section className={styles.aboutSection}>
-                <h2>SELECTED PROJECTS</h2>
+                <h2>{en ? 'SELECTED PROJECTS' : '精选项目'}</h2>
                 <div className={styles.aboutProjects}>
                   <a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer" data-umami-event="project-click" data-umami-event-project="lingyi.tools">
                     <strong>lingyi.tools</strong><span>↗</span>
@@ -128,19 +132,19 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
               </section>
 
               <section className={styles.aboutSection}>
-                <h2>TECH STACK</h2>
+                <h2>{en ? 'TECH STACK' : '技术栈'}</h2>
                 <div className={styles.aboutTech}>
                   {['React', 'Next.js', 'TypeScript', 'Node.js', 'Tailwind CSS', 'Python', 'Git'].map((tech) => <span key={tech}>{tech}</span>)}
                 </div>
               </section>
 
               <section className={styles.aboutSection}>
-                <h2>GET IN TOUCH</h2>
+                <h2>{en ? 'GET IN TOUCH' : '联系方式'}</h2>
                 <div className={styles.aboutContacts}>
-                  <div><span>Email</span><a href="mailto:1286324609@qq.com">1286324609@qq.com</a></div>
+                  <div><span>{en ? 'Email' : '邮箱'}</span><a href="mailto:1286324609@qq.com">1286324609@qq.com</a></div>
                   <div><span>GitHub</span><a href="https://github.com/Jascenn" target="_blank" rel="noopener noreferrer" data-umami-event="profile-click" data-umami-event-platform="github">@Jascenn</a></div>
-                  <div><span>WeChat</span><strong>Help000000</strong></div>
-                  <div><span>Website</span><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer" data-umami-event="project-click" data-umami-event-project="lingyi.tools">lingyi.tools</a></div>
+                  <div><span>{en ? 'WeChat' : '微信'}</span><strong>Help000000</strong></div>
+                  <div><span>{en ? 'Website' : '网站'}</span><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer" data-umami-event="project-click" data-umami-event-project="lingyi.tools">lingyi.tools</a></div>
                   <a className={styles.aboutStory} href="https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A" target="_blank" rel="noopener noreferrer" data-umami-event="profile-story-click">
                     {en ? 'Learn more about my story →' : '了解更多关于我的故事 →'}
                   </a>

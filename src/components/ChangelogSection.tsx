@@ -6,6 +6,16 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.0.1',
+    date: '2026-09-28',
+    title: '双语界面一致性与联系体验修正',
+    changes: [
+      { type: '优化', color: 'text-blue-500', text: '统一首页、文章索引、关于、搜索和页脚的中英文栏目名称' },
+      { type: '新增', color: 'text-green-500', text: '微信号支持点击复制，并提供复制结果提示' },
+      { type: '优化', color: 'text-blue-500', text: '调整关于页分隔线与间距，减少多余的视觉层级' },
+    ]
+  },
+  {
     version: 'v2.0.0',
     date: '2026-09-28',
     title: '全站视觉更新与中英文支持',
@@ -62,6 +72,14 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.0.1', date: '2026-09-28', title: 'Bilingual UI consistency and contact improvements',
+    changes: [
+      { type: 'Improve', color: 'text-blue-500', text: 'Unified localized section labels across the homepage, archive, about, search, and footer' },
+      { type: 'Add', color: 'text-green-500', text: 'Added one-click WeChat ID copying with result feedback' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Refined dividers and spacing on the about page to reduce visual clutter' },
+    ],
+  },
   {
     version: 'v2.0.0', date: '2026-09-28', title: 'Site-wide visual refresh and bilingual support',
     changes: [

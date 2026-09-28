@@ -6,6 +6,18 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.0.0',
+    date: '2026-09-28',
+    title: '全站视觉更新与中英文支持',
+    changes: [
+      { type: '新增', color: 'text-green-500', text: '全站中英文切换，文章可直接切换到对应英文版本' },
+      { type: '改版', color: 'text-purple-500', text: '重新设计首页，加入当前项目、内容分类、编辑精选和最近文章' },
+      { type: '优化', color: 'text-blue-500', text: '统一文章、博客、关于、搜索及底部区域的视觉样式' },
+      { type: '优化', color: 'text-blue-500', text: '正文恢复原版单栏阅读结构，保留原有内容、图片、标签和分享功能' },
+      { type: '修复', color: 'text-red-500', text: '修复中英文文章及搜索结果跳回预览地址的问题' },
+    ]
+  },
+  {
     version: 'v1.3.0',
     date: '2025-11-08',
     title: '字体加载优化与部署配置改进',
@@ -50,6 +62,16 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.0.0', date: '2026-09-28', title: 'Site-wide visual refresh and bilingual support',
+    changes: [
+      { type: 'Add', color: 'text-green-500', text: 'Added Chinese and English switching with matching article translations' },
+      { type: 'Redesign', color: 'text-purple-500', text: 'Redesigned the homepage with current projects, categories, editor\'s picks, and recent posts' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Unified the visual language across articles, archive, about, search, and footer pages' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Restored the original single-column article layout while preserving content, images, tags, and sharing' },
+      { type: 'Fix', color: 'text-red-500', text: 'Fixed article and search links incorrectly pointing to preview routes' },
+    ],
+  },
   {
     version: 'v1.3.0', date: '2025-11-08', title: 'Font loading and deployment improvements',
     changes: [

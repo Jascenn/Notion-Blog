@@ -437,7 +437,6 @@
 }
 
 .copyContactHint {
-  min-width: 3.4rem;
   color: var(--faint);
   font: 650 0.58rem/1.4 var(--font-mono);
   letter-spacing: 0.05em;

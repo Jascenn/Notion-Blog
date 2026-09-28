@@ -50,7 +50,7 @@ export default function CopyContactButton({ value, locale }: { value: string; lo
     ? (en ? 'Copied ✓' : '已复制 ✓')
     : status === 'failed'
       ? (en ? 'Copy failed' : '复制失败')
-      : (en ? 'Copy' : '点击复制');
+      : '';
 
   return (
     <button
@@ -62,7 +62,7 @@ export default function CopyContactButton({ value, locale }: { value: string; lo
       data-umami-event-contact="wechat"
     >
       <span className={styles.copyContactValue}>{value}</span>
-      <span className={styles.copyContactHint} aria-live="polite">{hint}</span>
+      {hint && <span className={styles.copyContactHint} aria-live="polite">{hint}</span>}
     </button>
   );
 }

@@ -363,6 +363,8 @@ const languageName: Record<NotionLocale, string> = {
   en: '🇺🇸 En-US',
 };
 
+const homepageEditorialTagNames = new Set(['封面文章', '精选 02', '精选 03']);
+
 function languageFilter(locale: NotionLocale) {
   if (locale === 'en') {
     return { property: 'Language', select: { equals: languageName.en } };
@@ -396,6 +398,12 @@ function parseHomepageSlot(page: NotionPage): NotionPost['homepageSlot'] {
   if (values.has('精选 02')) return 'second';
   if (values.has('精选 03')) return 'third';
   return null;
+}
+
+function parsePublicTags(page: NotionPage): NotionTag[] {
+  return (page.properties.Tags?.multi_select || [])
+    .filter((tag) => !homepageEditorialTagNames.has(tag.name))
+    .map((tag) => ({ name: tag.name, color: tag.color }));
 }
 
 async function getChineseHomepageSlots(): Promise<Map<string, NonNullable<NotionPost['homepageSlot']>>> {
@@ -486,10 +494,7 @@ export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished =
               page.last_edited_time ||
               new Date().toISOString(),
             updatedAt: page.last_edited_time,
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({
-              name: tag.name,
-              color: tag.color
-            })) || [],
+            tags: parsePublicTags(page),
             published:
               (page.properties.Status?.select?.name === '✅ Published') ||
               (page.properties.Published?.checkbox || false),
@@ -519,10 +524,7 @@ export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished =
               page.last_edited_time ||
               new Date().toISOString(),
             updatedAt: page.last_edited_time,
-            tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({
-              name: tag.name,
-              color: tag.color
-            })) || [],
+            tags: parsePublicTags(page),
             published:
               (page.properties.Status?.select?.name === '✅ Published') ||
               (page.properties.Published?.checkbox || false),

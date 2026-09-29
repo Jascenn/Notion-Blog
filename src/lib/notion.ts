@@ -22,6 +22,7 @@ export interface NotionPost {
   published: boolean;
   cover?: string | null;
   pinned?: boolean;
+  homepageSlot?: 'cover' | 'second' | 'third' | 'hidden' | null;
   type?: 'post' | 'page' | 'announcement';
   language?: NotionLocale;
 }
@@ -81,6 +82,7 @@ interface NotionProperties {
   Status?: { select?: NotionSelect };
   Type?: { select?: NotionSelect };
   Pinned?: NotionCheckbox;
+  '首页位置'?: { select?: NotionSelect };
   Language?: { select?: NotionSelect };
 }
 
@@ -389,6 +391,41 @@ function parseLanguage(page: NotionPage): NotionLocale {
   return page.properties.Language?.select?.name === languageName.en ? 'en' : 'zh';
 }
 
+function parseHomepageSlot(page: NotionPage): NotionPost['homepageSlot'] {
+  const value = page.properties['首页位置']?.select?.name;
+  if (value === '封面文章') return 'cover';
+  if (value === '精选 02') return 'second';
+  if (value === '精选 03') return 'third';
+  if (value === '不展示') return 'hidden';
+  return null;
+}
+
+async function getChineseHomepageSlots(): Promise<Map<string, NonNullable<NotionPost['homepageSlot']>>> {
+  const slots = new Map<string, NonNullable<NotionPost['homepageSlot']>>();
+  try {
+    const response = await queryNotionDataSource({
+      filter: {
+        and: [
+          publishedFilter(),
+          languageFilter('zh'),
+          { property: '首页位置', select: { is_not_empty: true } },
+        ],
+      },
+      page_size: 100,
+    });
+    if (!response.ok) return slots;
+    const data = await response.json();
+    for (const page of data.results as NotionPage[]) {
+      const slug = getPlainText(page.properties.Slug?.rich_text || []);
+      const slot = parseHomepageSlot(page);
+      if (slug && slot && !slots.has(slug)) slots.set(slug, slot);
+    }
+  } catch (error) {
+    logger.error('Error fetching Chinese homepage slots', error);
+  }
+  return slots;
+}
+
 // Mock posts removed - using real Notion data only
 
 // 获取所有已发布的文章
@@ -454,6 +491,7 @@ export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished =
               (page.properties.Published?.checkbox || false),
             cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             pinned: page.properties.Pinned?.checkbox || false,
+            homepageSlot: parseHomepageSlot(page),
             type: (() => {
               const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
               if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post' | 'announcement' | 'page';
@@ -486,6 +524,7 @@ export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished =
               (page.properties.Published?.checkbox || false),
             cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             pinned: page.properties.Pinned?.checkbox || false,
+            homepageSlot: parseHomepageSlot(page),
             type: (() => {
               const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
               if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post' | 'announcement' | 'page';
@@ -498,7 +537,12 @@ export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished =
     );
 
 
-    return posts;
+    if (locale !== 'en') return posts;
+    const chineseSlots = await getChineseHomepageSlots();
+    return posts.map((post) => ({
+      ...post,
+      homepageSlot: chineseSlots.get(post.slug) || null,
+    }));
   } catch (error) {
     logger.error('Error fetching posts from Notion', error);
     // 返回空数组而不是抛出错误，让首页能正常显示

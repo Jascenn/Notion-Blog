@@ -258,7 +258,21 @@ function MagazineVariant({ posts }: { posts: NotionPost[] }) {
 }
 
 function CuratedVariant({ posts, routePrefix = '', locale = 'zh' }: { posts: NotionPost[]; routePrefix?: string; locale?: OptimizedLocale }) {
-  const [cover, second, third, ...remaining] = posts;
+  const used = new Set<string>();
+  const take = (slot: NonNullable<NotionPost['homepageSlot']>) => {
+    const selected = posts.find((post) => post.homepageSlot === slot && !used.has(post.id));
+    if (selected) used.add(selected.id);
+    return selected;
+  };
+  const takeLatest = () => {
+    const selected = posts.find((post) => post.homepageSlot !== 'hidden' && !used.has(post.id));
+    if (selected) used.add(selected.id);
+    return selected;
+  };
+  const cover = take('cover') || takeLatest();
+  const second = take('second') || takeLatest();
+  const third = take('third') || takeLatest();
+  const remaining = posts.filter((post) => !used.has(post.id));
   const latest = remaining.slice(0, 9);
   const en = locale === 'en';
   const topics = en

@@ -16,6 +16,6 @@ export const metadata: Metadata = {
 };
 
 export default async function EnglishBlogPage() {
-  const posts = localizeOptimizedPosts(await getPostsOnly('en', true), 'en');
+  const posts = localizeOptimizedPosts(await getPostsOnly('en'), 'en');
   return <OptimizedArchive posts={posts} locale="en" routeRoot="/en" />;
 }

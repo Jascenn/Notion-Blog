@@ -16,6 +16,6 @@ export const metadata: Metadata = {
 };
 
 export default async function EnglishHomePage() {
-  const posts = localizeOptimizedPosts(await getPostsOnly('en', true), 'en');
+  const posts = localizeOptimizedPosts(await getPostsOnly('en'), 'en');
   return <HomepageVariant variant="curated" posts={posts} showDemoSwitcher={false} routePrefix="/en" locale="en" />;
 }

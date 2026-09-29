@@ -148,6 +148,15 @@ docs/.docusaurus/
 /analytics-*.csv.gz
 /analytics-data/
 
+# Local Notion exports and backups. Keep only the reviewed English source used
+# by scripts/sync-notion-english.ts under version control.
+/output/*
+!/output/translations/
+/output/translations/*
+!/output/translations/*/
+/output/translations/*/*
+!/output/translations/*/translation.md
+
 # ============================
 # Test & Debug Pages
 # ============================

@@ -9,7 +9,7 @@ export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug, 'en', true);
+  const post = await getPostBySlug(slug, 'en');
   if (!post) notFound();
   const localized = localizeOptimizedPost(post, 'en');
   return {
@@ -34,8 +34,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function EnglishArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const [post, allPosts] = await Promise.all([
-    getPostBySlug(slug, 'en', true),
-    getPosts('en', true),
+    getPostBySlug(slug, 'en'),
+    getPosts('en'),
   ]);
   if (!post) notFound();
   return (

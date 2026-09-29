@@ -265,7 +265,7 @@ function CuratedVariant({ posts, routePrefix = '', locale = 'zh' }: { posts: Not
     return selected;
   };
   const takeLatest = () => {
-    const selected = posts.find((post) => post.homepageSlot !== 'hidden' && !used.has(post.id));
+    const selected = posts.find((post) => !used.has(post.id));
     if (selected) used.add(selected.id);
     return selected;
   };

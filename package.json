@@ -12,7 +12,7 @@
     "analytics:sync": "node scripts/sync-analytics.mjs",
     "analytics:sync:dry-run": "node scripts/sync-analytics.mjs --dry-run",
     "notion:sync-english": "tsx scripts/sync-notion-english.ts",
-    "notion:setup-homepage-slots": "tsx scripts/setup-homepage-slots.ts",
+    "notion:setup-homepage-tags": "tsx scripts/setup-homepage-tags.ts",
     "test:analytics": "node --test src/lib/analytics-sync.test.mjs"
   },
   "dependencies": {

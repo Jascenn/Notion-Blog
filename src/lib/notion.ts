@@ -22,7 +22,7 @@ export interface NotionPost {
   published: boolean;
   cover?: string | null;
   pinned?: boolean;
-  homepageSlot?: 'cover' | 'second' | 'third' | 'hidden' | null;
+  homepageSlot?: 'cover' | 'second' | 'third' | null;
   type?: 'post' | 'page' | 'announcement';
   language?: NotionLocale;
 }
@@ -82,7 +82,6 @@ interface NotionProperties {
   Status?: { select?: NotionSelect };
   Type?: { select?: NotionSelect };
   Pinned?: NotionCheckbox;
-  '首页位置'?: { select?: NotionSelect };
   Language?: { select?: NotionSelect };
 }
 
@@ -392,11 +391,10 @@ function parseLanguage(page: NotionPage): NotionLocale {
 }
 
 function parseHomepageSlot(page: NotionPage): NotionPost['homepageSlot'] {
-  const value = page.properties['首页位置']?.select?.name;
-  if (value === '封面文章') return 'cover';
-  if (value === '精选 02') return 'second';
-  if (value === '精选 03') return 'third';
-  if (value === '不展示') return 'hidden';
+  const values = new Set((page.properties.Tags?.multi_select || []).map((tag) => tag.name));
+  if (values.has('封面文章')) return 'cover';
+  if (values.has('精选 02')) return 'second';
+  if (values.has('精选 03')) return 'third';
   return null;
 }
 
@@ -408,7 +406,13 @@ async function getChineseHomepageSlots(): Promise<Map<string, NonNullable<Notion
         and: [
           publishedFilter(),
           languageFilter('zh'),
-          { property: '首页位置', select: { is_not_empty: true } },
+          {
+            or: [
+              { property: 'Tags', multi_select: { contains: '封面文章' } },
+              { property: 'Tags', multi_select: { contains: '精选 02' } },
+              { property: 'Tags', multi_select: { contains: '精选 03' } },
+            ],
+          },
         ],
       },
       page_size: 100,

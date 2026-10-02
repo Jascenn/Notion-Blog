@@ -11,7 +11,14 @@ export const metadata: Metadata = {
   description: 'All articles and build notes from LingYi.',
   alternates: {
     canonical: '/en/blog',
-    languages: { 'zh-CN': '/blog', 'en-US': '/en/blog' },
+    languages: { 'zh-CN': '/blog', 'en-US': '/en/blog', 'x-default': '/blog' },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    alternateLocale: ['zh_CN'],
+    title: 'Articles from LingYi',
+    description: 'All articles and build notes from LingYi.',
   },
 };
 

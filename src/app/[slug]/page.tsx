@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import BlogPostView from '@/components/BlogPostView';
 import { getPostBySlug, getPosts } from '@/lib/notion';
 import { logger } from '@/lib/logger';
+import { getSiteUrl } from '@/lib/site-config';
 
 // 启用增量静态再生成（ISR）- 每 60 秒重新验证一次
 export const revalidate = 60;
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     notFound();
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+  const siteUrl = getSiteUrl();
 
   return {
     title: post.title,
@@ -40,10 +41,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       languages: {
         'zh-CN': `${siteUrl}/${post.slug}`,
         'en-US': `${siteUrl}/en/${post.slug}`,
+        'x-default': `${siteUrl}/${post.slug}`,
       },
     },
     openGraph: {
       type: 'article',
+      locale: 'zh_CN',
+      alternateLocale: ['en_US'],
       title: post.title,
       description: post.excerpt || post.title,
       publishedTime: post.publishedAt,

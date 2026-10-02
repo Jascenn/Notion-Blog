@@ -10,7 +10,14 @@ export const metadata: Metadata = {
   description: 'About LingYi, the projects he is building, and the ideas behind this site.',
   alternates: {
     canonical: '/en/about',
-    languages: { 'zh-CN': '/about', 'en-US': '/en/about' },
+    languages: { 'zh-CN': '/about', 'en-US': '/en/about', 'x-default': '/about' },
+  },
+  openGraph: {
+    type: 'profile',
+    locale: 'en_US',
+    alternateLocale: ['zh_CN'],
+    title: 'About LingYi',
+    description: 'About LingYi, the projects he is building, and the ideas behind this site.',
   },
 };
 

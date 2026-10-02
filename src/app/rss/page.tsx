@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { absoluteSiteUrl } from '@/lib/site-config';
 
 export const metadata: Metadata = {
   title: 'RSS Feed',
@@ -6,8 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default function RSSPage() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
-  const feedUrl = `${siteUrl.replace(/\/$/, '')}/rss.xml`;
+  const feedUrl = absoluteSiteUrl('/rss.xml');
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">

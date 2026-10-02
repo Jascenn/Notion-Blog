@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type { NotionPost } from '@/lib/notion';
 import type { OptimizedLocale } from '@/lib/optimized-i18n';
 import { optimizedRoots } from '@/lib/optimized-i18n';
@@ -20,16 +20,40 @@ function formatDate(date: string, locale: OptimizedLocale) {
 export default function OptimizedSearchClient({ posts, locale = 'zh', routeRoot }: { posts: NotionPost[]; locale?: OptimizedLocale; routeRoot?: string }) {
   const en = locale === 'en';
   const root = routeRoot ?? optimizedRoots[locale];
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryParam = searchParams.get('q') || '';
   const tagsParam = searchParams.get('tags') || '';
-  const [query, setQuery] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const serializedSearchParams = searchParams.toString();
+  const [query, setQuery] = useState(queryParam);
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    () => tagsParam.split(',').map((tag) => tag.trim()).filter(Boolean),
+  );
 
   useEffect(() => {
     setQuery(queryParam);
     setSelectedTags(tagsParam.split(',').map((tag) => tag.trim()).filter(Boolean));
   }, [queryParam, tagsParam]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(serializedSearchParams);
+    const normalizedQuery = query.trim();
+    if (normalizedQuery) params.set('q', normalizedQuery);
+    else params.delete('q');
+
+    if (selectedTags.length > 0) params.set('tags', selectedTags.join(','));
+    else params.delete('tags');
+
+    const next = params.toString();
+    if (next === serializedSearchParams) return;
+
+    const timeout = window.setTimeout(() => {
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    }, 250);
+
+    return () => window.clearTimeout(timeout);
+  }, [pathname, query, router, selectedTags, serializedSearchParams]);
 
   const allTags = useMemo(
     () => Array.from(new Set(posts.flatMap((post) => post.tags.map((tag) => tag.name)))).sort(),

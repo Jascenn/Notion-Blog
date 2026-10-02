@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import HomepageVariant from '@/components/demo/HomepageVariants';
 import { getPostsOnly } from '@/lib/notion';
 import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
+import { getSiteUrl } from '@/lib/site-config';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -9,13 +10,13 @@ export const revalidate = 0;
 export const metadata: Metadata = {
   alternates: {
     canonical: '/',
-    languages: { 'zh-CN': '/', 'en-US': '/en' },
+    languages: { 'zh-CN': '/', 'en-US': '/en', 'x-default': '/' },
   },
 };
 
 export default async function Home() {
   const posts = localizeOptimizedPosts(await getPostsOnly(), 'zh');
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const siteUrl = getSiteUrl();
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',

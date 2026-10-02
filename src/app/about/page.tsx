@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getAboutPage } from '@/lib/notion';
 import { OptimizedAbout } from '@/components/preview/OptimizedPages';
+import { getSiteUrl } from '@/lib/site-config';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -10,13 +11,13 @@ export const metadata: Metadata = {
   description: '了解凌一的个人经历、创作理念与正在构建的项目。',
   alternates: {
     canonical: '/about',
-    languages: { 'zh-CN': '/about', 'en-US': '/en/about' },
+    languages: { 'zh-CN': '/about', 'en-US': '/en/about', 'x-default': '/about' },
   },
 };
 
 export default async function AboutPage() {
   const about = await getAboutPage();
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const siteUrl = getSiteUrl();
   const personJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',

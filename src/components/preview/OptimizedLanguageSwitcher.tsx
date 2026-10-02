@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import styles from '@/app/preview/optimized/optimized.module.css';
@@ -30,9 +29,9 @@ export default function OptimizedLanguageSwitcher() {
 
   return (
     <nav className={styles.languageSwitcher} aria-label={isEnglish ? 'Language' : '语言切换'}>
-      <Link href={zhHref} className={!isEnglish ? styles.languageActive : undefined} aria-current={!isEnglish ? 'page' : undefined}>中</Link>
+      <a href={zhHref} className={!isEnglish ? styles.languageActive : undefined} aria-current={!isEnglish ? 'page' : undefined}>中</a>
       <span aria-hidden="true">/</span>
-      <Link href={enHref} className={isEnglish ? styles.languageActive : undefined} aria-current={isEnglish ? 'page' : undefined}>EN</Link>
+      <a href={enHref} className={isEnglish ? styles.languageActive : undefined} aria-current={isEnglish ? 'page' : undefined}>EN</a>
     </nav>
   );
 }

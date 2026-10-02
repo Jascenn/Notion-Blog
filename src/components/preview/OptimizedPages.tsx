@@ -12,6 +12,7 @@ import CopyContactButton from '@/components/preview/CopyContactButton';
 import type { NotionPost } from '@/lib/notion';
 import type { OptimizedLocale } from '@/lib/optimized-i18n';
 import { optimizedRoots } from '@/lib/optimized-i18n';
+import { getSiteUrl } from '@/lib/site-config';
 import styles from '@/app/preview/optimized/optimized.module.css';
 
 function formatDate(date: string, locale: OptimizedLocale = 'zh') {
@@ -76,6 +77,12 @@ export function OptimizedArchive({ posts, locale = 'zh', routeRoot }: { posts: N
 
 export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | null; locale?: OptimizedLocale }) {
   const en = locale === 'en';
+  const siteUrl = getSiteUrl();
+  const configuredEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || '';
+  const contactEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(configuredEmail)
+    && !configuredEmail.includes('{{')
+    ? configuredEmail
+    : null;
   const title = !en && about?.title ? about.title : en ? 'LingYi / LingYi_Stu' : '凌一 / LingYi_Stu';
   const tagline = !en && about?.excerpt
     ? about.excerpt
@@ -85,6 +92,24 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
 
   return (
     <div className={styles.siteRoot}>
+      {en && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Person',
+              name: 'LingYi',
+              alternateName: 'LingYi_Stu',
+              url: `${siteUrl}/en/about`,
+              image: `${siteUrl}/凌一-头像.png`,
+              description: 'Full-stack developer and AI tool builder sharing technical practice, projects, and life notes.',
+              sameAs: ['https://github.com/Jascenn'],
+              knowsAbout: ['Full-stack development', 'AI tools', 'Claude Code', 'Productivity workflows'],
+            }),
+          }}
+        />
+      )}
       <div className={styles.page}>
         <header className={`${styles.pageHeader} ${styles.aboutHeader}`}>
           <div>
@@ -146,7 +171,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
               <section className={styles.aboutSection}>
                 <h2>{en ? 'GET IN TOUCH' : '联系方式'}</h2>
                 <div className={styles.aboutContacts}>
-                  <div><span>{en ? 'Email' : '邮箱'}</span><a href="mailto:1286324609@qq.com">1286324609@qq.com</a></div>
+                  {contactEmail && <div><span>{en ? 'Email' : '邮箱'}</span><a href={`mailto:${contactEmail}`}>{contactEmail}</a></div>}
                   <div><span>GitHub</span><a href="https://github.com/Jascenn" target="_blank" rel="noopener noreferrer" data-umami-event="profile-click" data-umami-event-platform="github">@Jascenn</a></div>
                   <div><span>{en ? 'WeChat' : '微信'}</span><CopyContactButton value="Help000000" locale={locale} /></div>
                   <div><span>{en ? 'Website' : '网站'}</span><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer" data-umami-event="project-click" data-umami-event-project="lingyi.tools">lingyi.tools</a></div>
@@ -168,11 +193,26 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
 export function OptimizedArticle({ post, allPosts, locale = 'zh', routeRoot }: { post: NotionPost; allPosts: NotionPost[]; locale?: OptimizedLocale; routeRoot?: string }) {
   const en = locale === 'en';
   const root = routeRoot ?? optimizedRoots[locale];
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const siteUrl = getSiteUrl();
   const postUrl = `${siteUrl}${en ? '/en' : ''}/${post.slug}`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt || post.title,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt || post.publishedAt,
+    url: postUrl,
+    inLanguage: en ? 'en-US' : 'zh-CN',
+    author: { '@type': 'Person', name: en ? 'LingYi' : '凌一 LingYi', url: `${siteUrl}${en ? '/en' : ''}/about` },
+    publisher: { '@type': 'Person', name: en ? 'LingYi' : '凌一 LingYi' },
+    mainEntityOfPage: postUrl,
+    ...(post.cover ? { image: post.cover.startsWith('http') ? post.cover : `${siteUrl}${post.cover}` } : {}),
+  };
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 min-h-screen">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className="pb-16">
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{post.title}</h1>

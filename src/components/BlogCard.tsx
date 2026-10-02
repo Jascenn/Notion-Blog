@@ -29,14 +29,16 @@ export default function BlogCard({ post, hrefPrefix = '' }: BlogCardProps) {
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
+        timeZone: 'Asia/Shanghai',
       });
     } else {
       // 中文模式：斜杠分隔格式 2025/09/25
       return date.toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit'
+        day: '2-digit',
+        timeZone: 'Asia/Shanghai',
       });
     }
   };

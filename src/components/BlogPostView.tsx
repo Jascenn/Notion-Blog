@@ -9,6 +9,7 @@ import ShareButtons from '@/components/ShareButtons';
 import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
 import { getPostBySlug, getPosts } from '@/lib/notion';
 import { logger } from '@/lib/logger';
+import { getSiteUrl } from '@/lib/site-config';
 
 interface BlogPostViewProps {
   params: Promise<{ slug: string }>;
@@ -33,8 +34,9 @@ export default async function BlogPostView({ params, routePrefix = '' }: BlogPos
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
+    timeZone: 'Asia/Shanghai',
   });
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+  const siteUrl = getSiteUrl();
   const postUrl = `${siteUrl}/${slug}`;
   const jsonLd = {
     '@context': 'https://schema.org',

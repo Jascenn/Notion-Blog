@@ -6,6 +6,10 @@ const REQUEST_TIMEOUT_MS = 20_000;
 const MAX_RICH_TEXT_LENGTH = 1_900;
 const METRIC_TYPES = ['path', 'referrer', 'channel', 'country', 'device', 'browser', 'os', 'event'];
 
+function analyticsWebsiteName() {
+  return process.env.ANALYTICS_SITE_NAME || 'lingyi.bio';
+}
+
 function required(value, name) {
   if (!value) throw new Error(`Missing required configuration: ${name}`);
   return value;
@@ -158,7 +162,7 @@ export async function collectAnalyticsRange({
   return {
     schemaVersion: 1,
     provider: 'umami-share',
-    website: 'lingyi.bio',
+    website: analyticsWebsiteName(),
     websiteId: collected.websiteId,
     generatedAt: new Date().toISOString(),
     timeZone: DEFAULT_TIME_ZONE,
@@ -184,7 +188,7 @@ export async function collectDailyAnalytics({
   return {
     schemaVersion: 1,
     provider: 'umami-share',
-    website: 'lingyi.bio',
+    website: analyticsWebsiteName(),
     websiteId: collected.websiteId,
     generatedAt: new Date().toISOString(),
     timeZone: DEFAULT_TIME_ZONE,

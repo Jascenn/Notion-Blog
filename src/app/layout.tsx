@@ -7,16 +7,17 @@ import ExternalLinkIcon from "@/components/ExternalLinkIcon";
 import ScrollToTop from "@/components/ScrollToTop";
 import ReadingProgress from "@/components/ReadingProgress";
 import Analytics from "@/components/Analytics";
+import { absoluteSiteUrl, getSiteUrl } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio'),
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: '凌一 LingYi — 全栈开发者 · 技术与生活博客',
     template: '%s | 凌一 LingYi',
   },
   description: '凌一（LingYi）的个人博客：全栈开发实践、AI 工具探索、效率工作流与生活随笔，记录从 0 到 1 的构建过程。',
   keywords: ['凌一', 'LingYi', '博客', '全栈开发', 'AI', '效率工具', '生活随笔', 'lingyi.tools'],
-  authors: [{ name: '凌一 LingYi', url: 'https://lingyi.bio/about' }],
+  authors: [{ name: '凌一 LingYi', url: absoluteSiteUrl('/about') }],
   creator: '凌一 LingYi',
   openGraph: {
     type: 'website',

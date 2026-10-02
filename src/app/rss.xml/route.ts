@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getPostsOnly } from '@/lib/notion';
+import { getSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 3600; // 1 hour
 
 export async function GET() {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const siteUrl = getSiteUrl();
 
   try {
     const posts = await getPostsOnly();

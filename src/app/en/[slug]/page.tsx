@@ -17,10 +17,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: localized.excerpt,
     alternates: {
       canonical: `/en/${slug}`,
-      languages: { 'zh-CN': `/${slug}`, 'en-US': `/en/${slug}` },
+      languages: { 'zh-CN': `/${slug}`, 'en-US': `/en/${slug}`, 'x-default': `/${slug}` },
     },
     openGraph: {
       type: 'article',
+      locale: 'en_US',
+      alternateLocale: ['zh_CN'],
       title: localized.title,
       description: localized.excerpt,
       publishedTime: localized.publishedAt,

@@ -6,6 +6,7 @@ import {
   previousShanghaiDate,
   upsertAnalyticsInNotion,
 } from '@/lib/analytics-sync.mjs';
+import { getSiteHostname } from '@/lib/site-config';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     Sentry.captureException(error, {
-      tags: { job: 'daily-analytics-sync', site: 'lingyi.bio' },
+      tags: { job: 'daily-analytics-sync', site: getSiteHostname() },
       extra: { date },
     });
     console.error('Scheduled analytics sync failed', error);

@@ -67,7 +67,8 @@ export default function RelatedPosts({ currentPost, allPosts, maxPosts = 3, href
     return date.toLocaleDateString(locale === 'en' ? 'en-US' : 'zh-CN', {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit'
+      day: '2-digit',
+      timeZone: 'Asia/Shanghai',
     });
   };
 

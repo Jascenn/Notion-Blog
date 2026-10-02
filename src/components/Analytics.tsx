@@ -1,4 +1,5 @@
 import Script from 'next/script';
+import { getUmamiDomains } from '@/lib/site-config';
 
 /**
  * Umami page-view and event tracking.
@@ -13,8 +14,7 @@ export default function Analytics() {
 
   const scriptUrl =
     process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL || 'https://cloud.umami.is/script.js';
-  const allowedDomains =
-    process.env.NEXT_PUBLIC_UMAMI_DOMAINS || 'lingyi.bio,www.lingyi.bio';
+  const allowedDomains = getUmamiDomains();
 
   return (
     <Script

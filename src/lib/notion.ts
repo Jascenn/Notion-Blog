@@ -600,7 +600,7 @@ export async function getPostBySlug(slug: string, locale: NotionLocale = 'zh', i
           page.last_edited_time ||
           new Date().toISOString(),
         updatedAt: page.last_edited_time,
-        tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
+        tags: parsePublicTags(page),
         published:
           (page.properties.Status?.select?.name === '✅ Published') ||
           (page.properties.Published?.checkbox || false),
@@ -622,7 +622,7 @@ export async function getPostBySlug(slug: string, locale: NotionLocale = 'zh', i
           page.last_edited_time ||
           new Date().toISOString(),
         updatedAt: page.last_edited_time,
-        tags: page.properties.Tags?.multi_select?.map((tag: NotionMultiSelect) => ({ name: tag.name, color: tag.color })) || [],
+        tags: parsePublicTags(page),
         published:
           (page.properties.Status?.select?.name === '✅ Published') ||
           (page.properties.Published?.checkbox || false),

@@ -158,7 +158,7 @@ export async function collectAnalyticsRange({
   return {
     schemaVersion: 1,
     provider: 'umami-share',
-    website: 'lingyi.bio',
+    website: 'lingyi.me',
     websiteId: collected.websiteId,
     generatedAt: new Date().toISOString(),
     timeZone: DEFAULT_TIME_ZONE,
@@ -184,7 +184,7 @@ export async function collectDailyAnalytics({
   return {
     schemaVersion: 1,
     provider: 'umami-share',
-    website: 'lingyi.bio',
+    website: 'lingyi.me',
     websiteId: collected.websiteId,
     generatedAt: new Date().toISOString(),
     timeZone: DEFAULT_TIME_ZONE,

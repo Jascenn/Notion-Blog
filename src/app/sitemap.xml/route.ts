@@ -4,7 +4,7 @@ import { getPostsOnly } from '@/lib/notion';
 export const revalidate = 3600; // 1 hour
 
 export async function GET() {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me').replace(/\/$/, '');
 
   try {
     const [posts, englishPosts] = await Promise.all([

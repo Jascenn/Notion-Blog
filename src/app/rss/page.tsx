@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 };
 
 export default function RSSPage() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me';
   const feedUrl = `${siteUrl.replace(/\/$/, '')}/rss.xml`;
 
   return (

@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     Sentry.captureException(error, {
-      tags: { job: 'daily-analytics-sync', site: 'lingyi.bio' },
+      tags: { job: 'daily-analytics-sync', site: 'lingyi.me' },
       extra: { date },
     });
     console.error('Scheduled analytics sync failed', error);

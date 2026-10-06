@@ -168,7 +168,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
 export function OptimizedArticle({ post, allPosts, locale = 'zh', routeRoot }: { post: NotionPost; allPosts: NotionPost[]; locale?: OptimizedLocale; routeRoot?: string }) {
   const en = locale === 'en';
   const root = routeRoot ?? optimizedRoots[locale];
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me').replace(/\/$/, '');
   const postUrl = `${siteUrl}${en ? '/en' : ''}/${post.slug}`;
 
   return (

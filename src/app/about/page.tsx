@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default async function AboutPage() {
   const about = await getAboutPage();
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me').replace(/\/$/, '');
   const personJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const posts = localizeOptimizedPosts(await getPostsOnly(), 'zh');
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio').replace(/\/$/, '');
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me').replace(/\/$/, '');
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',

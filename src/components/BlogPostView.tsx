@@ -34,7 +34,7 @@ export default async function BlogPostView({ params, routePrefix = '' }: BlogPos
     month: '2-digit',
     day: '2-digit',
   });
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me';
   const postUrl = `${siteUrl}/${slug}`;
   const jsonLd = {
     '@context': 'https://schema.org',

@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     notFound();
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.bio';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me';
 
   return {
     title: post.title,

@@ -14,7 +14,7 @@ export default function Analytics() {
   const scriptUrl =
     process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL || 'https://cloud.umami.is/script.js';
   const allowedDomains =
-    process.env.NEXT_PUBLIC_UMAMI_DOMAINS || 'lingyi.bio,www.lingyi.bio';
+    process.env.NEXT_PUBLIC_UMAMI_DOMAINS || 'lingyi.me,www.lingyi.me';
 
   return (
     <Script

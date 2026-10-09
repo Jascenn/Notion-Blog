@@ -5,7 +5,7 @@ import styles from './demo.module.css';
 
 export const metadata: Metadata = {
   title: '首页 Demo 方案选择',
-  description: 'lingyi.bio 首页本地设计方案对比。',
+  description: 'lingyi.me 首页本地设计方案对比。',
   robots: { index: false, follow: false },
 };
 

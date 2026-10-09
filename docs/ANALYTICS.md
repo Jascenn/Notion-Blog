@@ -1,11 +1,11 @@
-# lingyi.bio 访问分析
+# lingyi.me 访问分析
 
 本站使用 Umami 收集页面访问和必要的交互事件。未配置 Website ID 时，分析组件不会加载任何第三方脚本。
 
 ## 1. 创建站点
 
 1. 登录 Umami Cloud，或使用自建 Umami。
-2. 新建站点 `lingyi.bio`。
+2. 新建站点 `lingyi.me`。
 3. 复制 Website ID。
 4. 如果需要用脚本读取数据，在 Umami 设置中创建 API Key。
 

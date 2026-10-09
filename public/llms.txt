@@ -4,16 +4,16 @@
 
 ## 主要页面
 
-- [首页与文章列表](https://lingyi.bio/)
-- [关于凌一](https://lingyi.bio/about)
-- [站内搜索](https://lingyi.bio/search)
-- [RSS 订阅](https://lingyi.bio/rss.xml)
+- [首页与文章列表](https://lingyi.me/)
+- [关于凌一](https://lingyi.me/about)
+- [站内搜索](https://lingyi.me/search)
+- [RSS 订阅](https://lingyi.me/rss.xml)
 
 ## 代表文章
 
-- [AI 辅助编程完成了全栈项目](https://lingyi.bio/20260106-ai-quanzhan)
-- [再见 2025，你好 2026](https://lingyi.bio/20260102-2025-report)
-- [架构笔记：我的博客技术栈](https://lingyi.bio/blog-stack-notes)
+- [AI 辅助编程完成了全栈项目](https://lingyi.me/20260106-ai-quanzhan)
+- [再见 2025，你好 2026](https://lingyi.me/20260102-2025-report)
+- [架构笔记：我的博客技术栈](https://lingyi.me/blog-stack-notes)
 
 ## 项目与身份
 

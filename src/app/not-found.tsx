@@ -2,7 +2,24 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, X, Copy, Check, ExternalLink, Link2 } from "lucide-react";
+
+function SearchIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
+function LinkIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
 
 /**
  * 从地址栏里拆出粘连在一起的网址
@@ -105,7 +122,7 @@ export default function NotFound() {
           {gluedUrls.length > 0 && (
             <div className="text-left rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 space-y-3">
               <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
-                <Link2 className="w-5 h-5 text-amber-500" />
+                <LinkIcon className="w-5 h-5 text-amber-500" />
                 <span>这个网址看起来是多条网址粘在了一起</span>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -125,10 +142,8 @@ export default function NotFound() {
                       className="flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
                       {copied === url ? (
-                        <Check className="w-3.5 h-3.5 text-green-500" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5" />
-                      )}
+                        <span className="text-green-500">✓</span>
+                      ) : null}
                       {copied === url ? "已复制" : "复制"}
                     </button>
                     <a
@@ -137,8 +152,7 @@ export default function NotFound() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:opacity-90 transition-opacity"
                     >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      打开
+                      打开 <span aria-hidden="true">↗</span>
                     </a>
                   </div>
                 ))}
@@ -148,7 +162,7 @@ export default function NotFound() {
 
           {/* 搜索框：回车跳站内搜索 */}
           <div className="relative max-w-sm mx-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -164,7 +178,7 @@ export default function NotFound() {
                 aria-label="清空搜索"
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
-                <X className="w-4 h-4" />
+                <span className="text-base leading-none">×</span>
               </button>
             )}
           </div>

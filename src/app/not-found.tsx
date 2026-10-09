@@ -103,6 +103,13 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 relative">
+      {/* 装饰背景：跟 lingyi.tools 404 同款呼吸圆点 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 left-10 w-10 h-10 bg-gray-900/5 dark:bg-white/5 rounded-full animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-16 h-16 bg-gray-900/5 dark:bg-white/5 rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute bottom-32 left-1/4 w-12 h-12 bg-gray-900/5 dark:bg-white/5 rounded-full animate-pulse delay-2000"></div>
+        <div className="absolute bottom-20 right-1/3 w-12 h-12 bg-gray-900/5 dark:bg-white/5 rounded-full animate-pulse delay-3000"></div>
+      </div>
       <div className="min-h-screen flex flex-col items-center justify-center p-6 relative z-10">
         <div className="max-w-2xl w-full text-center space-y-7">
           {/* 404 主视觉 */}

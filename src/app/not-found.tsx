@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import NotFoundHelpers from './not-found-helpers';
 
 export default function NotFound() {
   return (
@@ -33,6 +34,8 @@ export default function NotFound() {
             {' '}找到您需要的内容
           </div>
         </div>
+
+        <NotFoundHelpers />
       </div>
     </div>
   );

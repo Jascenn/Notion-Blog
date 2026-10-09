@@ -1,37 +1,24 @@
-import Link from 'next/link';
-
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="text-center max-w-md mx-auto">
-        <div className="mb-8">
-          <h1 className="text-6xl font-light text-gray-300 mb-4">404</h1>
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            页面未找到
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
-            抱歉，您访问的页面不存在或已被移动。
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <Link
-            href="/"
-            className="inline-flex items-center px-6 py-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors font-medium"
-          >
-            ← 返回首页
-          </Link>
-
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            或者尝试使用{' '}
-            <Link
-              href="/search"
-              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 underline"
-            >
-              搜索功能
-            </Link>
-            {' '}找到您需要的内容
+    <div className="min-h-screen bg-white dark:bg-gray-950 relative">
+      {/* 装饰背景：跟 lingyi.tools 404 同款呼吸圆点 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 left-10 w-10 h-10 bg-gray-900/5 dark:bg-white/5 rounded-full animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-16 h-16 bg-gray-900/5 dark:bg-white/5 rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute bottom-32 left-1/4 w-12 h-12 bg-gray-900/5 dark:bg-white/5 rounded-full animate-pulse delay-2000"></div>
+        <div className="absolute bottom-20 right-1/3 w-12 h-12 bg-gray-900/5 dark:bg-white/5 rounded-full animate-pulse delay-3000"></div>
+      </div>
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 relative z-10">
+        <div className="max-w-2xl w-full text-center space-y-5">
+          <div className="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400">
+            404
           </div>
+          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
+            页面走丢了
+          </h1>
+          <p className="text-lg text-gray-500 dark:text-gray-400">
+            看起来您要找的页面正在宇宙中漂浮，不过别担心，它可能只是在探索新的维度。
+          </p>
         </div>
       </div>
     </div>

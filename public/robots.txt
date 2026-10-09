@@ -43,4 +43,4 @@ User-agent: *
 Allow: /
 Disallow: /api/views/
 
-Sitemap: https://lingyi.bio/sitemap.xml
+Sitemap: https://lingyi.me/sitemap.xml

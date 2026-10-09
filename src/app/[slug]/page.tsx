@@ -49,13 +49,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt || post.publishedAt,
       url: `${siteUrl}/${post.slug}`,
-      images: post.cover ? [{ url: post.cover }] : [],
+      images: post.cover
+        ? [{ url: post.cover }]
+        : [{ url: '/og-default.png', width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
-      card: post.cover ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title: post.title,
       description: post.excerpt || post.title,
-      images: post.cover ? [post.cover] : [],
+      images: post.cover ? [post.cover] : ['/og-default.png'],
     },
   };
 }

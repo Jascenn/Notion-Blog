@@ -1,3 +1,15 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "404 页面走丢了",
+  description: "您要找的页面不存在、已被移动或地址输入有误。",
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: "404 页面走丢了",
+    description: "您要找的页面不存在、已被移动或地址输入有误。",
+  },
+};
+
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 relative">

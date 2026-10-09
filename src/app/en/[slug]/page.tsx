@@ -26,7 +26,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       publishedTime: localized.publishedAt,
       modifiedTime: localized.updatedAt || localized.publishedAt,
       url: `/en/${slug}`,
-      images: localized.cover ? [{ url: localized.cover }] : [],
+      images: localized.cover
+        ? [{ url: localized.cover }]
+        : [{ url: '/og-default.png', width: 1200, height: 630, alt: localized.title }],
     },
   };
 }

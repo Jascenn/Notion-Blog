@@ -7,6 +7,7 @@ import ExternalLinkIcon from "@/components/ExternalLinkIcon";
 import ScrollToTop from "@/components/ScrollToTop";
 import ReadingProgress from "@/components/ReadingProgress";
 import Analytics from "@/components/Analytics";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me'),
@@ -86,6 +87,7 @@ export default function RootLayout({
           `}
         </Script>
         <Analytics />
+        <GoogleAnalytics />
         <ReadingProgress />
         <Navigation />
         <main className="min-h-screen bg-white dark:bg-gray-900">

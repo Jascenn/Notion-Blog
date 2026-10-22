@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     canonical: '/',
     languages: { 'zh-CN': '/', 'en-US': '/en' },
   },
+  openGraph: { url: '/' },
 };
 
 export default async function Home() {

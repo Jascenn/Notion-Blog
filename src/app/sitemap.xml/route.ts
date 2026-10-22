@@ -20,7 +20,7 @@ export async function GET() {
     }, undefined);
 
     const urls: { loc: string; lastmod?: string; changefreq: string; priority: string }[] = [
-      { loc: `${siteUrl}/`, lastmod: newestPostUpdate, changefreq: 'daily', priority: '1.0' },
+      { loc: siteUrl, lastmod: newestPostUpdate, changefreq: 'daily', priority: '1.0' },
       { loc: `${siteUrl}/blog`, lastmod: newestPostUpdate, changefreq: 'daily', priority: '0.9' },
       { loc: `${siteUrl}/about`, changefreq: 'monthly', priority: '0.8' },
       { loc: `${siteUrl}/en`, changefreq: 'daily', priority: '0.8' },

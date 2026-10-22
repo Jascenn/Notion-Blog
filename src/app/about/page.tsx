@@ -12,6 +12,7 @@ export const metadata: Metadata = {
     canonical: '/about',
     languages: { 'zh-CN': '/about', 'en-US': '/en/about' },
   },
+  openGraph: { url: '/about' },
 };
 
 export default async function AboutPage() {

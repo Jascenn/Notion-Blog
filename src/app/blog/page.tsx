@@ -13,6 +13,7 @@ export const metadata: Metadata = {
     canonical: '/blog',
     languages: { 'zh-CN': '/blog', 'en-US': '/en/blog' },
   },
+  openGraph: { url: '/blog' },
 };
 
 export default async function BlogPage() {

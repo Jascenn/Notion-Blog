@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2026-10-22
+
+### Fixed
+- 静态页（首页、文章列表、关于页及英文对应页）补齐 `og:url`，与各自 canonical 一致；此前只有文章页有 og:url
+- sitemap 首页地址由 `https://lingyi.me/` 改为 `https://lingyi.me`，与首页 canonical 对齐
+
 ## [1.4.1] - 2026-10-09
 
 ### Changed

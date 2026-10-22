@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2026-10-22
+
+### Added
+- 📊 **接入 Google Analytics 4 埋点**（`src/components/GoogleAnalytics.tsx`）
+  - 衡量 ID `G-E4M631F46C`，与既有 Umami 统计并行运行，互不影响
+  - 在根 layout 中与 Umami 组件并排加载（`next/script`，`afterInteractive`）
+
 ## [1.4.2] - 2026-10-22
 
 ### Fixed

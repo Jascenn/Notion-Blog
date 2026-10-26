@@ -241,7 +241,9 @@ simple-blog/
 
 ## 📄 许可证
 
-MIT License
+本项目采用 [PolyForm Noncommercial License 1.0.0](LICENSE)，允许个人学习、研究、实验和非商业项目使用；未经授权不得用于商业目的。
+
+这不是 OSI 认可的开源许可证。商业授权请联系仓库维护者。
 
 ## 🙏 致谢
 

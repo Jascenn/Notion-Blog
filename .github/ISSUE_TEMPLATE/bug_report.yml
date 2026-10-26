@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a blog, Notion sync, search, SEO, or deployment issue
+title: "fix: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include Notion integration tokens, Vercel secrets, private draft
+        links, personal analytics exports, or unredacted customer data.
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      placeholder: "https://lingyi.me/..."
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Notion content sync
+        - Markdown or Notion block rendering
+        - Search, tags, or navigation
+        - SEO, RSS, or sitemap
+        - Analytics or Sentry
+        - Vercel deployment
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted logs or screenshots
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety checks
+      options:
+        - label: I removed credentials, private draft links, and personal data.
+          required: true
+        - label: This is not a private vulnerability report.
+          required: true
+        - label: I identified whether the issue affects desktop, mobile, or both.
+          required: true

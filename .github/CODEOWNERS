@@ -1,0 +1,15 @@
+# Default owner for all changes.
+* @Jascenn
+
+# Notion access, content fetching, and rendering form the trust boundary.
+/src/lib/ @Jascenn
+/src/app/ @Jascenn
+/src/components/ @Jascenn
+
+# Server-only configuration and deployment behavior.
+/next.config.ts @Jascenn
+/vercel.json @Jascenn
+/sentry.*.config.ts @Jascenn
+
+# Workflow and secret-scanning changes always require review.
+/.github/workflows/ @Jascenn

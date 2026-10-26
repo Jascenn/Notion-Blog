@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a CI workflow for lint, analytics tests, credential-free builds, and secret scanning.
 - Add a pull-request template covering motivation, impact, verification and rollback.
 - Add a PolyForm Noncommercial 1.0.0 license. Personal, research and other noncommercial use is permitted; commercial use requires separate permission.
+- Add contribution and security guidance, issue forms, CODEOWNERS, and monthly dependency-update checks.
 
 ### Changed
 

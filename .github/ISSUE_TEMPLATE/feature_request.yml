@@ -1,0 +1,33 @@
+name: Feature request
+description: Propose a content, reading, SEO, or repository improvement
+title: "feat: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Explain who is affected and what the current workaround is.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Content, SEO, and deployment impact
+      description: Note Notion fields, routes, metadata, environment variables, and rollback.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submit checks
+      options:
+        - label: I searched existing issues and pull requests.
+          required: true
+        - label: I did not include secrets or private content.
+          required: true

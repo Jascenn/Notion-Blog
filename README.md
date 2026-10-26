@@ -239,6 +239,9 @@ simple-blog/
 
 欢迎提交 Issue 和 Pull Request！
 
+提交约定见 [CONTRIBUTING.md](CONTRIBUTING.md)；安全问题按
+[SECURITY.md](SECURITY.md) 私下报告。
+
 ## 📄 许可证
 
 本项目采用 [PolyForm Noncommercial License 1.0.0](LICENSE)，允许个人学习、研究、实验和非商业项目使用；未经授权不得用于商业目的。

@@ -13,6 +13,9 @@
 - 📌 **文章置顶** - 支持重要文章置顶显示
 - 📢 **公告系统** - 支持网站公告发布
 - 🏷️ **标签系统** - 支持多标签分类和筛选
+- 🌐 **中英双语** - 全站中英文切换，文章可直接切换到对应英文版本
+- 📡 **RSS 订阅** - 全站 `/rss.xml` Feed，全站页面支持自动发现，订阅引导页一键复制
+- ✉️ **邮件订阅** - 留下邮箱即可在新文章发布时收到通知，订阅名单写入 Notion
 - ⚡ **性能优化** - 支持错误处理和超时重试
 - 🎯 **SEO 友好** - 完整的元数据和 OpenGraph 支持
 
@@ -78,11 +81,17 @@ npm install
 
 ```env
 # Notion 配置
-NOTION_SECRET=your_notion_integration_token
+NOTION_TOKEN=your_notion_integration_token
 NOTION_DATABASE_ID=your_database_id
 
 # 网站配置 (生产环境使用 https://lingyi.me)
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# 邮件订阅名单（可选）
+# 方式一：显式指定「订阅名单」库 ID（推荐）
+NOTION_SUBSCRIBERS_DATABASE_ID=your_subscribers_database_id
+# 方式二：指定父页面 ID，首次订阅时自动创建「订阅名单」库
+# NOTION_SUBSCRIBERS_PARENT_PAGE_ID=your_parent_page_id
 ```
 
 ### 4. 启动开发服务器
@@ -171,9 +180,10 @@ git push -u origin main
 2. 点击 "New Project"
 3. 导入你的 GitHub 仓库
 4. 配置环境变量：
-   - `NOTION_SECRET`
+   - `NOTION_TOKEN`
    - `NOTION_DATABASE_ID`
    - `NEXT_PUBLIC_SITE_URL=https://lingyi.me`
+   - `NOTION_SUBSCRIBERS_DATABASE_ID`（邮件订阅名单库，见上文环境配置）
 5. 点击 "Deploy"
 
 ### 3. 域名配置
@@ -190,6 +200,10 @@ simple-blog/
 │   ├── app/                 # App Router 页面
 │   │   ├── [slug]/         # 动态文章页面
 │   │   ├── about/          # 关于页面
+│   │   ├── api/subscribe/  # 邮件订阅接口
+│   │   ├── en/             # 英文版页面
+│   │   ├── rss/            # 订阅引导页
+│   │   ├── rss.xml/        # RSS Feed 输出
 │   │   ├── search/         # 搜索页面
 │   │   └── globals.css     # 全局样式
 │   ├── components/         # React 组件
@@ -207,17 +221,13 @@ simple-blog/
 
 ## 📚 完整文档
 
-### 📖 核心文档
-- [📋 项目概述](./docs/README.md) - 完整的项目介绍和导航
-- [🏗️ 开发指南](./docs/DEVELOPMENT.md) - 开发环境、架构、工作流
-- [📝 格式支持](./docs/FORMATS.md) - 21种 Notion 块类型详解
-- [🔧 故障排除](./docs/TROUBLESHOOTING.md) - 问题诊断和解决方案
+### 📖 项目文档
+- [📅 更新日志](./CHANGELOG.md) - 版本历史和改进记录
+- [⚙️ Notion 配置](./NOTION_SETUP.md) - API 密钥和数据库设置
+- [🔒 安全清单](./SECURITY_CHECKLIST.md) - 上线前安全检查
+- [📊 数据分析](./docs/ANALYTICS.md) - 访问统计与导出
 - [💡 技术解决方案](./docs/TROUBLESHOOTING_SOLUTIONS.md) - 常见问题详细解决方案
-- [📅 更新日志](./docs/CHANGELOG.md) - 版本历史和改进记录
-
-### 🔧 配置文档
-- [🚀 部署指南](./docs/DEPLOYMENT.md) - 生产环境部署
-- [⚙️ Notion 配置](./docs/NOTION_SETUP.md) - API 密钥和数据库设置
+- [🗂️ 方案沉淀](./docs/solutions/) - 具体问题的处理记录
 
 ## 🔧 API 参考
 
@@ -259,4 +269,4 @@ simple-blog/
 
 **Made with ❤️ by LingYi**
 
-> 最后更新：2025-09-25
+> 最后更新：2026-10-31

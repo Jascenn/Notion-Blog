@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* 站内主题切换靠 html.dark 类，dark: 工具类需跟随类名而非系统偏好 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

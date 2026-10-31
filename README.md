@@ -15,7 +15,7 @@
 - 🏷️ **标签系统** - 支持多标签分类和筛选
 - 🌐 **中英双语** - 全站中英文切换，文章可直接切换到对应英文版本
 - 📡 **RSS 订阅** - 全站 `/rss.xml` Feed，全站页面支持自动发现，订阅引导页一键复制
-- ✉️ **邮件订阅** - 留下邮箱即可在新文章发布时收到通知，订阅名单写入 Notion
+- ✉️ **邮件订阅** - 双重确认 + 欢迎邮件，每周一 08:00（北京时间）发送本周更新汇总，邮件支持一键退订并实时同步回 Notion
 - ⚡ **性能优化** - 支持错误处理和超时重试
 - 🎯 **SEO 友好** - 完整的元数据和 OpenGraph 支持
 
@@ -92,6 +92,15 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NOTION_SUBSCRIBERS_DATABASE_ID=your_subscribers_database_id
 # 方式二：指定父页面 ID，首次订阅时自动创建「订阅名单」库
 # NOTION_SUBSCRIBERS_PARENT_PAGE_ID=your_parent_page_id
+
+# Resend 邮件发送
+RESEND_API_KEY=re_xxxxxxxx
+# Resend webhook 签名密钥（退订/退信同步到 Notion 时必需，在 Resend 后台创建 Webhook 获得）
+# RESEND_WEBHOOK_SECRET=whsec_xxxxxxxx
+# 可选：订阅确认链接签名密钥，留空回退到 CRON_SECRET
+# NEWSLETTER_TOKEN_SECRET=xxxxxxxx
+# 可选：周刊聚合窗口天数，默认 7
+# NEWSLETTER_DIGEST_DAYS=7
 ```
 
 ### 4. 启动开发服务器
@@ -184,6 +193,8 @@ git push -u origin main
    - `NOTION_DATABASE_ID`
    - `NEXT_PUBLIC_SITE_URL=https://lingyi.me`
    - `NOTION_SUBSCRIBERS_DATABASE_ID`（邮件订阅名单库，见上文环境配置）
+   - `RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`（邮件订阅，见上文环境配置）
+   - `CRON_SECRET`（Vercel Cron 认证）
 5. 点击 "Deploy"
 
 ### 3. 域名配置

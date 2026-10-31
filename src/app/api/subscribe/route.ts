@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { subscribeEmail } from '@/lib/subscribe';
+import { renderConfirmEmail, sendTransactionalEmail, signSubscriberToken, siteOrigin } from '@/lib/newsletter';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -37,9 +38,18 @@ export async function POST(request: Request) {
 
   try {
     const result = await subscribeEmail(email);
-    return NextResponse.json({ ok: true, duplicate: result.duplicate });
+    if (result.duplicate && result.status === '已订阅') {
+      return NextResponse.json({ ok: true, duplicate: true });
+    }
+
+    // 新订阅 / 待确认 / 已退订后重新订阅：都发确认邮件完成双重确认
+    const siteUrl = siteOrigin();
+    const confirmUrl = `${siteUrl}/api/subscribe/confirm?email=${encodeURIComponent(email)}&token=${signSubscriberToken(email)}`;
+    const { html, text } = await renderConfirmEmail(confirmUrl);
+    await sendTransactionalEmail(email, '确认订阅凌一的博客', html, text);
+    return NextResponse.json({ ok: true, needsConfirmation: true });
   } catch (error) {
-    console.error('[subscribe] 订阅写入失败', error);
+    console.error('[subscribe] 订阅处理失败', error);
     return NextResponse.json({ error: '订阅失败，请稍后重试。' }, { status: 500 });
   }
 }

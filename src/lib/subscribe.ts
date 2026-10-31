@@ -133,7 +133,9 @@ export async function listActiveSubscribers(): Promise<string[]> {
   return emails;
 }
 
-export async function subscribeEmail(email: string): Promise<{ duplicate: boolean }> {
+export type SubscribeStatus = '待确认' | '已订阅' | '已退订';
+
+export async function subscribeEmail(email: string): Promise<{ duplicate: boolean; status: SubscribeStatus | null }> {
   const dataSourceId = await ensureSubscribersDataSource();
   const notion = new Client({ auth: process.env.NOTION_TOKEN || process.env.NOTION_SECRET });
 
@@ -148,7 +150,9 @@ export async function subscribeEmail(email: string): Promise<{ duplicate: boolea
     }),
   );
   if (existing.results.length > 0) {
-    return { duplicate: true };
+    const status = (existing.results[0] as { properties?: Record<string, { select?: { name?: string } }> })
+      .properties?.状态?.select?.name;
+    return { duplicate: true, status: (status as SubscribeStatus) ?? null };
   }
 
   await withRetry(() =>
@@ -156,9 +160,50 @@ export async function subscribeEmail(email: string): Promise<{ duplicate: boolea
       parent: { type: 'data_source_id', data_source_id: dataSourceId },
       properties: {
         Email: { title: [{ text: { content: email } }] },
-        状态: { select: { name: '已订阅' } },
+        // 双重确认：先落「待确认」，点击确认邮件后才进入正式名单
+        状态: { select: { name: '待确认' } },
       },
     }),
   );
-  return { duplicate: false };
+  return { duplicate: false, status: null };
+}
+
+async function findSubscriberPageId(notion: Client, dataSourceId: string, email: string): Promise<string | null> {
+  const response = await withRetry(() =>
+    notion.dataSources.query({
+      data_source_id: dataSourceId,
+      filter: { property: 'Email', title: { equals: email } },
+      page_size: 1,
+    }),
+  );
+  return response.results[0]?.id ?? null;
+}
+
+/** 确认订阅：待确认 / 已退订 → 已订阅，返回是否发生了状态变化 */
+export async function confirmSubscriber(email: string): Promise<boolean> {
+  const dataSourceId = await ensureSubscribersDataSource();
+  const notion = new Client({ auth: process.env.NOTION_TOKEN || process.env.NOTION_SECRET });
+  const pageId = await findSubscriberPageId(notion, dataSourceId, email);
+  if (!pageId) return false;
+
+  const page = await withRetry(() => notion.pages.retrieve({ page_id: pageId }) as Promise<{
+    properties?: Record<string, { select?: { name?: string } }>;
+  }>);
+  const current = page.properties?.状态?.select?.name;
+  await withRetry(() =>
+    notion.pages.update({ page_id: pageId, properties: { 状态: { select: { name: '已订阅' } } } }),
+  );
+  return current !== '已订阅';
+}
+
+/** Resend webhook 退订同步；邮箱不存在时静默忽略 */
+export async function markUnsubscribed(email: string): Promise<boolean> {
+  const dataSourceId = await ensureSubscribersDataSource();
+  const notion = new Client({ auth: process.env.NOTION_TOKEN || process.env.NOTION_SECRET });
+  const pageId = await findSubscriberPageId(notion, dataSourceId, email);
+  if (!pageId) return false;
+  await withRetry(() =>
+    notion.pages.update({ page_id: pageId, properties: { 状态: { select: { name: '已退订' } } } }),
+  );
+  return true;
 }

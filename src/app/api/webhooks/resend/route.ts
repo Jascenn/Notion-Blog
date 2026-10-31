@@ -28,6 +28,8 @@ interface WebhookEvent {
   data: {
     email?: string;
     email_id?: string;
+    message_id?: string;
+    to?: string[];
     unsubscribed?: boolean;
   };
 }
@@ -52,9 +54,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    if ((event.type === 'email.bounced' || event.type === 'email.complained') && event.data.email) {
-      await recordDeliveryEvent(event.type, event.data.email.toLowerCase(), event.data.email_id || 'unknown');
-      logger.info('[webhook] 已记录投递事件', event.type, event.data.email);
+    if (event.type === 'email.bounced' || event.type === 'email.complained') {
+      // bounced/complained 的 payload 没有 data.email，收件人只在 data.to 数组里
+      const email = (event.data.email || event.data.to?.[0] || '').toLowerCase();
+      if (!email) {
+        return NextResponse.json({ ok: true, ignored: event.type });
+      }
+      const messageId = event.data.email_id || event.data.message_id || 'unknown';
+      await recordDeliveryEvent(event.type, email, messageId);
+      logger.info('[webhook] 已记录投递事件', event.type, email);
       return NextResponse.json({ ok: true });
     }
 

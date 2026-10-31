@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-10-31
+
+### Fixed
+- 🌙 暗色模式下文章正文与页面背景不变暗：为 Tailwind v4 声明基于 class 的 `dark` 变体，`dark:` 工具类改为跟随站内主题切换
+- 🔵 订阅页「文章」与「订阅」同时高亮：`isArticle` 判断排除 `/rss` 路径
+- 🎨 订阅页复制按钮与邮件订阅表单补充暗色样式
+
 ## [2.1.0] - 2026-10-31
 
 ### Added

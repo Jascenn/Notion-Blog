@@ -6,6 +6,15 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.1.1',
+    date: '2026-10-31',
+    title: '订阅页与暗色模式修复',
+    changes: [
+      { type: '修复', color: 'text-red-500', text: '修复暗色模式下文章正文与背景不变暗的问题' },
+      { type: '修复', color: 'text-red-500', text: '修复订阅页「文章」和「订阅」同时高亮的问题' },
+    ]
+  },
+  {
     version: 'v2.1.0',
     date: '2026-10-31',
     title: '订阅体验升级：邮件订阅与 RSS 完善',
@@ -84,6 +93,13 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.1.1', date: '2026-10-31', title: 'Subscribe page and dark mode fixes',
+    changes: [
+      { type: 'Fix', color: 'text-red-500', text: 'Fixed the article body and background not switching to dark mode' },
+      { type: 'Fix', color: 'text-red-500', text: 'Fixed Articles and Subscribe both showing the active underline on the subscribe page' },
+    ],
+  },
   {
     version: 'v2.1.0', date: '2026-10-31', title: 'Subscription upgrades: email updates and RSS polish',
     changes: [

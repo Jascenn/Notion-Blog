@@ -28,7 +28,9 @@ export default function Navigation() {
       { name: isEnglish ? 'Search' : '搜索', href: `${siteRoot}/search`, match: `${siteRoot}/search`, id: 'search' },
     ];
     const relativePath = siteRoot ? pathname.slice(siteRoot.length) : pathname;
-    const isArticle = !['', '/', '/blog', '/about', '/search'].includes(relativePath);
+    const isArticle =
+      !['', '/', '/blog', '/about', '/search', '/rss'].includes(relativePath) &&
+      !relativePath.startsWith('/rss');
 
     return (
       <nav className={previewStyles.siteNav}>

@@ -46,18 +46,18 @@ export default function EmailSubscribeForm() {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@example.com"
-          className="flex-1 rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-500 focus:outline-none"
+          className="flex-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:border-gray-500 focus:outline-none"
         />
         <button
           type="submit"
           disabled={state === 'submitting'}
-          className="shrink-0 rounded bg-gray-900 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+          className="shrink-0 rounded bg-gray-900 dark:bg-gray-100 px-4 py-2 text-sm text-white dark:text-gray-900 transition-colors hover:bg-gray-700 dark:hover:bg-white disabled:opacity-50"
         >
           {state === 'submitting' ? '提交中…' : '订阅更新'}
         </button>
       </div>
       {message && (
-        <p className={`text-sm ${state === 'error' ? 'text-red-600' : 'text-green-700'}`}>{message}</p>
+        <p className={`text-sm ${state === 'error' ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400'}`}>{message}</p>
       )}
       <p className="text-xs text-gray-400">只在新文章发布时发送邮件，随时可以退订。</p>
     </form>

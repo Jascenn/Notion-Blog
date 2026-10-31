@@ -8,7 +8,7 @@ let subscribersDataSourceId: string | null = null;
 
 const SUBSCRIBERS_DB_TITLE = '订阅名单';
 
-function getFirstDataSourceId(database: GetDatabaseResponse): string | null {
+export function getFirstDataSourceId(database: GetDatabaseResponse): string | null {
   if (!('data_sources' in database)) return null;
   return database.data_sources[0]?.id ?? null;
 }
@@ -102,6 +102,35 @@ export async function ensureSubscribersDataSource(): Promise<string> {
     subscribersDataSourceId = existingId;
   }
   return subscribersDataSourceId;
+}
+
+export async function listActiveSubscribers(): Promise<string[]> {
+  const notion = new Client({ auth: process.env.NOTION_TOKEN || process.env.NOTION_SECRET });
+  const dataSourceId = await ensureSubscribersDataSource();
+  const emails: string[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const response = await withRetry(() =>
+      notion.dataSources.query({
+        data_source_id: dataSourceId,
+        filter: {
+          property: '状态',
+          select: { equals: '已订阅' },
+        },
+        page_size: 100,
+        start_cursor: cursor,
+      }),
+    );
+    for (const page of response.results) {
+      const email = (page as { properties?: Record<string, { title?: Array<{ plain_text?: string }> }> })
+        .properties?.Email?.title?.[0]?.plain_text;
+      if (email) emails.push(email);
+    }
+    cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined;
+  } while (cursor);
+
+  return emails;
 }
 
 export async function subscribeEmail(email: string): Promise<{ duplicate: boolean }> {

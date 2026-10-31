@@ -48,6 +48,7 @@ Next.js 的 metadata 是**按段浅合并**：子页面只要导出自己的 `al
 | Notion 无法建库 | 集成权限里没有页面，且 workspace 顶级建库不支持 | 用户共享页面 + API 自动建库 |
 | 暗色模式导航变暗正文不变 | Tailwind v4 `dark:` 默认跟随系统偏好 | `@custom-variant dark (&:where(.dark, .dark *))` |
 | 订阅页双高亮 | `isArticle` 把不在排除清单的路径都当文章 | 排除 `/rss*` |
+| Vercel Cron 鉴权一直失败 | 生产 `CRON_SECRET` 是空字符串；`vercel env pull` 默认只拉 development | 更新为真实密钥并重新部署；pull 时加 `--environment production` |
 
 ## 5. 验证清单
 

@@ -6,6 +6,18 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.2.0',
+    date: '2026-10-31',
+    title: '邮件订阅全面升级：周报、双重确认与一键退订',
+    changes: [
+      { type: '新增', color: 'text-green-500', text: '每周一 08:00 发送本周更新汇总邮件，一封看全一周' },
+      { type: '新增', color: 'text-green-500', text: '订阅双重确认 + 欢迎邮件，防止恶意刷名单' },
+      { type: '新增', color: 'text-green-500', text: '邮件一键退订，退订状态实时同步' },
+      { type: '优化', color: 'text-blue-500', text: '邮件模板重写：品牌头、封面图、暗色适配与纯文本版本' },
+      { type: '优化', color: 'text-blue-500', text: '退信与投诉自动记录，发送数据可追溯' },
+    ]
+  },
+  {
     version: 'v2.1.1',
     date: '2026-10-31',
     title: '订阅页与暗色模式修复',
@@ -93,6 +105,16 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.2.0', date: '2026-10-31', title: 'Newsletter overhaul: weekly digest, double opt-in, one-click unsubscribe',
+    changes: [
+      { type: 'Add', color: 'text-green-500', text: 'Weekly digest email every Monday 08:00 (UTC+8) covering the past week\u2019s posts' },
+      { type: 'Add', color: 'text-green-500', text: 'Double opt-in with a welcome email to block fake subscriptions' },
+      { type: 'Add', color: 'text-green-500', text: 'One-click unsubscribe with real-time sync back to the subscriber list' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Rebuilt email template: brand header, cover images, dark mode and plain-text version' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Bounces and spam complaints are now logged for every send' },
+    ],
+  },
   {
     version: 'v2.1.1', date: '2026-10-31', title: 'Subscribe page and dark mode fixes',
     changes: [

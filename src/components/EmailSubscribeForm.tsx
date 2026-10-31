@@ -26,7 +26,11 @@ export default function EmailSubscribeForm() {
 
       if (response.ok) {
         setState('success');
-        setMessage(data.duplicate ? '这个邮箱已经订阅过了。' : '订阅成功！新文章发布后会通过邮件通知你。');
+        if (data.duplicate) {
+          setMessage('这个邮箱已经订阅过了。');
+        } else {
+          setMessage('确认邮件已发送，请查收邮箱并点击确认链接完成订阅。');
+        }
       } else {
         setState('error');
         setMessage(data.error || '订阅失败，请稍后重试。');
@@ -59,7 +63,7 @@ export default function EmailSubscribeForm() {
       {message && (
         <p className={`text-sm ${state === 'error' ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400'}`}>{message}</p>
       )}
-      <p className="text-xs text-gray-400">只在新文章发布时发送邮件，随时可以退订。</p>
+      <p className="text-xs text-gray-400">每周一封邮件汇总本周更新，随时可以退订。</p>
     </form>
   );
 }

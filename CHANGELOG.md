@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-10-31
+
+### Added
+- ✉️ **邮件订阅全面升级**
+  - 双重确认（Double Opt-in）：订阅先收确认邮件，点击确认后进入名单，防止恶意刷名单
+  - 欢迎邮件：确认订阅后自动发送，附最近三篇文章与 RSS 地址
+  - 每周聚合周刊：每周一 08:00（北京时间）汇总最近 7 天新文章，逐人送达
+  - 一键退订：邮件加 List-Unsubscribe / List-Unsubscribe-Post 合规头（RFC 8058），自建退订页实时更新 Notion 名单状态
+  - 退信/投诉监控：`email.bounced`、`email.complained` 事件写入 Notion 发送记录
+- 🎨 **邮件模板重写（React Email）**
+  - 品牌头（凌一 · LingYi + 期号日期）、文章封面图、收件箱预览摘要（preheader）
+  - `color-scheme` 适配暗色模式客户端，附纯文本版本提升投递率
+  - 主题行统一为「凌一 newsletter｜本周 N 篇更新（日期区间）」
+
+### Changed
+- 发送策略从「新文章发布次日凌晨单发」改为「每周一聚合发送」，cron 调整为周一 UTC 00:00
+- 退信/投诉事件（email.bounced、email.complained）经 webhook 记录进 Notion 发送记录
+
+### 配置
+- 新增环境变量：可选 `NEWSLETTER_TOKEN_SECRET`、`NEWSLETTER_DIGEST_DAYS`；如启用退信/投诉 webhook 需配置 `RESEND_WEBHOOK_SECRET`
+
 ## [2.1.1] - 2026-10-31
 
 ### Fixed

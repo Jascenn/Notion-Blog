@@ -40,7 +40,7 @@ export default function RSSPage() {
               邮件订阅
             </h2>
             <p className="text-sm text-gray-600 mb-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">不想装 RSS 阅读器？留下邮箱，新文章发布时直接送到你的收件箱。</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">不想装 RSS 阅读器？留下邮箱并确认订阅，每周一收到一封汇总本周更新的邮件。</span>
             </p>
             <EmailSubscribeForm />
           </div>

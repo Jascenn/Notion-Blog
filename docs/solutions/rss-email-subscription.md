@@ -25,19 +25,31 @@ Next.js 的 metadata 是**按段浅合并**：子页面只要导出自己的 `al
 
 ## 3. 邮件订阅层
 
-### 3.1 收名单（`/api/subscribe` + `src/lib/subscribe.ts`）
+### 3.1 收名单（双重确认，`/api/subscribe` + `src/lib/subscribe.ts`）
 
 * 邮箱正则校验 + 同 IP 每分钟 5 次限流 + Notion 查重。
-* 订阅名单存 Notion（Email title + 状态 select）。
+* 订阅名单存 Notion（Email title + 状态 select：待确认 / 已订阅 / 已退订）。
+* 双重确认（Double Opt-in）：订阅先落「待确认」并发确认邮件（HMAC token 链接，`NEWSLETTER_TOKEN_SECRET` 签名，回退 `CRON_SECRET`），`GET /api/subscribe/confirm` 确认后置「已订阅」并发欢迎邮件（附最近三篇文章 + RSS 地址）。
 * Notion API 不允许在 workspace 顶级建库：需要先把某个页面共享给集成，再用 `NOTION_SUBSCRIBERS_PARENT_PAGE_ID` 让接口**首次调用时自动建库**，或用 `NOTION_SUBSCRIBERS_DATABASE_ID` 显式指定（生产推荐后者，避免首请求变慢）。
 
-### 3.2 发信（`src/lib/newsletter.ts` + `/api/cron/newsletter`）
+### 3.2 发信（每周聚合周刊，`src/lib/newsletter.tsx` + `/api/cron/newsletter`）
 
-* Vercel Cron 每天 01:30 跑（`CRON_SECRET` Bearer 认证，与 analytics cron 同模式）。
-* 取 24h 内发布的非 announcement 文章，查「发送记录」库去重后发送。
-* Resend API 发信，每批最多 50 个收件人（bcc 批量）。
+* Vercel Cron 每周一 UTC 00:00（北京 08:00）跑（`CRON_SECRET` Bearer 认证，与 analytics cron 同模式）。
+* 取最近 7 天（`NEWSLETTER_DIGEST_DAYS` 可调）发布的非 announcement 文章，按「digest-<周一日期>」查「发送记录」库去重；无新文章直接 skipped。
+* Resend API 发信，**逐人发送**而非 bcc 批量：现有 Resend key 仅 Sending access，退订链接需要按收件人个性化（Gmail/Yahoo 合规）。
+* 一键退订：邮件带 `List-Unsubscribe` / `List-Unsubscribe-Post`（RFC 8058）头，正文页脚个性化退订链接 → `/api/unsubscribe` 确认页 → Notion 置「已退订」。
 * `RESEND_API_KEY` 未配置时 cron 直接返回 skipped，不影响部署。
-* 发送记录同样自动建库，去重依据是文章 slug。
+
+### 3.3 投递监控（`/api/webhooks/resend`）
+
+* Resend webhook（Svix 签名校验，`RESEND_WEBHOOK_SECRET`）订阅 `contact.updated`（退订同步）、`email.bounced` / `email.complained`（写 Notion 发送记录，键：`事件:收件人:email_id`）。
+* 事件 payload 结构差异见下方踩坑表。
+
+### 3.4 邮件模板（React Email，`src/lib/emails/`）
+
+* 周刊 `digest-email.tsx` / 确认与欢迎 `transactional-emails.tsx`；品牌头 + 期号、封面图（绝对 URL）、收件箱预览摘要（preheader）、`color-scheme` 暗色适配、纯文本版。
+* 开场白 + 结尾问候（不直接甩文章列表）；主题行「凌一 newsletter｜本周 N 篇更新（日期区间）」。
+* 字体与网站主题对齐：霞鹜文楷（LXGW WenKai）优先 + 苹方/雅黑回退；webfont 用 `<style>` 内 `@import` 加载，Gmail/Outlook 会剥离 → 自动回退系统字体，属预期行为。
 
 ## 4. 踩坑记录
 
@@ -49,6 +61,9 @@ Next.js 的 metadata 是**按段浅合并**：子页面只要导出自己的 `al
 | 暗色模式导航变暗正文不变 | Tailwind v4 `dark:` 默认跟随系统偏好 | `@custom-variant dark (&:where(.dark, .dark *))` |
 | 订阅页双高亮 | `isArticle` 把不在排除清单的路径都当文章 | 排除 `/rss*` |
 | Vercel Cron 鉴权一直失败 | 生产 `CRON_SECRET` 是空字符串；`vercel env pull` 默认只拉 development | 更新为真实密钥并重新部署；pull 时加 `--environment production` |
+| 真实 bounced 事件被 webhook 忽略 | Resend 真实 `email.bounced`/`email.complained` payload 没有 `data.email`，收件人在 `data.to[0]` | `route.ts` 取 `data.email || data.to[0]` 回退，messageId 用 `email_id || message_id` |
+| 本地验证 webhook 返回 403 | Cloudflare 拦截部分非浏览器 UA | 测试请求带 `User-Agent: Svix-Webhooks/1.0` |
+| 邮件字体和网站不一致 | Gmail/Outlook 剥离 `<style>` 内 `@import`，无法加载 webfont | 字体栈兜底苹方/雅黑；Apple Mail 系列可正常加载，视为预期差异 |
 
 ## 5. 验证清单
 
@@ -57,3 +72,4 @@ Next.js 的 metadata 是**按段浅合并**：子页面只要导出自己的 `al
 3. 订阅 → Notion 出现记录；重复提交返回 `duplicate: true`。
 4. 深色/浅色两种系统偏好下分别截图检查正文与订阅页。
 5. cron 手动触发（带 `Authorization: Bearer $CRON_SECRET`）确认 skipped/sent 状态。
+6. webhook：正确签名返回 200 且事件落发送记录，伪造签名返回 401；测试后归档 Notion 测试行。

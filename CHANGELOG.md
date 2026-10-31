@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2026-10-31
+
+### Fixed
+- 📥 周刊投递监控收不到退信数据：Resend 真实 `email.bounced` / `email.complained` 事件的 payload 没有 `data.email` 字段，收件人在 `data.to[0]`，webhook 因此把事件当无关数据忽略 → 取值改为 `data.email || data.to[0]` 回退（[#26](https://github.com/Jascenn/Notion-Blog/pull/26)）
+
+### Changed
+- ✉️ 周刊模板加入开场白与结尾（自我介绍 + 本期概览 + 下周见），不再开头直接甩文章列表
+- 🅰️ 邮件字体栈与网站主题对齐：霞鹜文楷（LXGW WenKai）优先，苹方/雅黑回退；邮件头加载 webfont，支持客户端（Apple Mail 系列）可看到与网站一致的字体，Gmail/Outlook 自动回退系统字体（[#27](https://github.com/Jascenn/Notion-Blog/pull/27)）
+
 ## [2.2.0] - 2026-10-31
 
 ### Added

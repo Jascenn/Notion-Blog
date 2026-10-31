@@ -25,10 +25,11 @@ export async function GET() {
     const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title><![CDATA[${siteUrl}]]></title>
+    <title><![CDATA[凌一 LingYi — 全栈开发者 · 技术与生活博客]]></title>
     <link>${siteUrl}</link>
-    <description><![CDATA[来自 ${siteUrl} 的最新文章]]></description>
+    <description><![CDATA[全栈开发实践、AI 工具探索、效率工作流与生活随笔，记录从 0 到 1 的构建过程。]]></description>
     <language>zh-CN</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     ${items}
   </channel>
 </rss>`;

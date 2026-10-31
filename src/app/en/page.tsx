@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import HomepageVariant from '@/components/demo/HomepageVariants';
 import { getPostsOnly } from '@/lib/notion';
 import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
+import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
   title: 'LingYi — Full-stack development, AI tools and workflows',
   description: 'Notes on full-stack development, AI tools, practical workflows and life.',
   alternates: {
+    ...RSS_ALTERNATE_TYPES,
     canonical: '/en',
     languages: { 'zh-CN': '/', 'en-US': '/en' },
   },

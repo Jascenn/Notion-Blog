@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getAboutPage } from '@/lib/notion';
 import { OptimizedAbout } from '@/components/preview/OptimizedPages';
+import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
   title: '关于',
   description: '了解凌一的个人经历、创作理念与正在构建的项目。',
   alternates: {
+    ...RSS_ALTERNATE_TYPES,
     canonical: '/about',
     languages: { 'zh-CN': '/about', 'en-US': '/en/about' },
   },

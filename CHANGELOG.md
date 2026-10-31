@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-10-31
+
+### Added
+- ✉️ **邮件订阅**
+  - 订阅页新增邮箱表单，新文章发布时可收到邮件通知（名单写入 Notion「订阅名单」库）
+  - `POST /api/subscribe`：邮箱校验、同 IP 限流、重复订阅识别
+  - Notion 订阅名单库支持自动创建（`NOTION_SUBSCRIBERS_PARENT_PAGE_ID`）或显式指定（`NOTION_SUBSCRIBERS_DATABASE_ID`）
+- 📋 RSS 订阅地址一键复制按钮
+
+### Changed
+- 🧭 导航「订阅」入口从 `/rss.xml` 裸 XML 改为 `/rss` 订阅引导页
+- 🔍 全站 10 个页面的 `metadata.alternates` 补齐 RSS 自动发现链接（此前被子页面 metadata 覆盖丢失）
+- 📰 Feed 元数据完善：频道标题/描述改为站点名称与简介，新增 `lastBuildDate`
+
 ## [Unreleased]
 
 ### Added

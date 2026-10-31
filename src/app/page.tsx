@@ -2,12 +2,14 @@ import type { Metadata } from 'next';
 import HomepageVariant from '@/components/demo/HomepageVariants';
 import { getPostsOnly } from '@/lib/notion';
 import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
+import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
   alternates: {
+    ...RSS_ALTERNATE_TYPES,
     canonical: '/',
     languages: { 'zh-CN': '/', 'en-US': '/en' },
   },

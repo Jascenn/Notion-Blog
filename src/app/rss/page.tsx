@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import RssFeedUrl from '@/components/RssFeedUrl';
+import EmailSubscribeForm from '@/components/EmailSubscribeForm';
 
 export const metadata: Metadata = {
   title: 'RSS Feed',
@@ -27,12 +29,20 @@ export default function RSSPage() {
             <h2 className="text-lg font-medium text-gray-900 mb-3">
               RSS Feed地址
             </h2>
-            <div className="bg-white border border-gray-200 rounded px-3 py-2 font-mono text-sm text-gray-700">
-              {feedUrl}
-            </div>
+            <RssFeedUrl feedUrl={feedUrl} />
             <p className="text-sm text-gray-500 mt-2">
               复制此地址到你的RSS阅读器中即可订阅
             </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-3">
+              邮件订阅
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              不想装 RSS 阅读器？留下邮箱，新文章发布时直接送到你的收件箱。
+            </p>
+            <EmailSubscribeForm />
           </div>
 
           <div>

@@ -6,6 +6,18 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.1.0',
+    date: '2026-10-31',
+    title: '订阅体验升级：邮件订阅与 RSS 完善',
+    changes: [
+      { type: '新增', color: 'text-green-500', text: '邮件订阅：留下邮箱，新文章发布时自动通知' },
+      { type: '新增', color: 'text-green-500', text: 'RSS 订阅地址一键复制' },
+      { type: '优化', color: 'text-blue-500', text: '导航「订阅」改为订阅引导页，不再直接打开 XML' },
+      { type: '优化', color: 'text-blue-500', text: '全站页面支持 RSS 自动发现，阅读器输入域名即可识别' },
+      { type: '优化', color: 'text-blue-500', text: 'Feed 元数据完善：站点名称、简介与最后更新时间' },
+    ]
+  },
+  {
     version: 'v2.0.1',
     date: '2026-09-28',
     title: '双语界面一致性与联系体验修正',
@@ -72,6 +84,16 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.1.0', date: '2026-10-31', title: 'Subscription upgrades: email updates and RSS polish',
+    changes: [
+      { type: 'Add', color: 'text-green-500', text: 'Email subscription — get notified when new posts go live' },
+      { type: 'Add', color: 'text-green-500', text: 'One-click copy for the RSS feed URL' },
+      { type: 'Improve', color: 'text-blue-500', text: 'The subscribe nav item now opens the subscription guide instead of the raw XML feed' },
+      { type: 'Improve', color: 'text-blue-500', text: 'RSS auto-discovery on every page, so readers can subscribe by domain alone' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Refined feed metadata: site name, description, and last build date' },
+    ],
+  },
   {
     version: 'v2.0.1', date: '2026-09-28', title: 'Bilingual UI consistency and contact improvements',
     changes: [

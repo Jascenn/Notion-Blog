@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { getPostsOnly } from '@/lib/notion';
 import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
+import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 import OptimizedSearchClient from '@/components/preview/OptimizedSearchClient';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   title: '搜索',
   description: '搜索博客中的全部文章：按标题、摘要与标签筛选。',
   robots: { index: false, follow: true },
-  alternates: { languages: { 'zh-CN': '/search', 'en-US': '/en/search' } },
+  alternates: { ...RSS_ALTERNATE_TYPES, languages: { 'zh-CN': '/search', 'en-US': '/en/search' } },
 };
 
 export default async function SearchPage() {

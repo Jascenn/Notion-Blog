@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import BlogPostView from '@/components/BlogPostView';
 import { getPostBySlug, getPosts } from '@/lib/notion';
 import { logger } from '@/lib/logger';
+import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 
 // 启用增量静态再生成（ISR）- 每 60 秒重新验证一次
 export const revalidate = 60;
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: post.title,
     description: post.excerpt || post.title,
     alternates: {
+      ...RSS_ALTERNATE_TYPES,
       canonical: `${siteUrl}/${post.slug}`,
       languages: {
         'zh-CN': `${siteUrl}/${post.slug}`,

@@ -24,7 +24,7 @@ export default function Navigation() {
     const optimizedNavigation = [
       { name: isEnglish ? 'Articles' : '文章', href: `${siteRoot}/blog`, match: `${siteRoot}/blog`, id: 'articles' },
       { name: isEnglish ? 'About' : '关于', href: `${siteRoot}/about`, match: `${siteRoot}/about`, id: 'about' },
-      { name: isEnglish ? 'Subscribe' : '订阅', href: '/rss.xml', match: '/rss.xml', id: 'subscribe' },
+      { name: isEnglish ? 'Subscribe' : '订阅', href: '/rss', match: '/rss', id: 'subscribe' },
       { name: isEnglish ? 'Search' : '搜索', href: `${siteRoot}/search`, match: `${siteRoot}/search`, id: 'search' },
     ];
     const relativePath = siteRoot ? pathname.slice(siteRoot.length) : pathname;

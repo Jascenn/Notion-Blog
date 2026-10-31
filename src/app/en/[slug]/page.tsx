@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getPostBySlug, getPosts } from '@/lib/notion';
 import { localizeOptimizedPost, localizeOptimizedPosts } from '@/lib/optimized-i18n';
+import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 import { OptimizedArticle } from '@/components/preview/OptimizedPages';
 
 export const dynamic = 'force-dynamic';
@@ -16,6 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: localized.title,
     description: localized.excerpt,
     alternates: {
+      ...RSS_ALTERNATE_TYPES,
       canonical: `/en/${slug}`,
       languages: { 'zh-CN': `/${slug}`, 'en-US': `/en/${slug}` },
     },

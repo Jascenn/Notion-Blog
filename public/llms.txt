@@ -1,6 +1,6 @@
 # 凌一 LingYi
 
-> 凌一的个人主站与博客，记录全栈开发、AI 工具、效率工作流、项目实践与生活思考。
+> 凌一（LingYi），独立 AI 创作者，运营 AI 工具导航 lingyi.tools，做 AI 工具测评与应用，也长期做 Notion 知识管理。
 
 ## 主要页面
 
@@ -17,7 +17,6 @@
 
 ## 项目与身份
 
-- [lingyi.tools](https://lingyi.tools/)：凌一构建的 AI 工具与实用资源站。
-- [LionCC](https://lioncc.ai/)：Claude Code 相关工具。
-- [OpenClaw](https://openclaw.ai/)：AI 助手框架。
+- [lingyi.tools](https://lingyi.tools/)：凌一运营的 AI 工具导航站，AI tools, reviewed by hand。
+- [新词雷达](https://radar.lingyi.tools/)：每周更新的 AI 新词与新项目雷达站。
 - [GitHub](https://github.com/Jascenn)：凌一的开源项目与代码。

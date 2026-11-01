@@ -6,6 +6,16 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.3.0',
+    date: '2026-11-01',
+    title: '关于页全面更新：中英文新稿与结构化数据',
+    changes: [
+      { type: '优化', color: 'text-blue-500', text: '关于页中英文正文全面重写：个人介绍、运营项目、写作、社群与教学、经历按现行情况更新' },
+      { type: '新增', color: 'text-green-500', text: '关于页加入 Person 与 FAQ 结构化数据，让搜索引擎和 AI 更准确地理解凌一是谁' },
+      { type: '优化', color: 'text-blue-500', text: '联系邮箱更新为 lingyi@lingyi.me，项目名可直接点开官网或代码仓库' },
+    ]
+  },
+  {
     version: 'v2.2.0',
     date: '2026-10-31',
     title: '邮件订阅全面升级：周报、双重确认与一键退订',
@@ -105,6 +115,14 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.3.0', date: '2026-11-01', title: 'About page overhaul: new copy in both languages, plus structured data',
+    changes: [
+      { type: 'Improve', color: 'text-blue-500', text: 'Rewrote the About page in Chinese and English: introduction, projects, writing, community and teaching, and background, all brought up to date' },
+      { type: 'Add', color: 'text-green-500', text: 'Added Person and FAQ structured data so search engines and AI can describe LingYi accurately' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Contact email updated to lingyi@lingyi.me, and project names now link straight to their sites or repos' },
+    ],
+  },
   {
     version: 'v2.2.0', date: '2026-10-31', title: 'Newsletter overhaul: weekly digest, double opt-in, one-click unsubscribe',
     changes: [

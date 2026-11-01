@@ -76,7 +76,7 @@ export function OptimizedArchive({ posts, locale = 'zh', routeRoot }: { posts: N
 
 export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | null; locale?: OptimizedLocale }) {
   const en = locale === 'en';
-  const title = !en && about?.title ? about.title : en ? 'LingYi / LingYi_Stu' : '凌一 / LingYi_Stu';
+  const title = about?.title ? about.title : en ? 'LingYi / LingYi_Stu' : '凌一 / LingYi_Stu';
   const tagline = !en && about?.excerpt
     ? about.excerpt
     : en
@@ -101,7 +101,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
         </header>
 
         <main className={styles.aboutContent}>
-          {!en && about?.content ? (
+          {about?.content ? (
             <div className={styles.aboutBody}>
               <MarkdownContent content={about.content} />
             </div>

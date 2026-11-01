@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-11-01
+
+### Added
+- 🪪 **关于页结构化数据**：/about 与 /en/about 输出 ProfilePage + Person 的 JSON-LD @graph（身份描述、knowsAbout 六项、sameAs 五条、worksFor），并新增 FAQPage（中英各四问），供搜索引擎与 AI 准确识别凌一（[#37](https://github.com/Jascenn/Notion-Blog/pull/37)）
+- 🇬🇧 英文关于页新建 Notion 记录（En-US）并发布，英文正文与中文一样走 Notion 数据源
+
+### Changed
+- ✍️ 关于页中英文正文全面重写（个人品牌 GEO 定稿口径）：身份句顺序对齐、数字改模糊口径、删除专业方向与常见问题可见节
+- 🧩 `OptimizedAbout` 改为中英文都渲染 Notion 正文（此前英文页永远走写死 fallback），标题优先用 Notion 记录标题
+- 📄 `public/llms.txt` 换品牌口径简介，项目与身份去掉 LionCC 与 OpenClaw 两行，lingyi.tools 改「运营」口径并补新词雷达
+- 📮 关于页联系邮箱由旧 QQ 邮箱换为 lingyi@lingyi.me（正文在 Notion 侧更新）
+- 📝 站点更新日志（ChangelogSection）新增 v2.3.0 条目（中英各一份）
+
 ## [2.2.1] - 2026-10-31
 
 ### Fixed

@@ -287,6 +287,11 @@
   color: var(--muted);
 }
 
+/* About 页正文的外链不加箭头标记：链接就是文字本身带下划线（2026-11-01 定） */
+.aboutBody :global(.external-link-icon) {
+  display: none;
+}
+
 .aboutBody :global(.prose h1),
 .aboutBody :global(.prose h2),
 .aboutBody :global(.prose h3),

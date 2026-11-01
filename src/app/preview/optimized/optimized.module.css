@@ -391,6 +391,17 @@
   color: var(--blue);
 }
 
+/* 链接就是文字本身带下划线（2026-11-01 定）：项目标题与正文内链 */
+.aboutProjects > a strong {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.aboutSectionBody a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .aboutProjects a :global(.external-link-icon),
 .aboutStory :global(.external-link-icon) {
   display: none;

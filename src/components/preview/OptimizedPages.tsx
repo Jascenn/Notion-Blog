@@ -29,6 +29,153 @@ function sortedPosts(posts: NotionPost[]) {
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 }
 
+type AboutSectionData = { heading: string; paragraphs: string[] };
+
+function parseAboutMarkdown(content: string): { intro: string[]; sections: AboutSectionData[] } {
+  const intro: string[] = [];
+  const sections: AboutSectionData[] = [];
+  let current: AboutSectionData | null = null;
+  let buf: string[] = [];
+  const flush = () => {
+    const text = buf.join(' ').trim();
+    if (text) (current ? current.paragraphs : intro).push(text);
+    buf = [];
+  };
+  for (const rawLine of content.split('\n')) {
+    const line = rawLine.trim();
+    const h = line.match(/^##\s+(.+)$/);
+    if (h) {
+      flush();
+      current = { heading: h[1].trim(), paragraphs: [] };
+      sections.push(current);
+      continue;
+    }
+    if (/^#\s+/.test(line)) continue;
+    if (line === '') { flush(); continue; }
+    buf.push(line);
+  }
+  flush();
+  return { intro, sections };
+}
+
+function renderAboutInline(text: string, keyPrefix: string) {
+  const clean = text.replace(/\\_/g, '_');
+  return clean.split(/(\[[^\]]+\]\([^)]+\))/g).filter(Boolean).map((part, i) => {
+    const m = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (!m) return <span key={`${keyPrefix}-${i}`}>{part}</span>;
+    const external = /^https?:\/\//.test(m[2]);
+    return external ? (
+      <a key={`${keyPrefix}-${i}`} href={m[2]} target="_blank" rel="noopener noreferrer">{m[1]}</a>
+    ) : (
+      <a key={`${keyPrefix}-${i}`} href={m[2]}>{m[1]}</a>
+    );
+  });
+}
+
+function splitAboutLead(text: string, en: boolean): [string, string] {
+  const idx = en ? text.indexOf('. ') : text.indexOf('。');
+  if (idx < 0) return [text, ''];
+  return en ? [text.slice(0, idx + 1), text.slice(idx + 2)] : [text.slice(0, idx + 1), text.slice(idx + 1)];
+}
+
+function AboutProjects({ paragraphs, sectionKey }: { paragraphs: string[]; sectionKey: string }) {
+  const cards: { name: string; url: string; desc: string }[] = [];
+  const rest: string[] = [];
+  for (const p of paragraphs) {
+    const m = p.match(/^\[([^\]]+)\]\(([^)]+)\)\s*[：:]\s*([\s\S]+)$/);
+    if (m) cards.push({ name: m[1], url: m[2], desc: m[3] });
+    else rest.push(p);
+  }
+  return (
+    <>
+      {cards.length > 0 && (
+        <div className={styles.aboutProjects}>
+          {cards.map((c, i) => (
+            <a key={`${sectionKey}-card-${i}`} href={c.url} target="_blank" rel="noopener noreferrer">
+              <strong>{c.name}</strong>
+              <p>{renderAboutInline(c.desc, `${sectionKey}-desc-${i}`)}</p>
+            </a>
+          ))}
+        </div>
+      )}
+      {rest.map((p, i) => (
+        <div key={`${sectionKey}-rest-${i}`} className={styles.aboutSectionBody}>
+          <p>{renderAboutInline(p, `${sectionKey}-restp-${i}`)}</p>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function AboutContacts({ paragraphs, en, locale }: { paragraphs: string[]; en: boolean; locale: OptimizedLocale }) {
+  const all = paragraphs.join('\n');
+  const email = all.match(/\[([^\]]+)\]\((mailto:[^)]+)\)/);
+  const wechat = all.match(/(?:微信|WeChat)\s+([A-Za-z0-9_-]{4,})/);
+  const github = all.match(/GitHub[^[\n]*\[([^\]]+)\]\((https?:\/\/github\.com\/[^)\s]+)\)/);
+  const x = all.match(/(?:^|[，,\s])X\s*(?:是)?\s*\[([^\]]+)\]\((https?:\/\/x\.com\/[^)\s]+)\)/m);
+  const xhs = en ? all.match(/Xiaohongshu[\s\S]*?search for\s+([^.]+)\./) : all.match(/小红书搜「?([^，。\s]+)」?/);
+  if (!email || !wechat) {
+    return (
+      <div className={styles.aboutSectionBody}>
+        {paragraphs.map((p, i) => (<p key={`contact-fallback-${i}`}>{renderAboutInline(p, `contact-fallback-${i}`)}</p>))}
+      </div>
+    );
+  }
+  const handleOf = (url: string) => `@${url.replace(/\/$/, '').split('/').pop()}`;
+  return (
+    <div className={styles.aboutContacts}>
+      <div><span>{en ? 'Email' : '邮箱'}</span><a href={email[2]}>{email[1]}</a></div>
+      {github && (<div><span>GitHub</span><a href={github[2]} target="_blank" rel="noopener noreferrer">{handleOf(github[2])}</a></div>)}
+      <div><span>{en ? 'WeChat' : '微信'}</span><CopyContactButton value={wechat[1]} locale={locale} /></div>
+      {x && (<div><span>X</span><a href={x[2]} target="_blank" rel="noopener noreferrer">{handleOf(x[2])}</a></div>)}
+      <div><span>{en ? 'Website' : '网站'}</span><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools</a></div>
+      {xhs && (<div><span>{en ? 'Xiaohongshu' : '小红书'}</span><span>{xhs[1].trim()}</span></div>)}
+      <a className={styles.aboutStory} href="https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A" target="_blank" rel="noopener noreferrer">
+        {en ? 'Learn more about my story →' : '了解更多关于我的故事 →'}
+      </a>
+    </div>
+  );
+}
+
+function AboutStructured({ content, locale }: { content: string; locale: OptimizedLocale }) {
+  const en = locale === 'en';
+  const { intro, sections } = parseAboutMarkdown(content);
+  const whoIdx = sections.findIndex((s) => /我是谁|Who I am/i.test(s.heading));
+  const who = whoIdx >= 0 ? sections[whoIdx] : null;
+  const [lead, introRest] = intro.length > 0 ? splitAboutLead(intro[0], en) : ['', ''];
+  const introBody = [...(who ? who.paragraphs : []), introRest, ...intro.slice(1)].filter(Boolean).join(en ? ' ' : '');
+  return (
+    <div className={`${styles.aboutOriginal} ${styles.aboutBody}`}>
+      <section className={styles.aboutSection}>
+        <h2>{en ? 'INTRODUCTION' : '个人简介'}</h2>
+        <div className={styles.aboutSectionBody}>
+          {lead && (<p className={styles.aboutLead}>{renderAboutInline(lead, 'about-lead')}</p>)}
+          {introBody && (<p>{renderAboutInline(introBody, 'about-intro-body')}</p>)}
+        </div>
+      </section>
+      {sections.map((s, i) => {
+        if (i === whoIdx) return null;
+        const isProjects = /我运营的项目|What I run/i.test(s.heading);
+        const isContact = /联系我|Contact/i.test(s.heading);
+        return (
+          <section key={`about-sec-${i}`} className={styles.aboutSection}>
+            <h2>{s.heading}</h2>
+            {isProjects ? (
+              <AboutProjects paragraphs={s.paragraphs} sectionKey={`about-sec-${i}`} />
+            ) : isContact ? (
+              <AboutContacts paragraphs={s.paragraphs} en={en} locale={locale} />
+            ) : (
+              <div className={styles.aboutSectionBody}>
+                {s.paragraphs.map((p, j) => (<p key={`about-sec-${i}-${j}`}>{renderAboutInline(p, `about-sec-${i}-${j}`)}</p>))}
+              </div>
+            )}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
 export function OptimizedArchive({ posts, locale = 'zh', routeRoot }: { posts: NotionPost[]; locale?: OptimizedLocale; routeRoot?: string }) {
   const visiblePosts = sortedPosts(posts);
   const en = locale === 'en';
@@ -102,9 +249,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
 
         <main className={styles.aboutContent}>
           {about?.content ? (
-            <div className={styles.aboutBody}>
-              <MarkdownContent content={about.content} />
-            </div>
+            <AboutStructured content={about.content} locale={locale} />
           ) : (
             <div className={styles.aboutOriginal}>
               <section className={styles.aboutSection}>

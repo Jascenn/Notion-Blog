@@ -317,6 +317,11 @@
   margin: 0.25rem 0 0;
 }
 
+/* About 节的内容块固定放第二栏：多个内容块时自动排版会把后面的挤进标签栏 */
+.aboutSection > :not(h2) {
+  grid-column: 2;
+}
+
 .aboutSectionBody,
 .aboutProjects,
 .aboutContacts {
@@ -973,6 +978,10 @@
   .aboutSection {
     gap: 1rem;
     padding: 1.5rem 0;
+  }
+
+  .aboutSection > :not(h2) {
+    grid-column: 1;
   }
 
   .pageHeader h1,

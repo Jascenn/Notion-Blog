@@ -6,6 +6,14 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.3.1',
+    date: '2026-11-03',
+    title: '修复关于页被误算成文章',
+    changes: [
+      { type: '修复', color: 'text-red-500', text: '关于页此前被误列进文章索引、首页最近文章与 RSS，现已排除，文章计数恢复准确' },
+    ]
+  },
+  {
     version: 'v2.3.0',
     date: '2026-11-01',
     title: '关于页全面更新：中英文新稿与结构化数据',
@@ -115,6 +123,12 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.3.1', date: '2026-11-03', title: 'Fix: About page no longer counted as an article',
+    changes: [
+      { type: 'Fix', color: 'text-red-500', text: 'The About page was mistakenly listed in the article index, the homepage latest posts and RSS; it is now excluded and the article count is accurate again' },
+    ],
+  },
   {
     version: 'v2.3.0', date: '2026-11-01', title: 'About page overhaul: new copy in both languages, plus structured data',
     changes: [

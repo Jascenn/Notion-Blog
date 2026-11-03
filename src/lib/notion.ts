@@ -400,6 +400,16 @@ function parseHomepageSlot(page: NotionPage): NotionPost['homepageSlot'] {
   return null;
 }
 
+function parsePostType(page: NotionPage): NonNullable<NotionPost['type']> {
+  // Notion 里的 Type 选项名带 emoji 前缀（如 "📄 Page"、"📣 Announcement"），
+  // 不能用纯 'page'/'announcement' 逐字比对，必须按关键词匹配，
+  // 否则 Page 类记录会被默认当成 post 混进文章列表。
+  const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
+  if (raw.includes('page')) return 'page';
+  if (raw.includes('announcement')) return 'announcement';
+  return 'post';
+}
+
 function parsePublicTags(page: NotionPage): NotionTag[] {
   return (page.properties.Tags?.multi_select || [])
     .filter((tag) => !homepageEditorialTagNames.has(tag.name))
@@ -501,11 +511,7 @@ export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished =
             cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             pinned: page.properties.Pinned?.checkbox || false,
             homepageSlot: parseHomepageSlot(page),
-            type: (() => {
-              const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
-              if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post' | 'announcement' | 'page';
-              return 'post';
-            })(),
+            type: parsePostType(page),
             language: parseLanguage(page),
           };
         } catch (error) {
@@ -531,11 +537,7 @@ export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished =
             cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
             pinned: page.properties.Pinned?.checkbox || false,
             homepageSlot: parseHomepageSlot(page),
-            type: (() => {
-              const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
-              if (raw === 'post' || raw === 'announcement' || raw === 'page') return raw as 'post' | 'announcement' | 'page';
-              return 'post';
-            })(),
+            type: parsePostType(page),
             language: parseLanguage(page),
           };
         }
@@ -1768,6 +1770,7 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
 // 获取文章（过滤掉页面，包含公告）
 export async function getPostsOnly(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost[]> {
   const allPosts = await getPosts(locale, includeUnpublished);
-  // 包含 post 和 announcement 类型，过滤掉 page 类型
-  return allPosts.filter(post => post.type !== 'page');
+  // 包含 post 和 announcement 类型，过滤掉 page 类型；
+  // slug 'about' 是关于页的保留路径（有独立路由），无论 Type 如何标注都不算文章
+  return allPosts.filter(post => post.type !== 'page' && post.slug !== 'about');
 }

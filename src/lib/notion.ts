@@ -1785,6 +1785,38 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
   }
 }
 
+// 读取一条站点配置（博客库里的 ⚙️ Config 记录）。
+// 约定：Slug 是配置键（如 announcement-bar），值写在 Summary；
+// Type 固定为 ⚙️ Config。默认只读已发布配置，预览镜像可传 includeUnpublished 读草稿。
+// 配置与语言无关，一条记录全站生效；取不到返回 null，调用方用代码默认值兜底。
+export async function getConfig(key: string, includeUnpublished = false): Promise<string | null> {
+  try {
+    const response = await queryNotionDataSource({
+      filter: {
+        and: [
+          ...(!includeUnpublished ? [publishedFilter()] : []),
+          { property: 'Type', select: { equals: '⚙️ Config' } },
+          { property: 'Slug', rich_text: { equals: key } },
+        ],
+      },
+    }, 15000);
+
+    if (!response.ok) {
+      logger.error(`Notion API Error for config ${key}: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    if (data.results.length === 0) return null;
+
+    const page = data.results[0] as NotionPage;
+    return getPlainText(page.properties.Summary?.rich_text || []) || null;
+  } catch (error) {
+    logger.error(`Error fetching config ${key}`, error);
+    return null;
+  }
+}
+
 // 获取文章（白名单：只有 Post 与 Announcement，含公告不含页面与配置）
 // 两道闸：查询条件先按 Type 白名单取，回来再用 isArticleRecord 复核一遍，
 // 任一层认不出类型都挡在文章流外（失败关闭）。

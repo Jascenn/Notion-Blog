@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import HomepageVariant from '@/components/demo/HomepageVariants';
-import { getPostsOnly } from '@/lib/notion';
+import { getPostsOnly, getConfig } from '@/lib/notion';
 import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
 import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 
@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const posts = localizeOptimizedPosts(await getPostsOnly(), 'zh');
+  const announcement = await getConfig('announcement-bar');
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me').replace(/\/$/, '');
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -32,7 +33,7 @@ export default async function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <HomepageVariant variant="curated" posts={posts} showDemoSwitcher={false} />
+      <HomepageVariant variant="curated" posts={posts} showDemoSwitcher={false} announcement={announcement} />
     </>
   );
 }

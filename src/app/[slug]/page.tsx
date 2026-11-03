@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import BlogPostView from '@/components/BlogPostView';
-import { getPostBySlug, getPosts } from '@/lib/notion';
+import { getPostBySlug, getPostsOnly } from '@/lib/notion';
 import { logger } from '@/lib/logger';
 import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 
@@ -10,7 +10,7 @@ export const revalidate = 60;
 // 生成静态路径（可选：用于构建时的静态生成）
 export async function generateStaticParams() {
   try {
-    const posts = await getPosts();
+    const posts = await getPostsOnly();
     return posts.map((post) => ({
       slug: post.slug,
     }));

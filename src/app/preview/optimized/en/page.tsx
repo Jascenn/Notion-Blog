@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import HomepageVariant from '@/components/demo/HomepageVariants';
-import { getPostsOnly } from '@/lib/notion';
+import { getPostsOnly, getConfig } from '@/lib/notion';
 import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
 
 export const dynamic = 'force-dynamic';
@@ -13,5 +13,6 @@ export const metadata: Metadata = {
 
 export default async function OptimizedEnglishPreviewPage() {
   const posts = localizeOptimizedPosts(await getPostsOnly('en', true), 'en');
-  return <HomepageVariant variant="curated" posts={posts} showDemoSwitcher={false} routePrefix="/preview/optimized/en" locale="en" />;
+  const announcement = await getConfig('announcement-bar', true);
+  return <HomepageVariant variant="curated" posts={posts} showDemoSwitcher={false} routePrefix="/preview/optimized/en" locale="en" announcement={announcement} />;
 }

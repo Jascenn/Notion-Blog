@@ -10,6 +10,8 @@ import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
 import ChangelogSection from '@/components/ChangelogSection';
 import CopyContactButton from '@/components/preview/CopyContactButton';
 import type { NotionPost } from '@/lib/notion';
+import { classifyAboutSection, parseAboutMarkdown, parseProjectEntries, stripLeadingGuide } from '@/lib/about-format';
+import type { AboutContactsOverride } from '@/lib/about-format';
 import type { OptimizedLocale } from '@/lib/optimized-i18n';
 import { optimizedRoots } from '@/lib/optimized-i18n';
 import styles from '@/app/preview/optimized/optimized.module.css';
@@ -27,35 +29,6 @@ function sortedPosts(posts: NotionPost[]) {
   return [...posts]
     .filter((post) => post.type !== 'announcement')
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-}
-
-type AboutSectionData = { heading: string; paragraphs: string[] };
-
-function parseAboutMarkdown(content: string): { intro: string[]; sections: AboutSectionData[] } {
-  const intro: string[] = [];
-  const sections: AboutSectionData[] = [];
-  let current: AboutSectionData | null = null;
-  let buf: string[] = [];
-  const flush = () => {
-    const text = buf.join(' ').trim();
-    if (text) (current ? current.paragraphs : intro).push(text);
-    buf = [];
-  };
-  for (const rawLine of content.split('\n')) {
-    const line = rawLine.trim();
-    const h = line.match(/^##\s+(.+)$/);
-    if (h) {
-      flush();
-      current = { heading: h[1].trim(), paragraphs: [] };
-      sections.push(current);
-      continue;
-    }
-    if (/^#\s+/.test(line)) continue;
-    if (line === '') { flush(); continue; }
-    buf.push(line);
-  }
-  flush();
-  return { intro, sections };
 }
 
 function renderAboutInline(text: string, keyPrefix: string) {
@@ -79,23 +52,24 @@ function splitAboutLead(text: string, en: boolean): [string, string] {
 }
 
 function AboutProjects({ paragraphs, sectionKey }: { paragraphs: string[]; sectionKey: string }) {
-  const cards: { name: string; url: string; desc: string }[] = [];
-  const rest: string[] = [];
-  for (const p of paragraphs) {
-    const m = p.match(/^\[([^\]]+)\]\(([^)]+)\)\s*[：:]\s*([\s\S]+)$/);
-    if (m) cards.push({ name: m[1], url: m[2], desc: m[3] });
-    else rest.push(p);
-  }
+  const { cards, rest } = parseProjectEntries(paragraphs);
   return (
     <>
       {cards.length > 0 && (
         <div className={styles.aboutProjects}>
-          {cards.map((c, i) => (
-            <a key={`${sectionKey}-card-${i}`} href={c.url} target="_blank" rel="noopener noreferrer">
-              <strong>{c.name}</strong>
-              <p>{renderAboutInline(c.desc, `${sectionKey}-desc-${i}`)}</p>
-            </a>
-          ))}
+          {cards.map((c, i) => {
+            const inner = (
+              <>
+                <strong>{c.name}</strong>
+                <p>{renderAboutInline(c.desc, `${sectionKey}-desc-${i}`)}</p>
+              </>
+            );
+            return c.url ? (
+              <a key={`${sectionKey}-card-${i}`} href={c.url} target="_blank" rel="noopener noreferrer">{inner}</a>
+            ) : (
+              <div key={`${sectionKey}-card-${i}`}>{inner}</div>
+            );
+          })}
         </div>
       )}
       {rest.map((p, i) => (
@@ -107,13 +81,17 @@ function AboutProjects({ paragraphs, sectionKey }: { paragraphs: string[]; secti
   );
 }
 
-function AboutContacts({ paragraphs, en, locale }: { paragraphs: string[]; en: boolean; locale: OptimizedLocale }) {
+function AboutContacts({ paragraphs, en, locale, storyUrl, contacts }: { paragraphs: string[]; en: boolean; locale: OptimizedLocale; storyUrl?: string | null; contacts?: AboutContactsOverride }) {
   const all = paragraphs.join('\n');
-  const email = all.match(/\[([^\]]+)\]\((mailto:[^)]+)\)/);
-  const wechat = all.match(/(?:微信|WeChat)\s+([A-Za-z0-9_-]{4,})/);
-  const github = all.match(/GitHub[^[\n]*\[([^\]]+)\]\((https?:\/\/github\.com\/[^)\s]+)\)/);
-  const x = all.match(/(?:^|[，,\s])X\s*(?:是)?\s*\[([^\]]+)\]\((https?:\/\/x\.com\/[^)\s]+)\)/m);
-  const xhs = en ? all.match(/Xiaohongshu[\s\S]*?search for\s+([^.]+)\./) : all.match(/小红书搜「?([^，。\s]+)」?/);
+  const emailBody = all.match(/\[([^\]]+)\]\((mailto:[^)]+)\)/);
+  const email = contacts?.email ? { text: contacts.email, href: `mailto:${contacts.email}` } : emailBody ? { text: emailBody[1], href: emailBody[2] } : null;
+  const wechat = contacts?.wechat || all.match(/(?:微信|WeChat)\s+([A-Za-z0-9_-]{4,})/)?.[1] || null;
+  const githubBody = all.match(/GitHub[^[\n]*\[([^\]]+)\]\((https?:\/\/github\.com\/[^)\s]+)\)/);
+  const githubUrl = contacts?.github || (githubBody ? githubBody[2] : null);
+  const xBody = all.match(/(?:^|[，,\s])X\s*(?:是)?\s*\[([^\]]+)\]\((https?:\/\/x\.com\/[^)\s]+)\)/m);
+  const xUrl = contacts?.x || (xBody ? xBody[2] : null);
+  const xhsBody = en ? all.match(/Xiaohongshu[\s\S]*?search for\s+([^.]+)\./) : all.match(/小红书搜「?([^，。\s]+)」?/);
+  const xhs = contacts?.xiaohongshu || (xhsBody ? xhsBody[1].trim() : null);
   if (!email || !wechat) {
     return (
       <div className={styles.aboutSectionBody}>
@@ -124,23 +102,24 @@ function AboutContacts({ paragraphs, en, locale }: { paragraphs: string[]; en: b
   const handleOf = (url: string) => `@${url.replace(/\/$/, '').split('/').pop()}`;
   return (
     <div className={styles.aboutContacts}>
-      <div><span>{en ? 'Email' : '邮箱'}</span><a href={email[2]}>{email[1]}</a></div>
-      {github && (<div><span>GitHub</span><a href={github[2]} target="_blank" rel="noopener noreferrer">{handleOf(github[2])}</a></div>)}
-      <div><span>{en ? 'WeChat' : '微信'}</span><CopyContactButton value={wechat[1]} locale={locale} /></div>
-      {x && (<div><span>X</span><a href={x[2]} target="_blank" rel="noopener noreferrer">{handleOf(x[2])}</a></div>)}
+      <div><span>{en ? 'Email' : '邮箱'}</span><a href={email.href}>{email.text}</a></div>
+      {githubUrl && (<div><span>GitHub</span><a href={githubUrl} target="_blank" rel="noopener noreferrer">{handleOf(githubUrl)}</a></div>)}
+      <div><span>{en ? 'WeChat' : '微信'}</span><CopyContactButton value={wechat} locale={locale} /></div>
+      {xUrl && (<div><span>X</span><a href={xUrl} target="_blank" rel="noopener noreferrer">{handleOf(xUrl)}</a></div>)}
       <div><span>{en ? 'Website' : '网站'}</span><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools</a></div>
-      {xhs && (<div><span>{en ? 'Xiaohongshu' : '小红书'}</span><span>{xhs[1].trim()}</span></div>)}
-      <a className={styles.aboutStory} href="https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A" target="_blank" rel="noopener noreferrer">
+      {xhs && (<div><span>{en ? 'Xiaohongshu' : '小红书'}</span>{/^https?:\/\//.test(xhs) ? (<a href={xhs} target="_blank" rel="noopener noreferrer">{en ? 'LingYi Student' : '凌一同学'}</a>) : (<span>{xhs}</span>)}</div>)}
+      <a className={styles.aboutStory} href={storyUrl || 'https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A'} target="_blank" rel="noopener noreferrer">
         {en ? 'Learn more about my story →' : '了解更多关于我的故事 →'}
       </a>
     </div>
   );
 }
 
-function AboutStructured({ content, locale }: { content: string; locale: OptimizedLocale }) {
+function AboutStructured({ content, locale, storyUrl, contacts }: { content: string; locale: OptimizedLocale; storyUrl?: string | null; contacts?: AboutContactsOverride }) {
   const en = locale === 'en';
-  const { intro, sections } = parseAboutMarkdown(content);
-  const whoIdx = sections.findIndex((s) => /我是谁|Who I am/i.test(s.heading));
+  const { intro, sections } = parseAboutMarkdown(stripLeadingGuide(content));
+  const classified = sections.map((s) => classifyAboutSection(s.heading));
+  const whoIdx = classified.findIndex((c) => c.kind === 'who');
   const who = whoIdx >= 0 ? sections[whoIdx] : null;
   const [lead, introRest] = intro.length > 0 ? splitAboutLead(intro[0], en) : ['', ''];
   const introBody = [...(who ? who.paragraphs : []), introRest, ...intro.slice(1)].filter(Boolean).join(en ? ' ' : '');
@@ -155,15 +134,15 @@ function AboutStructured({ content, locale }: { content: string; locale: Optimiz
       </section>
       {sections.map((s, i) => {
         if (i === whoIdx) return null;
-        const isProjects = /我运营的项目|What I run/i.test(s.heading);
-        const isContact = /联系我|Contact/i.test(s.heading);
+        const isProjects = classified[i].kind === 'projects';
+        const isContact = classified[i].kind === 'contact';
         return (
           <section key={`about-sec-${i}`} className={styles.aboutSection}>
-            <h2>{s.heading}</h2>
+            <h2>{classified[i].display}</h2>
             {isProjects ? (
               <AboutProjects paragraphs={s.paragraphs} sectionKey={`about-sec-${i}`} />
             ) : isContact ? (
-              <AboutContacts paragraphs={s.paragraphs} en={en} locale={locale} />
+              <AboutContacts paragraphs={s.paragraphs} en={en} locale={locale} storyUrl={storyUrl} contacts={contacts} />
             ) : (
               <div className={styles.aboutSectionBody}>
                 {s.paragraphs.map((p, j) => (<p key={`about-sec-${i}-${j}`}>{renderAboutInline(p, `about-sec-${i}-${j}`)}</p>))}
@@ -221,7 +200,7 @@ export function OptimizedArchive({ posts, locale = 'zh', routeRoot }: { posts: N
   );
 }
 
-export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | null; locale?: OptimizedLocale }) {
+export function OptimizedAbout({ about, locale = 'zh', storyUrl, contacts }: { about: NotionPost | null; locale?: OptimizedLocale; storyUrl?: string | null; contacts?: AboutContactsOverride }) {
   const en = locale === 'en';
   const title = about?.title ? about.title : en ? 'LingYi / LingYi_Stu' : '凌一 / LingYi_Stu';
   const tagline = !en && about?.excerpt
@@ -249,7 +228,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
 
         <main className={styles.aboutContent}>
           {about?.content ? (
-            <AboutStructured content={about.content} locale={locale} />
+            <AboutStructured content={about.content} locale={locale} storyUrl={storyUrl} contacts={contacts} />
           ) : (
             <div className={styles.aboutOriginal}>
               <section className={styles.aboutSection}>

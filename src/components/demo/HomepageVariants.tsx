@@ -257,7 +257,7 @@ function MagazineVariant({ posts }: { posts: NotionPost[] }) {
   );
 }
 
-function CuratedVariant({ posts, routePrefix = '', locale = 'zh' }: { posts: NotionPost[]; routePrefix?: string; locale?: OptimizedLocale }) {
+function CuratedVariant({ posts, routePrefix = '', locale = 'zh', announcement }: { posts: NotionPost[]; routePrefix?: string; locale?: OptimizedLocale; announcement?: string | null }) {
   const used = new Set<string>();
   const take = (slot: NonNullable<NotionPost['homepageSlot']>) => {
     const selected = posts.find((post) => post.homepageSlot === slot && !used.has(post.id));
@@ -291,6 +291,7 @@ function CuratedVariant({ posts, routePrefix = '', locale = 'zh' }: { posts: Not
 
   return (
     <div className={`${styles.variant} ${styles.curated}`}>
+      {announcement && <div className={styles.configBar} role="note">{announcement}</div>}
       <header className={styles.workspaceHero}>
         <div>
           <p className={styles.eyebrow}>{en ? 'LINGYI / BUILD · WRITE · LIVE' : '凌一 / 构建 · 写作 · 生活'}</p>
@@ -389,12 +390,14 @@ export default function HomepageVariant({
   showDemoSwitcher = true,
   routePrefix = '',
   locale = 'zh',
+  announcement,
 }: {
   variant: DemoVariant;
   posts: NotionPost[];
   showDemoSwitcher?: boolean;
   routePrefix?: string;
   locale?: OptimizedLocale;
+  announcement?: string | null;
 }) {
   const sortedPosts = [...posts]
     .filter((post) => post.type !== 'announcement')
@@ -406,7 +409,7 @@ export default function HomepageVariant({
       {variant === 'minimal' && <MinimalVariant posts={sortedPosts} />}
       {variant === 'workspace' && <WorkspaceVariant posts={sortedPosts} />}
       {variant === 'magazine' && <MagazineVariant posts={sortedPosts} />}
-      {variant === 'curated' && <CuratedVariant posts={sortedPosts} routePrefix={routePrefix} locale={locale} />}
+      {variant === 'curated' && <CuratedVariant posts={sortedPosts} routePrefix={routePrefix} locale={locale} announcement={announcement} />}
     </div>
   );
 }

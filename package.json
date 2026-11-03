@@ -14,7 +14,8 @@
     "analytics:sync:dry-run": "node scripts/sync-analytics.mjs --dry-run",
     "notion:sync-english": "tsx scripts/sync-notion-english.ts",
     "notion:setup-homepage-tags": "tsx scripts/setup-homepage-tags.ts",
-    "test:analytics": "node --test src/lib/analytics-sync.test.mjs"
+    "test:analytics": "node --test src/lib/analytics-sync.test.mjs",
+    "test": "tsx --test src/lib/*.test.ts"
   },
   "dependencies": {
     "@notionhq/client": "^5.28.0",

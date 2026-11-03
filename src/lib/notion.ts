@@ -2,6 +2,7 @@ import { logger } from './logger';
 import { Client } from '@notionhq/client';
 import { NotionToMarkdown } from 'notion-to-md';
 import { toProxiedImageUrl, isExpiringNotionUrl } from './notion-image';
+import { parsePostTypeName, isArticleRecord, type PostKind } from './post-type';
 
 export interface NotionTag {
   name: string;
@@ -23,7 +24,7 @@ export interface NotionPost {
   cover?: string | null;
   pinned?: boolean;
   homepageSlot?: 'cover' | 'second' | 'third' | null;
-  type?: 'post' | 'page' | 'announcement';
+  type?: PostKind;
   language?: NotionLocale;
 }
 
@@ -400,14 +401,21 @@ function parseHomepageSlot(page: NotionPage): NotionPost['homepageSlot'] {
   return null;
 }
 
-function parsePostType(page: NotionPage): NonNullable<NotionPost['type']> {
-  // Notion 里的 Type 选项名带 emoji 前缀（如 "📄 Page"、"📣 Announcement"），
-  // 不能用纯 'page'/'announcement' 逐字比对，必须按关键词匹配，
-  // 否则 Page 类记录会被默认当成 post 混进文章列表。
-  const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
-  if (raw.includes('page')) return 'page';
-  if (raw.includes('announcement')) return 'announcement';
-  return 'post';
+function parsePostType(page: NotionPage): PostKind {
+  // 失败关闭：认不出或没标 Type 的记录解析为 'unknown'，不当文章。
+  // 解析规则在 post-type.ts，有回归测试覆盖。
+  return parsePostTypeName(page.properties.Type?.select?.name);
+}
+
+// 文章白名单的 Notion 查询条件：只取 Post 与 Announcement 两类。
+// 选项名必须与库里的现行选项逐字一致（含 emoji），改选项名时先改这里。
+function articleTypeFilter() {
+  return {
+    or: [
+      { property: 'Type', select: { equals: '📝 Post' } },
+      { property: 'Type', select: { equals: '📣 Announcement' } },
+    ],
+  };
 }
 
 function parsePublicTags(page: NotionPage): NotionTag[] {
@@ -451,7 +459,7 @@ async function getChineseHomepageSlots(): Promise<Map<string, NonNullable<Notion
 // Mock posts removed - using real Notion data only
 
 // 获取所有已发布的文章
-export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost[]> {
+export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished = false, options?: { articleOnly?: boolean }): Promise<NotionPost[]> {
   // 调试日志已移除
 
   // 如果在生产环境但缺少环境变量，这是一个错误
@@ -471,6 +479,7 @@ export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished =
           and: [
             ...(!includeUnpublished ? [publishedFilter()] : []),
             languageFilter(locale),
+            ...(options?.articleOnly ? [articleTypeFilter()] : []),
           ],
         },
         sorts: [
@@ -586,6 +595,13 @@ export async function getPostBySlug(slug: string, locale: NotionLocale = 'zh', i
 
     const page = data.results[0];
 
+    // 文章详情只认白名单类型：Page、Config、未标注类型的记录按 slug 也打不开，
+    // 保留 slug（如 about）走各自的专属读取函数，不从这里出。
+    const kind = parsePostType(page);
+    if (!isArticleRecord({ type: kind, slug })) {
+      return null;
+    }
+
     // 获取页面内容
     try {
       const content = await getPageMarkdown(page.id);
@@ -607,6 +623,7 @@ export async function getPostBySlug(slug: string, locale: NotionLocale = 'zh', i
           (page.properties.Status?.select?.name === '✅ Published') ||
           (page.properties.Published?.checkbox || false),
         cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
+        type: kind,
         language: parseLanguage(page),
       };
     } catch (contentError) {
@@ -629,6 +646,7 @@ export async function getPostBySlug(slug: string, locale: NotionLocale = 'zh', i
           (page.properties.Status?.select?.name === '✅ Published') ||
           (page.properties.Published?.checkbox || false),
         cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
+        type: kind,
         language: parseLanguage(page),
       };
     }
@@ -1767,10 +1785,143 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
   }
 }
 
-// 获取文章（过滤掉页面，包含公告）
+// 读取一条站点配置（博客库里的 ⚙️ Config 记录）。
+// 约定：Slug 是配置键（如 announcement-bar），值写在 Summary；
+// Type 固定为 ⚙️ Config。默认只读已发布配置，预览镜像可传 includeUnpublished 读草稿。
+// 配置与语言无关，一条记录全站生效；取不到返回 null，调用方用代码默认值兜底。
+export async function getConfig(key: string, includeUnpublished = false): Promise<string | null> {
+  const entry = await getConfigEntry(key, includeUnpublished);
+  return entry?.value ?? null;
+}
+
+// 读取一条配置记录的全文：标题、Summary 值与正文 Markdown。
+export async function getConfigEntry(key: string, includeUnpublished = false): Promise<{ title: string; value: string | null; body: string | null } | null> {
+  try {
+    const response = await queryNotionDataSource({
+      filter: {
+        and: [
+          ...(!includeUnpublished ? [publishedFilter()] : []),
+          { property: 'Type', select: { equals: '⚙️ Config' } },
+          { property: 'Slug', rich_text: { equals: key } },
+        ],
+      },
+    }, 15000);
+
+    if (!response.ok) {
+      logger.error(`Notion API Error for config ${key}: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    if (data.results.length === 0) return null;
+
+    const page = data.results[0] as NotionPage;
+    let body: string | null = null;
+    try {
+      body = await getPageMarkdown(page.id);
+    } catch (error) {
+      logger.error(`Error fetching config body ${key}`, error);
+    }
+    return {
+      title: getPlainText(page.properties.Title?.title || []),
+      value: getPlainText(page.properties.Summary?.rich_text || []) || null,
+      body,
+    };
+  } catch (error) {
+    logger.error(`Error fetching config ${key}`, error);
+    return null;
+  }
+}
+
+// 关于页联系方式配置：Config 记录一行一项（contact-email、contact-wechat、
+// contact-github、contact-x、contact-xiaohongshu），中英共用同一套值。
+// 取不到的项返回 null，渲染侧回退到正文解析，页面不会坏。
+export async function getAboutContacts(includeUnpublished = false): Promise<import('./about-format').AboutContactsOverride> {
+  const [email, wechat, github, x, xiaohongshu] = await Promise.all([
+    getConfig('contact-email', includeUnpublished),
+    getConfig('contact-wechat', includeUnpublished),
+    getConfig('contact-github', includeUnpublished),
+    getConfig('contact-x', includeUnpublished),
+    getConfig('contact-xiaohongshu', includeUnpublished),
+  ]);
+  return { email, wechat, github, x, xiaohongshu };
+}
+
+// 关于页分节拼装：正文拆成独立的 Config 记录（about-intro、about-who、
+// about-projects、about-writing、about-community、about-experience、about-contact，
+// 英文加 -en 后缀），按固定顺序拼回整页 Markdown，交给既有渲染。
+// 七节缺任何一节就返回 null，调用方回退用关于页整页正文，页面不会坏。
+const ABOUT_SECTION_KEYS = ['about-intro', 'about-who', 'about-projects', 'about-writing', 'about-community', 'about-experience', 'about-contact'] as const;
+
+export async function getAboutSectionsMarkdown(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<string | null> {
+  const suffix = locale === 'en' ? '-en' : '';
+  const entries = await Promise.all(
+    ABOUT_SECTION_KEYS.map((key) => getConfigEntry(`${key}${suffix}`, includeUnpublished)),
+  );
+  if (entries.some((entry) => !entry || !entry.body)) return null;
+
+  const [intro, ...rest] = entries as NonNullable<(typeof entries)[number]>[];
+  const parts = [intro.body!.trim()];
+  for (const entry of rest) {
+    parts.push(`## ${entry.title}\n\n${entry.body!.trim()}`);
+  }
+  return parts.join('\n\n');
+}
+
+// 关于页的壳（标题、发布状态）归代码，Notion 只供正文：
+// 优先用分节 Config 记录拼正文；七节不齐时回退博客库里的整页 About 记录
+// （过渡期安全网，记录删掉后自动失效）；再不行用现有分节做部分拼装
+// （缺节跳过，简介节缺失才放弃），避免页面掉回内置兜底文案。
+const ABOUT_PAGE_TITLES: Record<NotionLocale, string> = { zh: '凌一 / LingYi', en: 'LingYi' };
+
+export async function getAboutPost(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost | null> {
+  const assembled = await getAboutSectionsMarkdown(locale, includeUnpublished);
+  if (assembled) {
+    return {
+      id: `about-${locale}`,
+      title: ABOUT_PAGE_TITLES[locale],
+      slug: 'about',
+      excerpt: '',
+      content: assembled,
+      publishedAt: '2026-11-01T13:37:00.000Z',
+      tags: [],
+      published: true,
+      cover: null,
+      type: 'page',
+    };
+  }
+
+  const record = await getAboutPage(locale);
+  if (record) return record;
+
+  const suffix = locale === 'en' ? '-en' : '';
+  const entries = await Promise.all(
+    ABOUT_SECTION_KEYS.map((key) => getConfigEntry(`${key}${suffix}`, includeUnpublished)),
+  );
+  const [intro, ...rest] = entries;
+  if (!intro || !intro.body) return null;
+  const parts = [intro.body.trim()];
+  for (const entry of rest) {
+    if (entry && entry.body) parts.push(`## ${entry.title}\n\n${entry.body.trim()}`);
+  }
+  return {
+    id: `about-${locale}`,
+    title: ABOUT_PAGE_TITLES[locale],
+    slug: 'about',
+    excerpt: '',
+    content: parts.join('\n\n'),
+    publishedAt: '2026-11-01T13:37:00.000Z',
+    tags: [],
+    published: true,
+    cover: null,
+    type: 'page',
+  };
+}
+
+// 获取文章（白名单：只有 Post 与 Announcement，含公告不含页面与配置）
+// 两道闸：查询条件先按 Type 白名单取，回来再用 isArticleRecord 复核一遍，
+// 任一层认不出类型都挡在文章流外（失败关闭）。
 export async function getPostsOnly(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost[]> {
-  const allPosts = await getPosts(locale, includeUnpublished);
-  // 包含 post 和 announcement 类型，过滤掉 page 类型；
-  // slug 'about' 是关于页的保留路径（有独立路由），无论 Type 如何标注都不算文章
-  return allPosts.filter(post => post.type !== 'page' && post.slug !== 'about');
+  const allPosts = await getPosts(locale, includeUnpublished, { articleOnly: true });
+  return allPosts.filter((post) => isArticleRecord(post));
 }

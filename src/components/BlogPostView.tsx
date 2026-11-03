@@ -7,7 +7,7 @@ import ReadingTime from '@/components/ReadingTime';
 import ReadingStats from '@/components/ReadingStats';
 import ShareButtons from '@/components/ShareButtons';
 import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
-import { getPostBySlug, getPosts } from '@/lib/notion';
+import { getPostBySlug, getPostsOnly } from '@/lib/notion';
 import { logger } from '@/lib/logger';
 
 interface BlogPostViewProps {
@@ -18,11 +18,11 @@ interface BlogPostViewProps {
 export default async function BlogPostView({ params, routePrefix = '' }: BlogPostViewProps) {
   const { slug } = await params;
   let post: Awaited<ReturnType<typeof getPostBySlug>> = null;
-  let allPosts: Awaited<ReturnType<typeof getPosts>> = [];
+  let allPosts: Awaited<ReturnType<typeof getPostsOnly>> = [];
 
   try {
     post = await getPostBySlug(slug);
-    allPosts = await getPosts();
+    allPosts = await getPostsOnly();
   } catch (error) {
     logger.error('Error loading post', error);
   }

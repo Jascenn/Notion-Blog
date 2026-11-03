@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getPostBySlug, getPosts } from '@/lib/notion';
+import { getPostBySlug, getPostsOnly } from '@/lib/notion';
 import { localizeOptimizedPost, localizeOptimizedPosts } from '@/lib/optimized-i18n';
 import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 import { OptimizedArticle } from '@/components/preview/OptimizedPages';
@@ -39,7 +39,7 @@ export default async function EnglishArticlePage({ params }: { params: Promise<{
   const { slug } = await params;
   const [post, allPosts] = await Promise.all([
     getPostBySlug(slug, 'en'),
-    getPosts('en'),
+    getPostsOnly('en'),
   ]);
   if (!post) notFound();
   return (

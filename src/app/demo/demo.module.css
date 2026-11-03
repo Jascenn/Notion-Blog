@@ -435,3 +435,6 @@
   .curatedTopics a,
   .curatedTopics a > b { transition: none; }
 }
+
+/* 站点配置公告条：文案来自 Notion 的 ⚙️ Config 记录（slug: announcement-bar） */
+.configBar { background: #111214; color: #f7f4ec; text-align: center; font-size: 0.95rem; line-height: 1.6; padding: 0.65rem 1rem; border-radius: 0.75rem; margin-bottom: 2rem; }

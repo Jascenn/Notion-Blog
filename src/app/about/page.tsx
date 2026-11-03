@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getAboutPage } from '@/lib/notion';
+import { getAboutPost, getAboutContacts, getConfig } from '@/lib/notion';
 import { OptimizedAbout } from '@/components/preview/OptimizedPages';
 import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 
@@ -18,7 +18,9 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
-  const about = await getAboutPage();
+  const about = await getAboutPost('zh');
+  const storyUrl = await getConfig('about-story-url');
+  const contacts = await getAboutContacts();
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me').replace(/\/$/, '');
   const personJsonLd = {
     '@context': 'https://schema.org',
@@ -44,6 +46,7 @@ export default async function AboutPage() {
           'https://www.linkedin.com/in/%E6%96%87-%E7%BD%97-b61694316/',
           'https://lingyi.tools',
           'https://radar.lingyi.tools',
+          'https://www.xiaohongshu.com/user/profile/6434dd90000000000801aed5',
         ],
         worksFor: { '@type': 'Organization', name: 'LingYi Tools', url: 'https://lingyi.tools' },
       },
@@ -92,7 +95,7 @@ export default async function AboutPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-      <OptimizedAbout about={about} />
+      <OptimizedAbout about={about} storyUrl={storyUrl} contacts={contacts} />
     </>
   );
 }

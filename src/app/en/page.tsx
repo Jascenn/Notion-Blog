@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import HomepageVariant from '@/components/demo/HomepageVariants';
-import { getPostsOnly } from '@/lib/notion';
+import { getPostsOnly, getConfig } from '@/lib/notion';
 import { localizeOptimizedPosts } from '@/lib/optimized-i18n';
 import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 
@@ -20,5 +20,6 @@ export const metadata: Metadata = {
 
 export default async function EnglishHomePage() {
   const posts = localizeOptimizedPosts(await getPostsOnly('en'), 'en');
-  return <HomepageVariant variant="curated" posts={posts} showDemoSwitcher={false} routePrefix="/en" locale="en" />;
+  const announcement = await getConfig('announcement-bar');
+  return <HomepageVariant variant="curated" posts={posts} showDemoSwitcher={false} routePrefix="/en" locale="en" announcement={announcement} />;
 }

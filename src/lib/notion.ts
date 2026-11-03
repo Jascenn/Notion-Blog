@@ -1790,6 +1790,12 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
 // Type 固定为 ⚙️ Config。默认只读已发布配置，预览镜像可传 includeUnpublished 读草稿。
 // 配置与语言无关，一条记录全站生效；取不到返回 null，调用方用代码默认值兜底。
 export async function getConfig(key: string, includeUnpublished = false): Promise<string | null> {
+  const entry = await getConfigEntry(key, includeUnpublished);
+  return entry?.value ?? null;
+}
+
+// 读取一条配置记录的全文：标题、Summary 值与正文 Markdown。
+export async function getConfigEntry(key: string, includeUnpublished = false): Promise<{ title: string; value: string | null; body: string | null } | null> {
   try {
     const response = await queryNotionDataSource({
       filter: {
@@ -1810,11 +1816,42 @@ export async function getConfig(key: string, includeUnpublished = false): Promis
     if (data.results.length === 0) return null;
 
     const page = data.results[0] as NotionPage;
-    return getPlainText(page.properties.Summary?.rich_text || []) || null;
+    let body: string | null = null;
+    try {
+      body = await getPageMarkdown(page.id);
+    } catch (error) {
+      logger.error(`Error fetching config body ${key}`, error);
+    }
+    return {
+      title: getPlainText(page.properties.Title?.title || []),
+      value: getPlainText(page.properties.Summary?.rich_text || []) || null,
+      body,
+    };
   } catch (error) {
     logger.error(`Error fetching config ${key}`, error);
     return null;
   }
+}
+
+// 关于页分节拼装：正文拆成独立的 Config 记录（about-intro、about-who、
+// about-projects、about-writing、about-community、about-experience、about-contact，
+// 英文加 -en 后缀），按固定顺序拼回整页 Markdown，交给既有渲染。
+// 七节缺任何一节就返回 null，调用方回退用关于页整页正文，页面不会坏。
+const ABOUT_SECTION_KEYS = ['about-intro', 'about-who', 'about-projects', 'about-writing', 'about-community', 'about-experience', 'about-contact'] as const;
+
+export async function getAboutSectionsMarkdown(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<string | null> {
+  const suffix = locale === 'en' ? '-en' : '';
+  const entries = await Promise.all(
+    ABOUT_SECTION_KEYS.map((key) => getConfigEntry(`${key}${suffix}`, includeUnpublished)),
+  );
+  if (entries.some((entry) => !entry || !entry.body)) return null;
+
+  const [intro, ...rest] = entries as NonNullable<(typeof entries)[number]>[];
+  const parts = [intro.body!.trim()];
+  for (const entry of rest) {
+    parts.push(`## ${entry.title}\n\n${entry.body!.trim()}`);
+  }
+  return parts.join('\n\n');
 }
 
 // 获取文章（白名单：只有 Post 与 Announcement，含公告不含页面与配置）

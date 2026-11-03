@@ -138,6 +138,7 @@ const englishChangelogData = [
     changes: [
       { type: 'Improve', color: 'text-blue-500', text: 'Article lists, related posts and RSS now only include real posts and announcements; pages and config records stay in their own places' },
       { type: 'Add', color: 'text-green-500', text: 'The homepage announcement bar is now driven by a Notion config record, no code change needed to update it' },
+      { type: 'Add', color: 'text-green-500', text: 'The About body is split into seven standalone config sections, each editable on its own' },
       { type: 'Improve', color: 'text-blue-500', text: 'The About page now recognizes a few common alternative section titles, so renaming a heading is less likely to break its layout' },
     ],
   },

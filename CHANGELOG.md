@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🛡️ **内容分型闸门（白名单加失败关闭）**：文章流改为只认 Type 为「📝 Post」「📣 Announcement」的记录。新增纯函数模块 `src/lib/post-type.ts` 统一解析与判定（含 Config 与 unknown 类型）；`getPostsOnly` 把白名单推进 Notion 查询条件并在返回后用 `isArticleRecord` 复核；Type 解析由「认不出默认 post」改为「认不出不当文章」。`getPostBySlug` 同步加同一闸门，Page、Config 与未标注记录按 slug 也打不开；相关文章与文章静态路径改走 `getPostsOnly`。新增 `node --test` 回归测试（tests/post-type.test.ts）锁死规则，防 About 类记录再次漏入
 - ⚙️ **站点配置读取（首个配置项：公告条）**：新增 `getConfig(key)`，读博客库中 Type 为「⚙️ Config」、Slug 为配置键的记录，值取 Summary；首页顶部公告条接 `announcement-bar` 配置，已发布才生效，预览镜像页可读草稿供测试；取不到配置时不显示，不影响页面
 - 🧩 **关于页小节标题别名**：`AboutStructured` 的特殊节识别放宽，「关于我」「我的项目」「联系方式」等同义标题也能命中对应版式，降低误改标题导致版式静默掉落的概率
+- 📄 **关于页正文分节配置**：正文拆成七节独立 Config 记录（about-intro、about-who、about-projects、about-writing、about-community、about-experience、about-contact，英文加 -en 后缀），`getAboutSectionsMarkdown` 按固定顺序拼回整页 Markdown 交既有渲染；七节缺任何一节返回 null 并回退整页正文。另「了解更多关于我的故事」链接改读 `about-story-url` 配置；英文版预览镜像关于页改为读真实英文记录（此前固定传 null 只显示兜底文案）
 
 ## [2.3.1] - 2026-11-03
 

@@ -107,7 +107,7 @@ function AboutProjects({ paragraphs, sectionKey }: { paragraphs: string[]; secti
   );
 }
 
-function AboutContacts({ paragraphs, en, locale }: { paragraphs: string[]; en: boolean; locale: OptimizedLocale }) {
+function AboutContacts({ paragraphs, en, locale, storyUrl }: { paragraphs: string[]; en: boolean; locale: OptimizedLocale; storyUrl?: string | null }) {
   const all = paragraphs.join('\n');
   const email = all.match(/\[([^\]]+)\]\((mailto:[^)]+)\)/);
   const wechat = all.match(/(?:微信|WeChat)\s+([A-Za-z0-9_-]{4,})/);
@@ -130,14 +130,14 @@ function AboutContacts({ paragraphs, en, locale }: { paragraphs: string[]; en: b
       {x && (<div><span>X</span><a href={x[2]} target="_blank" rel="noopener noreferrer">{handleOf(x[2])}</a></div>)}
       <div><span>{en ? 'Website' : '网站'}</span><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools</a></div>
       {xhs && (<div><span>{en ? 'Xiaohongshu' : '小红书'}</span><span>{xhs[1].trim()}</span></div>)}
-      <a className={styles.aboutStory} href="https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A" target="_blank" rel="noopener noreferrer">
+      <a className={styles.aboutStory} href={storyUrl || 'https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A'} target="_blank" rel="noopener noreferrer">
         {en ? 'Learn more about my story →' : '了解更多关于我的故事 →'}
       </a>
     </div>
   );
 }
 
-function AboutStructured({ content, locale }: { content: string; locale: OptimizedLocale }) {
+function AboutStructured({ content, locale, storyUrl }: { content: string; locale: OptimizedLocale; storyUrl?: string | null }) {
   const en = locale === 'en';
   const { intro, sections } = parseAboutMarkdown(content);
   const whoIdx = sections.findIndex((s) => /我是谁|关于我|Who I am|About me/i.test(s.heading));
@@ -163,7 +163,7 @@ function AboutStructured({ content, locale }: { content: string; locale: Optimiz
             {isProjects ? (
               <AboutProjects paragraphs={s.paragraphs} sectionKey={`about-sec-${i}`} />
             ) : isContact ? (
-              <AboutContacts paragraphs={s.paragraphs} en={en} locale={locale} />
+              <AboutContacts paragraphs={s.paragraphs} en={en} locale={locale} storyUrl={storyUrl} />
             ) : (
               <div className={styles.aboutSectionBody}>
                 {s.paragraphs.map((p, j) => (<p key={`about-sec-${i}-${j}`}>{renderAboutInline(p, `about-sec-${i}-${j}`)}</p>))}
@@ -221,7 +221,7 @@ export function OptimizedArchive({ posts, locale = 'zh', routeRoot }: { posts: N
   );
 }
 
-export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | null; locale?: OptimizedLocale }) {
+export function OptimizedAbout({ about, locale = 'zh', storyUrl }: { about: NotionPost | null; locale?: OptimizedLocale; storyUrl?: string | null }) {
   const en = locale === 'en';
   const title = about?.title ? about.title : en ? 'LingYi / LingYi_Stu' : '凌一 / LingYi_Stu';
   const tagline = !en && about?.excerpt
@@ -249,7 +249,7 @@ export function OptimizedAbout({ about, locale = 'zh' }: { about: NotionPost | n
 
         <main className={styles.aboutContent}>
           {about?.content ? (
-            <AboutStructured content={about.content} locale={locale} />
+            <AboutStructured content={about.content} locale={locale} storyUrl={storyUrl} />
           ) : (
             <div className={styles.aboutOriginal}>
               <section className={styles.aboutSection}>

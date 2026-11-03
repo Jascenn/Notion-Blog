@@ -1868,6 +1868,56 @@ export async function getAboutSectionsMarkdown(locale: NotionLocale = 'zh', incl
   return parts.join('\n\n');
 }
 
+// 关于页的壳（标题、发布状态）归代码，Notion 只供正文：
+// 优先用分节 Config 记录拼正文；七节不齐时回退博客库里的整页 About 记录
+// （过渡期安全网，记录删掉后自动失效）；再不行用现有分节做部分拼装
+// （缺节跳过，简介节缺失才放弃），避免页面掉回内置兜底文案。
+const ABOUT_PAGE_TITLES: Record<NotionLocale, string> = { zh: '凌一 / LingYi', en: 'LingYi' };
+
+export async function getAboutPost(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost | null> {
+  const assembled = await getAboutSectionsMarkdown(locale, includeUnpublished);
+  if (assembled) {
+    return {
+      id: `about-${locale}`,
+      title: ABOUT_PAGE_TITLES[locale],
+      slug: 'about',
+      excerpt: '',
+      content: assembled,
+      publishedAt: '2026-11-01T13:37:00.000Z',
+      tags: [],
+      published: true,
+      cover: null,
+      type: 'page',
+    };
+  }
+
+  const record = await getAboutPage(locale);
+  if (record) return record;
+
+  const suffix = locale === 'en' ? '-en' : '';
+  const entries = await Promise.all(
+    ABOUT_SECTION_KEYS.map((key) => getConfigEntry(`${key}${suffix}`, includeUnpublished)),
+  );
+  const [intro, ...rest] = entries;
+  if (!intro || !intro.body) return null;
+  const parts = [intro.body.trim()];
+  for (const entry of rest) {
+    if (entry && entry.body) parts.push(`## ${entry.title}\n\n${entry.body.trim()}`);
+  }
+  return {
+    id: `about-${locale}`,
+    title: ABOUT_PAGE_TITLES[locale],
+    slug: 'about',
+    excerpt: '',
+    content: parts.join('\n\n'),
+    publishedAt: '2026-11-01T13:37:00.000Z',
+    tags: [],
+    published: true,
+    cover: null,
+    type: 'page',
+  };
+}
+
 // 获取文章（白名单：只有 Post 与 Announcement，含公告不含页面与配置）
 // 两道闸：查询条件先按 Type 白名单取，回来再用 isArticleRecord 复核一遍，
 // 任一层认不出类型都挡在文章流外（失败关闭）。

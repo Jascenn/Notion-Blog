@@ -107,7 +107,7 @@ function AboutContacts({ paragraphs, en, locale, storyUrl, contacts }: { paragra
       <div><span>{en ? 'WeChat' : '微信'}</span><CopyContactButton value={wechat} locale={locale} /></div>
       {xUrl && (<div><span>X</span><a href={xUrl} target="_blank" rel="noopener noreferrer">{handleOf(xUrl)}</a></div>)}
       <div><span>{en ? 'Website' : '网站'}</span><a href="https://lingyi.tools" target="_blank" rel="noopener noreferrer">lingyi.tools</a></div>
-      {xhs && (<div><span>{en ? 'Xiaohongshu' : '小红书'}</span><span>{xhs}</span></div>)}
+      {xhs && (<div><span>{en ? 'Xiaohongshu' : '小红书'}</span>{/^https?:\/\//.test(xhs) ? (<a href={xhs} target="_blank" rel="noopener noreferrer">{en ? 'LingYi Student' : '凌一同学'}</a>) : (<span>{xhs}</span>)}</div>)}
       <a className={styles.aboutStory} href={storyUrl || 'https://mp.weixin.qq.com/s/57ZddMBqXFTP89YJs3lR9A'} target="_blank" rel="noopener noreferrer">
         {en ? 'Learn more about my story →' : '了解更多关于我的故事 →'}
       </a>

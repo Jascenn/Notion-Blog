@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2026-11-03
+
+### Fixed
+- 🐛 **关于页被误算成文章**：Notion 的 Type 选项名带 emoji 前缀（如「📄 Page」），`getPosts` 却用纯 `page` 逐字比对，永远匹配不上，Page 类记录被默认当成 post，导致中英文 About 混进文章索引、首页最近文章、搜索、RSS 与 sitemap，文章计数虚增（12 篇含 About，实为 11 篇）。改为按关键词解析 Type，并让 `getPostsOnly` 额外排除保留 slug `about`，关于页只走独立的 /about 路由
+
 ## [2.3.0] - 2026-11-01
 
 ### Added

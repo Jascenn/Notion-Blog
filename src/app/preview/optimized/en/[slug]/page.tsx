@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getPostBySlug, getPosts } from '@/lib/notion';
+import { getPostBySlug, getPostsOnly } from '@/lib/notion';
 import { localizeOptimizedPost, localizeOptimizedPosts } from '@/lib/optimized-i18n';
 import { OptimizedArticle } from '@/components/preview/OptimizedPages';
 
@@ -23,7 +23,7 @@ export default async function OptimizedEnglishArticlePage({ params }: { params: 
   const { slug } = await params;
   const [post, allPosts] = await Promise.all([
     getPostBySlug(slug, 'en', true),
-    getPosts('en', true),
+    getPostsOnly('en', true),
   ]);
   if (!post) notFound();
 

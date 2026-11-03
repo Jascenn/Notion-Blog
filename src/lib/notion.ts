@@ -2,6 +2,7 @@ import { logger } from './logger';
 import { Client } from '@notionhq/client';
 import { NotionToMarkdown } from 'notion-to-md';
 import { toProxiedImageUrl, isExpiringNotionUrl } from './notion-image';
+import { parsePostTypeName, isArticleRecord, type PostKind } from './post-type';
 
 export interface NotionTag {
   name: string;
@@ -23,7 +24,7 @@ export interface NotionPost {
   cover?: string | null;
   pinned?: boolean;
   homepageSlot?: 'cover' | 'second' | 'third' | null;
-  type?: 'post' | 'page' | 'announcement';
+  type?: PostKind;
   language?: NotionLocale;
 }
 
@@ -400,14 +401,21 @@ function parseHomepageSlot(page: NotionPage): NotionPost['homepageSlot'] {
   return null;
 }
 
-function parsePostType(page: NotionPage): NonNullable<NotionPost['type']> {
-  // Notion 里的 Type 选项名带 emoji 前缀（如 "📄 Page"、"📣 Announcement"），
-  // 不能用纯 'page'/'announcement' 逐字比对，必须按关键词匹配，
-  // 否则 Page 类记录会被默认当成 post 混进文章列表。
-  const raw = (page.properties.Type?.select?.name || '').toString().toLowerCase();
-  if (raw.includes('page')) return 'page';
-  if (raw.includes('announcement')) return 'announcement';
-  return 'post';
+function parsePostType(page: NotionPage): PostKind {
+  // 失败关闭：认不出或没标 Type 的记录解析为 'unknown'，不当文章。
+  // 解析规则在 post-type.ts，有回归测试覆盖。
+  return parsePostTypeName(page.properties.Type?.select?.name);
+}
+
+// 文章白名单的 Notion 查询条件：只取 Post 与 Announcement 两类。
+// 选项名必须与库里的现行选项逐字一致（含 emoji），改选项名时先改这里。
+function articleTypeFilter() {
+  return {
+    or: [
+      { property: 'Type', select: { equals: '📝 Post' } },
+      { property: 'Type', select: { equals: '📣 Announcement' } },
+    ],
+  };
 }
 
 function parsePublicTags(page: NotionPage): NotionTag[] {
@@ -451,7 +459,7 @@ async function getChineseHomepageSlots(): Promise<Map<string, NonNullable<Notion
 // Mock posts removed - using real Notion data only
 
 // 获取所有已发布的文章
-export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost[]> {
+export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished = false, options?: { articleOnly?: boolean }): Promise<NotionPost[]> {
   // 调试日志已移除
 
   // 如果在生产环境但缺少环境变量，这是一个错误
@@ -471,6 +479,7 @@ export async function getPosts(locale: NotionLocale = 'zh', includeUnpublished =
           and: [
             ...(!includeUnpublished ? [publishedFilter()] : []),
             languageFilter(locale),
+            ...(options?.articleOnly ? [articleTypeFilter()] : []),
           ],
         },
         sorts: [
@@ -586,6 +595,13 @@ export async function getPostBySlug(slug: string, locale: NotionLocale = 'zh', i
 
     const page = data.results[0];
 
+    // 文章详情只认白名单类型：Page、Config、未标注类型的记录按 slug 也打不开，
+    // 保留 slug（如 about）走各自的专属读取函数，不从这里出。
+    const kind = parsePostType(page);
+    if (!isArticleRecord({ type: kind, slug })) {
+      return null;
+    }
+
     // 获取页面内容
     try {
       const content = await getPageMarkdown(page.id);
@@ -607,6 +623,7 @@ export async function getPostBySlug(slug: string, locale: NotionLocale = 'zh', i
           (page.properties.Status?.select?.name === '✅ Published') ||
           (page.properties.Published?.checkbox || false),
         cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
+        type: kind,
         language: parseLanguage(page),
       };
     } catch (contentError) {
@@ -629,6 +646,7 @@ export async function getPostBySlug(slug: string, locale: NotionLocale = 'zh', i
           (page.properties.Status?.select?.name === '✅ Published') ||
           (page.properties.Published?.checkbox || false),
         cover: toProxiedImageUrl(page.cover?.external?.url || page.cover?.file?.url || null, { pageId: page.id }),
+        type: kind,
         language: parseLanguage(page),
       };
     }
@@ -1767,10 +1785,10 @@ export async function getAnnouncements(): Promise<NotionPost[]> {
   }
 }
 
-// 获取文章（过滤掉页面，包含公告）
+// 获取文章（白名单：只有 Post 与 Announcement，含公告不含页面与配置）
+// 两道闸：查询条件先按 Type 白名单取，回来再用 isArticleRecord 复核一遍，
+// 任一层认不出类型都挡在文章流外（失败关闭）。
 export async function getPostsOnly(locale: NotionLocale = 'zh', includeUnpublished = false): Promise<NotionPost[]> {
-  const allPosts = await getPosts(locale, includeUnpublished);
-  // 包含 post 和 announcement 类型，过滤掉 page 类型；
-  // slug 'about' 是关于页的保留路径（有独立路由），无论 Type 如何标注都不算文章
-  return allPosts.filter(post => post.type !== 'page' && post.slug !== 'about');
+  const allPosts = await getPosts(locale, includeUnpublished, { articleOnly: true });
+  return allPosts.filter((post) => isArticleRecord(post));
 }

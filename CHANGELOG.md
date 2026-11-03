@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.2] - 2026-11-03
+
+### Changed
+- 🛡️ **内容分型闸门（白名单加失败关闭）**：文章流改为只认 Type 为「📝 Post」「📣 Announcement」的记录。新增纯函数模块 `src/lib/post-type.ts` 统一解析与判定（含 Config 与 unknown 类型）；`getPostsOnly` 把白名单推进 Notion 查询条件并在返回后用 `isArticleRecord` 复核；Type 解析由「认不出默认 post」改为「认不出不当文章」。`getPostBySlug` 同步加同一闸门，Page、Config 与未标注记录按 slug 也打不开；相关文章与文章静态路径改走 `getPostsOnly`。新增 `node --test` 回归测试（tests/post-type.test.ts）锁死规则，防 About 类记录再次漏入
+- 🧩 **关于页小节标题别名**：`AboutStructured` 的特殊节识别放宽，「关于我」「我的项目」「联系方式」等同义标题也能命中对应版式，降低误改标题导致版式静默掉落的概率
+
 ## [2.3.1] - 2026-11-03
 
 ### Fixed

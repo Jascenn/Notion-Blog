@@ -6,6 +6,15 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.3.2',
+    date: '2026-11-03',
+    title: '内容分型加固：非文章内容不再混进文章流',
+    changes: [
+      { type: '优化', color: 'text-blue-500', text: '文章列表、相关推荐与订阅只收真正的文章和公告，页面与配置类内容各有专属位置，不再互相混入' },
+      { type: '优化', color: 'text-blue-500', text: '关于页的小节标题多认了几个常用说法，改标题时版式更不容易掉' },
+    ]
+  },
+  {
     version: 'v2.3.1',
     date: '2026-11-03',
     title: '修复关于页被误算成文章',
@@ -123,6 +132,13 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.3.2', date: '2026-11-03', title: 'Content-type hardening: non-article content stays out of the article flow',
+    changes: [
+      { type: 'Improve', color: 'text-blue-500', text: 'Article lists, related posts and RSS now only include real posts and announcements; pages and config records stay in their own places' },
+      { type: 'Improve', color: 'text-blue-500', text: 'The About page now recognizes a few common alternative section titles, so renaming a heading is less likely to break its layout' },
+    ],
+  },
   {
     version: 'v2.3.1', date: '2026-11-03', title: 'Fix: About page no longer counted as an article',
     changes: [

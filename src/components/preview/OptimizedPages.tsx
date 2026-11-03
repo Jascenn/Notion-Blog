@@ -140,7 +140,7 @@ function AboutContacts({ paragraphs, en, locale }: { paragraphs: string[]; en: b
 function AboutStructured({ content, locale }: { content: string; locale: OptimizedLocale }) {
   const en = locale === 'en';
   const { intro, sections } = parseAboutMarkdown(content);
-  const whoIdx = sections.findIndex((s) => /我是谁|Who I am/i.test(s.heading));
+  const whoIdx = sections.findIndex((s) => /我是谁|关于我|Who I am|About me/i.test(s.heading));
   const who = whoIdx >= 0 ? sections[whoIdx] : null;
   const [lead, introRest] = intro.length > 0 ? splitAboutLead(intro[0], en) : ['', ''];
   const introBody = [...(who ? who.paragraphs : []), introRest, ...intro.slice(1)].filter(Boolean).join(en ? ' ' : '');
@@ -155,8 +155,8 @@ function AboutStructured({ content, locale }: { content: string; locale: Optimiz
       </section>
       {sections.map((s, i) => {
         if (i === whoIdx) return null;
-        const isProjects = /我运营的项目|What I run/i.test(s.heading);
-        const isContact = /联系我|Contact/i.test(s.heading);
+        const isProjects = /我运营的项目|我的项目|运营的项目|What I run|Projects/i.test(s.heading);
+        const isContact = /联系我|联系方式|Contact/i.test(s.heading);
         return (
           <section key={`about-sec-${i}`} className={styles.aboutSection}>
             <h2>{s.heading}</h2>

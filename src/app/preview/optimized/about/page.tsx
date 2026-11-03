@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getAboutPage, getAboutSectionsMarkdown, getConfig } from '@/lib/notion';
+import { getAboutPage, getAboutSectionsMarkdown, getAboutContacts, getConfig } from '@/lib/notion';
 import { OptimizedAbout } from '@/components/preview/OptimizedPages';
 
 export const dynamic = 'force-dynamic';
@@ -15,5 +15,6 @@ export default async function OptimizedAboutPage() {
   const assembled = await getAboutSectionsMarkdown('zh', true);
   if (about && assembled) about.content = assembled;
   const storyUrl = await getConfig('about-story-url', true);
-  return <OptimizedAbout about={about} storyUrl={storyUrl} />;
+  const contacts = await getAboutContacts(true);
+  return <OptimizedAbout about={about} storyUrl={storyUrl} contacts={contacts} />;
 }

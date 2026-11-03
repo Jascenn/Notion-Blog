@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getAboutPage, getAboutSectionsMarkdown, getConfig } from '@/lib/notion';
+import { getAboutPage, getAboutSectionsMarkdown, getAboutContacts, getConfig } from '@/lib/notion';
 import { OptimizedAbout } from '@/components/preview/OptimizedPages';
 import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 
@@ -22,6 +22,7 @@ export default async function EnglishAboutPage() {
   const assembled = await getAboutSectionsMarkdown('en');
   if (about && assembled) about.content = assembled;
   const storyUrl = await getConfig('about-story-url');
+  const contacts = await getAboutContacts();
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me').replace(/\/$/, '');
   const personJsonLd = {
     '@context': 'https://schema.org',
@@ -95,7 +96,7 @@ export default async function EnglishAboutPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-      <OptimizedAbout about={about} locale="en" storyUrl={storyUrl} />
+      <OptimizedAbout about={about} locale="en" storyUrl={storyUrl} contacts={contacts} />
     </>
   );
 }

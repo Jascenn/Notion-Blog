@@ -13,6 +13,7 @@ const changelogData = [
       { type: '优化', color: 'text-blue-500', text: '文章列表、相关推荐与订阅只收真正的文章和公告，页面与配置类内容各有专属位置，不再互相混入' },
       { type: '新增', color: 'text-green-500', text: '首页顶部公告条改由 Notion 配置驱动，改字不用再动代码' },
       { type: '优化', color: 'text-blue-500', text: '关于页的小节标题多认了几个常用说法，改标题时版式更不容易掉' },
+      { type: '优化', color: 'text-blue-500', text: '关于页格式变宽容：小节靠标题末尾的标记识别、标题文字随便改，项目可以一个小标题写一个，联系方式改在配置里维护' },
     ]
   },
   {
@@ -138,7 +139,7 @@ const englishChangelogData = [
     changes: [
       { type: 'Improve', color: 'text-blue-500', text: 'Article lists, related posts and RSS now only include real posts and announcements; pages and config records stay in their own places' },
       { type: 'Add', color: 'text-green-500', text: 'The homepage announcement bar is now driven by a Notion config record, no code change needed to update it' },
-      { type: 'Add', color: 'text-green-500', text: 'The About body is split into seven standalone config sections, each editable on its own' },
+      { type: 'Improve', color: 'text-blue-500', text: 'The About format is more forgiving: sections are recognized by a trailing marker so headings can be renamed freely, projects can be written one per subheading, and contact details are maintained in config' },
       { type: 'Improve', color: 'text-blue-500', text: 'The About page now recognizes a few common alternative section titles, so renaming a heading is less likely to break its layout' },
     ],
   },

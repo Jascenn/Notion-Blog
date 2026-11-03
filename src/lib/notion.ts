@@ -1833,6 +1833,20 @@ export async function getConfigEntry(key: string, includeUnpublished = false): P
   }
 }
 
+// 关于页联系方式配置：Config 记录一行一项（contact-email、contact-wechat、
+// contact-github、contact-x、contact-xiaohongshu），中英共用同一套值。
+// 取不到的项返回 null，渲染侧回退到正文解析，页面不会坏。
+export async function getAboutContacts(includeUnpublished = false): Promise<import('./about-format').AboutContactsOverride> {
+  const [email, wechat, github, x, xiaohongshu] = await Promise.all([
+    getConfig('contact-email', includeUnpublished),
+    getConfig('contact-wechat', includeUnpublished),
+    getConfig('contact-github', includeUnpublished),
+    getConfig('contact-x', includeUnpublished),
+    getConfig('contact-xiaohongshu', includeUnpublished),
+  ]);
+  return { email, wechat, github, x, xiaohongshu };
+}
+
 // 关于页分节拼装：正文拆成独立的 Config 记录（about-intro、about-who、
 // about-projects、about-writing、about-community、about-experience、about-contact，
 // 英文加 -en 后缀），按固定顺序拼回整页 Markdown，交给既有渲染。

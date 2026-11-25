@@ -46,6 +46,8 @@ export default async function EnglishAboutPage() {
           'https://www.linkedin.com/in/%E6%96%87-%E7%BD%97-b61694316/',
           'https://lingyi.tools',
           'https://workbench.lingyi.tools',
+          'https://agentpanel.lingyi.tools',
+          'https://watch.lingyi.tools',
           'https://radar.lingyi.tools',
           'https://www.xiaohongshu.com/user/profile/6434dd90000000000801aed5',
         ],
@@ -70,7 +72,7 @@ export default async function EnglishAboutPage() {
         name: 'What products does LingYi run?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Mainly LingYi Tools (lingyi.tools), an AI tools directory, and Daily Workbench (workbench.lingyi.tools), a local-first personal operations workbench, plus smaller products such as Word Radar, Muse Codes, and Site Data Cleaner.',
+          text: 'Mainly LingYi Tools (lingyi.tools), an AI tools directory, Daily Workbench (workbench.lingyi.tools), Agent Task Panel (agentpanel.lingyi.tools), and LingYi App Watch (watch.lingyi.tools), plus smaller products such as Word Radar, Muse Codes, and Site Data Cleaner.',
         },
       },
       {

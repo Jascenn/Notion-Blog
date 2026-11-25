@@ -46,6 +46,8 @@ export default async function AboutPage() {
           'https://www.linkedin.com/in/%E6%96%87-%E7%BD%97-b61694316/',
           'https://lingyi.tools',
           'https://workbench.lingyi.tools',
+          'https://agentpanel.lingyi.tools',
+          'https://watch.lingyi.tools',
           'https://radar.lingyi.tools',
           'https://www.xiaohongshu.com/user/profile/6434dd90000000000801aed5',
         ],
@@ -70,7 +72,7 @@ export default async function AboutPage() {
         name: '凌一运营了哪些产品？',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: '主要运营 AI 工具导航 LingYi Tools（lingyi.tools）与本地优先个人经营工作台每日工作台（workbench.lingyi.tools），另外还运营新词雷达、Muse Codes、Site Data Cleaner 等小产品。',
+          text: '主要运营 AI 工具导航 LingYi Tools（lingyi.tools）、本地优先个人经营工作台每日工作台（workbench.lingyi.tools）、Agent 任务面板（agentpanel.lingyi.tools）与 macOS 应用更新追踪工具 LingYi App Watch（watch.lingyi.tools），另外还运营新词雷达、Muse Codes、Site Data Cleaner 等小产品。',
         },
       },
       {

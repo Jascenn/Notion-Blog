@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.3] - 2026-11-25
+
+### Changed
+- 🎨 **品牌图标与移动端 Manifest 升级**：新增深浅色自适应纯矢量图标 `src/app/icon.svg`（M3 纸白细框 `L.` 印记），同步更新 `src/app/favicon.ico` 与居中修复版 `src/app/apple-icon.png`（180×180），并新增 `src/app/manifest.ts`；主页与导航栏保持原纯字标不变（[#45](https://github.com/Jascenn/Notion-Blog/pull/45)）
+- 🖼️ **新版 OG 社交分享图**：更新 `public/og-default.png`（1200×630 深墨夜读纯字标版，消除旧版顶部白边瑕疵），与博客公开工作台视觉统一
+
+### Fixed
+- 🐛 **修复首页缺失 `og:image`**：`src/app/page.tsx` 原先的 `openGraph: { url: '/' }` 触发了 Next.js `metadata.openGraph` 浅覆盖，导致首页未输出 `og:image` 标签；现已补齐 `images` 声明
+
 ## [2.3.2] - 2026-11-03
 
 ### Changed

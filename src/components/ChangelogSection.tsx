@@ -6,6 +6,16 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.3.3',
+    date: '2026-11-25',
+    title: '站点图标与社交分享图升级',
+    changes: [
+      { type: '优化', color: 'text-blue-500', text: '浏览器标签页与手机桌面图标焕新为深浅色自适应的极简印记，小尺寸下更清晰居中' },
+      { type: '优化', color: 'text-blue-500', text: '微信与 X 分享卡片封面图升级为深墨夜读版，并补齐移动端主屏配置' },
+      { type: '修复', color: 'text-red-500', text: '修复首页分享时未正确读取默认封面图的问题' },
+    ]
+  },
+  {
     version: 'v2.3.2',
     date: '2026-11-03',
     title: '内容分型加固：非文章内容不再混进文章流',
@@ -134,6 +144,14 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.3.3', date: '2026-11-25', title: 'Site icon & social share card refresh',
+    changes: [
+      { type: 'Improve', color: 'text-blue-500', text: 'Refreshed browser tab and home-screen icons with a crisp, light/dark-adaptive serif mark' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Updated the social share preview card to a dark editorial layout and added a web app manifest' },
+      { type: 'Fix', color: 'text-red-500', text: 'Fixed the homepage not emitting the default Open Graph image tag when shared' },
+    ],
+  },
   {
     version: 'v2.3.2', date: '2026-11-03', title: 'Content-type hardening: non-article content stays out of the article flow',
     changes: [

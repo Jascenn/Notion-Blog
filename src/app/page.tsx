@@ -13,7 +13,10 @@ export const metadata: Metadata = {
     canonical: '/',
     languages: { 'zh-CN': '/', 'en-US': '/en' },
   },
-  openGraph: { url: '/' },
+  openGraph: {
+    url: '/',
+    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: '凌一 LingYi的博客' }],
+  },
 };
 
 export default async function Home() {

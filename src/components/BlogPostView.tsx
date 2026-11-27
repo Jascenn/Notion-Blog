@@ -7,7 +7,9 @@ import ReadingTime from '@/components/ReadingTime';
 import ReadingStats from '@/components/ReadingStats';
 import ShareButtons from '@/components/ShareButtons';
 import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
-import { getPostBySlug, getPostsOnly } from '@/lib/notion';
+import GiscusComments from '@/components/GiscusComments';
+import { getConfig, getPostBySlug, getPostsOnly } from '@/lib/notion';
+import { isCommentsEnabled } from '@/lib/giscus';
 import { logger } from '@/lib/logger';
 
 interface BlogPostViewProps {
@@ -19,10 +21,17 @@ export default async function BlogPostView({ params, routePrefix = '' }: BlogPos
   const { slug } = await params;
   let post: Awaited<ReturnType<typeof getPostBySlug>> = null;
   let allPosts: Awaited<ReturnType<typeof getPostsOnly>> = [];
+  let commentsEnabled = true;
 
   try {
-    post = await getPostBySlug(slug);
-    allPosts = await getPostsOnly();
+    const [loadedPost, loadedPosts, commentsConfig] = await Promise.all([
+      getPostBySlug(slug),
+      getPostsOnly(),
+      getConfig('comments-enabled'),
+    ]);
+    post = loadedPost;
+    allPosts = loadedPosts;
+    commentsEnabled = isCommentsEnabled(commentsConfig);
   } catch (error) {
     logger.error('Error loading post', error);
   }
@@ -101,6 +110,7 @@ export default async function BlogPostView({ params, routePrefix = '' }: BlogPos
       </article>
 
       <TableOfContents content={post.content} />
+      <GiscusComments slug={post.slug} locale="zh" enabled={commentsEnabled} />
       <RelatedPosts currentPost={post} allPosts={allPosts} hrefPrefix={routePrefix} />
 
       <div className="border-t border-gray-200 dark:border-gray-700 pt-8 pb-12 mt-16">

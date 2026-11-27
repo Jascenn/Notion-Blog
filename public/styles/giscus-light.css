@@ -1,0 +1,326 @@
+/* Giscus 浅色自定义皮肤：对齐 lingyi.me 极简排版与品牌色，无任何第三方外部资源引用 */
+
+main {
+  --color-prettylights-syntax-comment: #6e7781;
+  --color-prettylights-syntax-constant: #0550ae;
+  --color-prettylights-syntax-entity: #8250df;
+  --color-prettylights-syntax-storage-modifier-import: #24292f;
+  --color-prettylights-syntax-entity-tag: #116329;
+  --color-prettylights-syntax-keyword: #cf222e;
+  --color-prettylights-syntax-string: #0a3069;
+  --color-prettylights-syntax-variable: #953800;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #82071e;
+  --color-prettylights-syntax-markup-heading: #0550ae;
+  --color-prettylights-syntax-markup-deleted-text: #82071e;
+  --color-prettylights-syntax-markup-deleted-bg: #ffebe9;
+  --color-prettylights-syntax-markup-inserted-text: #116329;
+  --color-prettylights-syntax-markup-inserted-bg: #dafbe1;
+  --color-prettylights-syntax-markup-changed-text: #953800;
+  --color-prettylights-syntax-markup-changed-bg: #ffd8b5;
+  --color-prettylights-syntax-markup-ignored-text: #eaeef2;
+  --color-prettylights-syntax-markup-ignored-bg: #0550ae;
+  --color-prettylights-syntax-meta-diff-range: #8250df;
+
+  --color-btn-text: #111827;
+  --color-btn-bg: #f8fafc;
+  --color-btn-border: #e2e8f0;
+  --color-btn-shadow: none;
+  --color-btn-inset-shadow: none;
+  --color-btn-hover-bg: #f1f5f9;
+  --color-btn-hover-border: #cbd5e1;
+  --color-btn-active-bg: #e2e8f0;
+  --color-btn-active-border: #cbd5e1;
+  --color-btn-selected-bg: #f1f5f9;
+  --color-btn-primary-text: #ffffff;
+  --color-btn-primary-bg: #2563eb;
+  --color-btn-primary-border: transparent;
+  --color-btn-primary-shadow: none;
+  --color-btn-primary-inset-shadow: none;
+  --color-btn-primary-hover-bg: #1d4ed8;
+  --color-btn-primary-hover-border: transparent;
+  --color-btn-primary-selected-bg: #1d4ed8;
+  --color-btn-primary-selected-shadow: none;
+  --color-btn-primary-disabled-text: rgba(255, 255, 255, 0.85);
+  --color-btn-primary-disabled-bg: #93c5fd;
+  --color-btn-primary-disabled-border: transparent;
+
+  --color-action-list-item-default-hover-bg: #f8fafc;
+  --color-segmented-control-bg: #f8fafc;
+  --color-segmented-control-button-bg: #ffffff;
+  --color-segmented-control-button-selected-border: #e2e8f0;
+
+  --color-fg-default: #111827;
+  --color-fg-muted: #64748b;
+  --color-fg-subtle: #94a3b8;
+  --color-canvas-default: #ffffff;
+  --color-canvas-overlay: #ffffff;
+  --color-canvas-inset: #ffffff;
+  --color-canvas-subtle: #ffffff;
+  --color-border-default: #e2e8f0;
+  --color-border-muted: #e2e8f0;
+  --color-neutral-muted: #f8fafc;
+  --color-accent-fg: #2563eb;
+  --color-accent-emphasis: transparent;
+  --color-accent-muted: transparent;
+  --color-accent-subtle: rgba(37, 99, 235, 0.08);
+  --color-success-fg: #1a7f37;
+  --color-attention-fg: #9a6700;
+  --color-attention-muted: rgba(212, 167, 44, 0.4);
+  --color-attention-subtle: #fff8c5;
+  --color-danger-fg: #d1242f;
+  --color-danger-muted: rgba(255, 129, 130, 0.4);
+  --color-danger-subtle: #ffebe9;
+  --color-primer-shadow-inset: none;
+  --color-social-reaction-bg-hover: #f1f5f9;
+  --color-social-reaction-bg-reacted-hover: rgba(37, 99, 235, 0.14);
+
+  color-scheme: light;
+  font-family: "LXGW WenKai", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+main .gsc-left-header .color-text-secondary,
+.gsc-header {
+  display: none;
+}
+
+.gsc-social-reaction-summary-item,
+.color-box-border-info {
+  border-color: transparent;
+  background-color: var(--color-neutral-muted);
+}
+
+.gsc-social-reaction-summary-item.has-reacted {
+  background-color: var(--color-accent-subtle);
+}
+
+main .gsc-comment-box-textarea,
+main .gsc-comment-box-textarea-extras,
+.gsc-comment .min-w-0.rounded-md.border {
+  border-color: transparent;
+}
+
+main .gsc-replies {
+  border-top-color: transparent;
+}
+
+main .gsc-comment-box-write:focus-within,
+main .gsc-comment-box-textarea:focus,
+#__next .form-control:focus,
+textarea:focus,
+input:focus {
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+.form-control {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: 14px;
+}
+
+.btn-primary,
+.btn.ml-1.rounded-md.border {
+  box-shadow: none;
+  border: none;
+}
+
+.gsc-comment {
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.gsc-comment-content {
+  font-size: 15px;
+}
+
+.gsc-reactions-count {
+  visibility: hidden;
+}
+
+.gsc-reactions-count::after {
+  content: "欢迎一起交流";
+  visibility: visible;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  display: inline-block;
+  margin-bottom: 14px;
+  margin-left: -64px;
+}
+
+html[lang="en"] .gsc-reactions-count::after {
+  content: "Feel free to discuss";
+}
+
+#__next .rounded-md {
+  border-radius: 8px;
+}
+
+.gsc-social-reaction-summary-item {
+  font-size: 14px;
+  border-radius: 999px;
+  line-height: 26px;
+  padding: 0 8px;
+}
+
+#__next .btn-primary {
+  border-radius: 999px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+main .gsc-direct-reaction-buttons:empty {
+  display: none;
+}
+
+main .gsc-reply {
+  padding-top: 8px;
+  padding-bottom: 0;
+}
+
+main .gsc-reply-content {
+  padding-top: 4px;
+  padding-bottom: 0;
+  margin-left: -38px;
+}
+
+main .gsc-reply-footer {
+  margin-top: 6px;
+  margin-left: -38px;
+}
+
+main .gsc-tl-line {
+  display: none;
+}
+
+main .gsc-timeline {
+  row-gap: 0;
+}
+
+main .gsc-timeline > .gsc-comment {
+  padding: 20px 0;
+}
+
+main .gsc-timeline > .gsc-comment + .gsc-comment {
+  border-top: 1px solid var(--color-border-default);
+}
+
+/* 精简输入框：隐藏 Write/Preview 标签与 Markdown 提示，按钮内嵌在底行 */
+main .gsc-comment-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-color: transparent;
+}
+
+main .gsc-comment-box-tabs,
+main .gsc-comment-box-bottom > .link-secondary,
+#__next .gsc-comment-box-markdown-hint {
+  display: none;
+}
+
+main .gsc-comment-box-main,
+main .gsc-comment-box-bottom {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+main .gsc-comment-box-main {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+main .gsc-comment-box-bottom {
+  align-self: end;
+  justify-self: end;
+  margin: 0 8px 16px 0;
+}
+
+main .gsc-comment-box-textarea-extras {
+  height: 44px;
+  padding: 0;
+}
+
+main .gsc-comment-box-textarea {
+  resize: none;
+  min-height: 54px;
+  border-radius: 8px 8px 0 0;
+}
+
+main .gsc-comment-box-textarea-extras {
+  border-radius: 0 0 8px 8px;
+}
+
+main .gsc-comment-box-write {
+  position: relative;
+}
+
+main .gsc-comment-box:not(.gsc-comment-box-is-reply) .gsc-comment-box-write:has(> textarea:not(:disabled):placeholder-shown) > textarea::placeholder {
+  color: transparent;
+}
+
+main .gsc-comment-box:not(.gsc-comment-box-is-reply) .gsc-comment-box-write:has(> textarea:not(:disabled):placeholder-shown)::before {
+  content: "说说你的想法吧";
+  position: absolute;
+  top: 7px;
+  left: 9px;
+  color: var(--color-fg-subtle);
+  font-size: 14px;
+  line-height: 20px;
+  pointer-events: none;
+}
+
+:lang(en) main .gsc-comment-box:not(.gsc-comment-box-is-reply) .gsc-comment-box-write:has(> textarea:not(:disabled):placeholder-shown)::before {
+  content: "Share your thoughts";
+}
+
+main .gsc-comment-box-textarea,
+main .gsc-comment-box-textarea:focus,
+main .gsc-comment-box-textarea-extras {
+  background-color: var(--color-btn-bg);
+}
+
+main .gsc-comment-box-is-reply {
+  width: auto;
+  margin: 8px 0 0 24px;
+}
+
+main:has(.gsc-comment-box-is-reply) .gsc-comment-box:not(.gsc-comment-box-is-reply) {
+  display: none;
+}
+
+#__next .gsc-comment-box-buttons .btn {
+  border-radius: 999px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+#__next .gsc-comment-box-buttons .btn + .btn {
+  margin-left: 8px;
+}
+
+#__next .gsc-comment-box-buttons .btn:not(.btn-primary) {
+  background-color: var(--color-canvas-default);
+}
+
+#__next .gsc-comment-box-buttons .btn:not(.btn-primary):hover {
+  background-color: var(--color-btn-hover-bg);
+}
+
+/* 仓库所有者徽章在博客语境显示为“作者 / Author” */
+:is(.gsc-comment-author, .gsc-reply-author):has(a[href="https://github.com/Jascenn"]) .color-box-border-info {
+  font-size: 0;
+  line-height: 0;
+}
+
+:is(.gsc-comment-author, .gsc-reply-author):has(a[href="https://github.com/Jascenn"]) .color-box-border-info::after {
+  content: "作者";
+  display: block;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+:lang(en) :is(.gsc-comment-author, .gsc-reply-author):has(a[href="https://github.com/Jascenn"]) .color-box-border-info::after {
+  content: "Author";
+}

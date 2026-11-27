@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getPostBySlug, getPostsOnly } from '@/lib/notion';
+import { getConfig, getPostBySlug, getPostsOnly } from '@/lib/notion';
+import { isCommentsEnabled } from '@/lib/giscus';
 import { localizeOptimizedPost, localizeOptimizedPosts } from '@/lib/optimized-i18n';
 import { RSS_ALTERNATE_TYPES } from '@/lib/site';
 import { OptimizedArticle } from '@/components/preview/OptimizedPages';
@@ -37,9 +38,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function EnglishArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [post, allPosts] = await Promise.all([
+  const [post, allPosts, commentsConfig] = await Promise.all([
     getPostBySlug(slug, 'en'),
     getPostsOnly('en'),
+    getConfig('comments-enabled'),
   ]);
   if (!post) notFound();
   return (
@@ -48,6 +50,7 @@ export default async function EnglishArticlePage({ params }: { params: Promise<{
       allPosts={localizeOptimizedPosts(allPosts, 'en')}
       locale="en"
       routeRoot="/en"
+      commentsEnabled={isCommentsEnabled(commentsConfig)}
     />
   );
 }

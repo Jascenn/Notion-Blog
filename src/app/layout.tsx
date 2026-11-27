@@ -49,6 +49,8 @@ export default function RootLayout({
     <html lang="zh-CN" style={{ scrollBehavior: 'smooth' }} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://giscus.app" />
+        <link rel="dns-prefetch" href="https://giscus.app" />
         {/* 提前下载实际使用的字重，样式在首屏就绪后启用，不阻塞初次渲染。 */}
         <link
           rel="preload"

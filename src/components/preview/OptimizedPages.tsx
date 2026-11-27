@@ -7,6 +7,7 @@ import ReadingStats from '@/components/ReadingStats';
 import ReadingTime from '@/components/ReadingTime';
 import ShareButtons from '@/components/ShareButtons';
 import ExportPDFAdvanced from '@/components/ExportPDFAdvanced';
+import GiscusComments from '@/components/GiscusComments';
 import ChangelogSection from '@/components/ChangelogSection';
 import CopyContactButton from '@/components/preview/CopyContactButton';
 import type { NotionPost } from '@/lib/notion';
@@ -289,7 +290,7 @@ export function OptimizedAbout({ about, locale = 'zh', storyUrl, contacts }: { a
   );
 }
 
-export function OptimizedArticle({ post, allPosts, locale = 'zh', routeRoot }: { post: NotionPost; allPosts: NotionPost[]; locale?: OptimizedLocale; routeRoot?: string }) {
+export function OptimizedArticle({ post, allPosts, locale = 'zh', routeRoot, commentsEnabled = true }: { post: NotionPost; allPosts: NotionPost[]; locale?: OptimizedLocale; routeRoot?: string; commentsEnabled?: boolean }) {
   const en = locale === 'en';
   const root = routeRoot ?? optimizedRoots[locale];
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lingyi.me').replace(/\/$/, '');
@@ -346,6 +347,7 @@ export function OptimizedArticle({ post, allPosts, locale = 'zh', routeRoot }: {
       </article>
 
       <TableOfContents content={post.content} />
+      <GiscusComments slug={post.slug} locale={locale} enabled={commentsEnabled} />
       <RelatedPosts currentPost={post} allPosts={allPosts} hrefPrefix={root} locale={locale} />
 
       <div className="border-t border-gray-200 dark:border-gray-700 pt-8 pb-12 mt-16">

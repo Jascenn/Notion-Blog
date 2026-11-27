@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-11-27
+
+### Added
+- 💬 **Giscus 评论系统（GitHub Discussions）**：文章页新增零运维评论区，绑定 `Jascenn/Notion-Blog` 的 `Announcements` 分类
+  - 中英文文章通过 `slug` + `data-strict="1"` 精确共享同一条 Discussion，避免误匹配
+  - 采用 `IntersectionObserver` 提前 3 屏预加载与 `<head>` `preconnect`，兼顾首屏性能与评论即开即用
+  - 支持 GitHub 登录回跳参数 `?giscus=` 自动锚定评论框，防止图片加载撑高页面
+  - 新增深浅色双主题自定义 CSS（`public/styles/giscus-light.css`、`giscus-dark.css`）及 `/styles/:path*` CORS 响应头，随站内主题切换实时同步
+  - 接入 Notion `⚙️ Config` 项 `comments-enabled` 开关，支持按需全局启停评论区
+
 ## [2.3.3] - 2026-11-25
 
 ### Changed

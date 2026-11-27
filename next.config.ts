@@ -147,6 +147,20 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Giscus 自定义皮肤 CSS 需允许 giscus.app 跨域读取
+      {
+        source: '/styles/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
     ];
   },
 }

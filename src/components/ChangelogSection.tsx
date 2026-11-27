@@ -6,6 +6,16 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.4.0',
+    date: '2026-11-27',
+    title: '文章页接入 Giscus 评论系统（GitHub Discussions）',
+    changes: [
+      { type: '新增', color: 'text-green-500', text: '文章末尾接入基于 GitHub Discussions 的 Giscus 评论区，中英文文章共享同一条讨论并支持表情互动' },
+      { type: '优化', color: 'text-blue-500', text: '提前 3 屏预加载评论区并在登录回跳时自动锚定位置，兼顾首屏速度与互动体验' },
+      { type: '优化', color: 'text-blue-500', text: '定制深浅色双主题皮肤，跟随站内暗黑模式实时切换，并支持通过 Notion 配置开关评论区' },
+    ]
+  },
+  {
     version: 'v2.3.3',
     date: '2026-11-25',
     title: '站点图标与社交分享图升级',
@@ -145,7 +155,15 @@ const changelogData = [
 
 const englishChangelogData = [
   {
-    version: 'v2.3.3', date: '2026-11-25', title: 'Site icon & social share card refresh',
+    version: 'v2.4.0', date: '2026-11-27', title: 'Article comments powered by Giscus (GitHub Discussions)',
+    changes: [
+      { type: 'Add', color: 'text-green-500', text: 'Added Giscus comments at the end of articles, sharing one GitHub Discussion across Chinese and English versions' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Preload comments three viewports ahead and pin the comment box after GitHub sign-in redirects' },
+      { type: 'Improve', color: 'text-blue-500', text: 'Added custom light and dark themes synced in real time with the site theme toggle, plus a Notion config switch' },
+    ],
+  },
+  {
+    version: 'v2.3.3',
     changes: [
       { type: 'Improve', color: 'text-blue-500', text: 'Refreshed browser tab and home-screen icons with a crisp, light/dark-adaptive serif mark' },
       { type: 'Improve', color: 'text-blue-500', text: 'Updated the social share preview card to a dark editorial layout and added a web app manifest' },

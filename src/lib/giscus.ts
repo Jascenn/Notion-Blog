@@ -16,7 +16,22 @@ export const GISCUS_CONFIG: GiscusConfig = {
   themeVersion: '20261127',
 };
 
+export const GISCUS_LOAD_TIMEOUT_MS = 10000;
+
 const DISABLED_VALUES = new Set(['false', '0', 'off', 'no', 'disabled']);
+
+/**
+ * 构造 Giscus 无法加载时的 GitHub Discussions 兜底跳转链接。
+ */
+export function getDiscussionsFallbackUrl(
+  repo: string = GISCUS_CONFIG.repo,
+  category: string = GISCUS_CONFIG.category,
+): string {
+  const base = `https://github.com/${repo}/discussions`;
+  const normalizedCategory = category.trim().toLowerCase();
+  if (!normalizedCategory) return base;
+  return `${base}/categories/${encodeURIComponent(normalizedCategory)}`;
+}
 
 /**
  * 解析 Notion Config 项 `comments-enabled` 的值。

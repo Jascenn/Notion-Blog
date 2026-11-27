@@ -2,6 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   GISCUS_CONFIG,
+  GISCUS_LOAD_TIMEOUT_MS,
+  getDiscussionsFallbackUrl,
   hasGiscusReturnParam,
   isCommentsEnabled,
   resolveGiscusLang,
@@ -62,4 +64,24 @@ test('hasGiscusReturnParam 精确识别登录回跳参数', () => {
   assert.equal(hasGiscusReturnParam(''), false);
   assert.equal(hasGiscusReturnParam('?foo=giscus'), false);
   assert.equal(hasGiscusReturnParam('?other=1'), false);
+});
+
+test('getDiscussionsFallbackUrl 正确构造 Discussions 兜底链接', () => {
+  assert.equal(GISCUS_LOAD_TIMEOUT_MS, 10000);
+  assert.equal(
+    getDiscussionsFallbackUrl(),
+    'https://github.com/Jascenn/Notion-Blog/discussions/categories/announcements',
+  );
+  assert.equal(
+    getDiscussionsFallbackUrl('Jascenn/Notion-Blog', 'General'),
+    'https://github.com/Jascenn/Notion-Blog/discussions/categories/general',
+  );
+  assert.equal(
+    getDiscussionsFallbackUrl('Jascenn/Notion-Blog', ''),
+    'https://github.com/Jascenn/Notion-Blog/discussions',
+  );
+  assert.equal(
+    getDiscussionsFallbackUrl('Jascenn/Notion-Blog', 'Q&A'),
+    'https://github.com/Jascenn/Notion-Blog/discussions/categories/q%26a',
+  );
 });

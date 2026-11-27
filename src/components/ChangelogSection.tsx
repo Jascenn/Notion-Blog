@@ -6,6 +6,14 @@ import type { OptimizedLocale } from '@/lib/optimized-i18n';
 
 const changelogData = [
   {
+    version: 'v2.4.1',
+    date: '2026-11-27',
+    title: '评论区加载态与网络不可达兜底提示',
+    changes: [
+      { type: '优化', color: 'text-blue-500', text: '文章评论区加载中展示轻量提示，超时或网络受限时提供一键重试与 GitHub Discussions 跳转入口' },
+    ]
+  },
+  {
     version: 'v2.4.0',
     date: '2026-11-27',
     title: '文章页接入 Giscus 评论系统（GitHub Discussions）',
@@ -154,6 +162,12 @@ const changelogData = [
 ];
 
 const englishChangelogData = [
+  {
+    version: 'v2.4.1', date: '2026-11-27', title: 'Comment loading indicator and network fallback',
+    changes: [
+      { type: 'Improve', color: 'text-blue-500', text: 'Added a subtle loading indicator and a retry / GitHub Discussions fallback link when giscus.app is unreachable' },
+    ],
+  },
   {
     version: 'v2.4.0', date: '2026-11-27', title: 'Article comments powered by Giscus (GitHub Discussions)',
     changes: [

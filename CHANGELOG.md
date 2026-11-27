@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] - 2026-11-27
+
+### Added
+- 🛡️ **评论区加载态与降级兜底**：`GiscusComments` 新增加载提示与 10 秒超时/异常降级条，当访客网络无法连通 `giscus.app` 时显示「重试」与 GitHub Discussions 跳转入口，避免文末出现空白留白
+
 ## [2.4.0] - 2026-11-27
 
 ### Added
